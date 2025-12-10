@@ -106,4 +106,9 @@ class Staff extends Authenticatable
     {
         return $this->hasOne(\App\Models\Admin\AccessLog::class, 'staff_id', 'staff_id')->latest('access_time');
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(\App\Models\Staff\Attendance::class, 'staff_id', 'staff_id');
+    }
 }

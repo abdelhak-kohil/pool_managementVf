@@ -10,12 +10,33 @@ use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $staff = Staff::with(['role', 'latestAccessLog'])
-            ->orderBy('staff_id', 'asc')
-            ->get();
-        return view('staff.index', compact('staff'));
+        $query = Staff::with(['role', 'latestAccessLog', 'badges'])->orderBy('staff_id', 'asc');
+
+        if ($request->filled('role')) {
+            $query->whereHas('role', function($q) use ($request) {
+                $q->where('role_name', $request->role);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $staff = $query->get();
+        $roles = \App\Models\Admin\Role::all();
+
+        return view('staff.index', compact('staff', 'roles'));
     }
 
     public function create()
@@ -156,5 +177,28 @@ class StaffController extends Controller
         $staff = Staff::findOrFail($id);
         $staff->delete();
         return redirect()->route('staff.index')->with('success', 'Membre du personnel supprimé.');
+    }
+    public function show($id)
+    {
+        $staff = Staff::with(['role', 'badges', 'latestAccessLog'])->findOrFail($id);
+        
+        // Fetch recent attendance (last 30 days)
+        $attendances = \App\Models\Staff\Attendance::where('staff_id', $id)
+            ->orderBy('date', 'desc')
+            ->take(30)
+            ->get();
+
+        // Calculate Stats
+        $totalPresent = $attendances->where('status', 'present')->count();
+        $totalLate = $attendances->where('status', 'late')->count();
+        $latePercentage = $totalPresent > 0 ? round(($totalLate / $totalPresent) * 100, 1) : 0;
+
+        // Fetch upcoming and recent leaves
+        $leaves = \App\Models\Staff\StaffLeave::where('staff_id', $id)
+            ->orderBy('start_date', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('staff.show', compact('staff', 'attendances', 'leaves', 'latePercentage'));
     }
 }

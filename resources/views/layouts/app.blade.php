@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title', 'Admin Panel')</title>
   <script src="{{ asset('vendor/tailwindcss/tailwindcss.js') }}"></script>
@@ -240,6 +241,24 @@
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
              {{ request()->routeIs('staff.index') || request()->routeIs('staff.create') || request()->routeIs('staff.edit') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
             👨‍💼 Personnel
+          </a>
+
+          <a href="{{ route('staff.hr.dashboard') }}"
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('staff.hr.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+             ⏱️ Présence
+          </a>
+
+          <a href="{{ route('staff.planning.index') }}"
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('staff.planning.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+             📅 Planning
+          </a>
+
+          <a href="{{ route('staff.leaves.index') }}"
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('staff.leaves.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+             🏖️ Congés
           </a>
 
           <a href="{{ route('coaches.index') }}" 

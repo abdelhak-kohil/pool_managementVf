@@ -91,6 +91,7 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
 
     // Staff
     Route::middleware('permission:staff.view')->get('staff', [StaffController::class, 'index'])->name('staff.index');
+    Route::get('staff/{id}/profile', [StaffController::class, 'show'])->name('staff.show'); // New Profile Route
     Route::middleware('permission:staff.create')->group(function () {
         Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
         Route::post('staff', [StaffController::class, 'store'])->name('staff.store');
@@ -100,6 +101,46 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
         Route::put('staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
     });
     Route::delete('staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy')->middleware('permission:staff.delete');
+
+    // Human Resources / Attendance (Admin Staff Area)
+    Route::middleware('permission:staff.view')->prefix('staff/hr')->name('staff.hr.')->group(function () {
+        Route::get('pointage', [\App\Http\Controllers\Staff\AttendanceController::class, 'pointage'])->name('pointage');
+        Route::post('pointage', [\App\Http\Controllers\Staff\AttendanceController::class, 'storePointage'])->name('pointage.store');
+        Route::get('dashboard', [\App\Http\Controllers\Staff\AttendanceController::class, 'index'])->name('dashboard');
+        
+        // Reports
+        Route::get('reports/pdf', [\App\Http\Controllers\Staff\AttendanceReportController::class, 'exportPdf'])->name('reports.pdf');
+        Route::get('reports/excel', [\App\Http\Controllers\Staff\AttendanceReportController::class, 'exportExcel'])->name('reports.excel');
+
+        // Settings
+        Route::get('settings', [\App\Http\Controllers\Staff\AttendanceSettingsController::class, 'edit'])->name('settings.edit');
+        Route::post('settings', [\App\Http\Controllers\Staff\AttendanceSettingsController::class, 'update'])->name('settings.update');
+
+        // Validation Validation
+        Route::get('validation', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'index'])->name('validation.index');
+        Route::post('validation/{id}/validate', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'validateAttendance'])->name('validation.validate');
+        Route::post('validation/{id}/reject', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'reject'])->name('validation.reject');
+        Route::post('validation/{id}/correct', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'correct'])->name('validation.correct');
+
+        // Security / Access Control
+        Route::get('security/simulator', [\App\Http\Controllers\Staff\AccessControlController::class, 'simulator'])->name('security.simulator');
+        Route::get('security/logs', [\App\Http\Controllers\Staff\AccessControlController::class, 'logs'])->name('security.logs');
+        Route::post('security/scan', [\App\Http\Controllers\Staff\AccessControlController::class, 'scan'])->name('security.scan');
+    });
+
+    // Staff Planning & Leaves
+    Route::prefix('staff')->name('staff.')->group(function () {
+        Route::get('planning', [StaffPlanningController::class, 'index'])->name('planning.index');
+        Route::get('planning/events', [StaffPlanningController::class, 'events'])->name('planning.events');
+        Route::post('planning/store', [StaffPlanningController::class, 'storeSchedule'])->name('planning.store');
+        Route::put('planning/{id}', [StaffPlanningController::class, 'updateSchedule'])->name('planning.update');
+        Route::delete('planning/{id}', [StaffPlanningController::class, 'destroySchedule'])->name('planning.destroy')->middleware('role:admin');
+
+        Route::get('leaves', [StaffPlanningController::class, 'indexLeaves'])->name('leaves.index');
+        Route::post('leaves', [StaffPlanningController::class, 'storeLeave'])->name('leaves.store');
+        Route::post('leaves/{id}/status', [StaffPlanningController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
+        Route::delete('leaves/{id}', [StaffPlanningController::class, 'destroyLeave'])->name('leaves.destroy')->middleware('role:admin');
+    });
 
     // Activities
     Route::middleware('permission:activities.view')->get('activities', [ActivityController::class, 'index'])->name('activities.index');
@@ -256,24 +297,14 @@ Route::middleware(['auth', 'role:admin,receptionniste', 'pgaudit'])->prefix('rec
     Route::post('checkin/{member}', [ReceptionController::class, 'checkIn'])->name('reception.checkin');
     Route::post('checkin-badge', [ReceptionController::class, 'checkInByBadge'])->name('reception.checkin.badge');
 
-    // Staff Planning & Leaves (Accessible via Reception prefix but also linked in Admin sidebar)
-    Route::prefix('staff')->name('staff.')->group(function () {
-        Route::get('planning', [StaffPlanningController::class, 'index'])->name('planning.index');
-        Route::get('planning/events', [StaffPlanningController::class, 'events'])->name('planning.events');
-        Route::post('planning/store', [StaffPlanningController::class, 'storeSchedule'])->name('planning.store');
-        Route::put('planning/{id}', [StaffPlanningController::class, 'updateSchedule'])->name('planning.update');
-        Route::delete('planning/{id}', [StaffPlanningController::class, 'destroySchedule'])->name('planning.destroy')->middleware('role:admin');
 
-        Route::get('leaves', [StaffPlanningController::class, 'indexLeaves'])->name('leaves.index');
-        Route::post('leaves', [StaffPlanningController::class, 'storeLeave'])->name('leaves.store');
-        Route::post('leaves/{id}/status', [StaffPlanningController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
-        Route::delete('leaves/{id}', [StaffPlanningController::class, 'destroyLeave'])->name('leaves.destroy')->middleware('role:admin');
-    });
 
     // AJAX
     Route::get('search', [ReceptionController::class, 'search'])->name('reception.search');
     Route::get('member/{member}/logs', [ReceptionController::class, 'memberLogs'])->name('reception.member.logs');
     Route::get('today-accesses', [ReceptionController::class, 'todayAccesses'])->name('reception.today.accesses');
+
+
 });
 
 /*
