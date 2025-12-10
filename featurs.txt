@@ -1,0 +1,158 @@
+Paiements, factures et comptabilité
+🔹 4.1 Facture PDF automatique
+
+Téléchargeable depuis tableau de bord
+
+Numérotation réglementaire
+
+TVA gérée
+
+Signature/stamp automatique
+
+
+
+
+2.2 Planning multi-salles / multi-piscines
+
+Piscine 1 (grand bassin)
+
+Piscine 2 (petit bassin)
+
+Salle fitness
+
+Salle aquagym
+
+
+
+
+1.2 Dossier santé facultatif
+
+Conditions médicales
+
+Limites physiques
+
+Date du certificat médical
+
+Rappel automatique d’expiration
+
+
+
+
+
+1.2 Dossier santé facultatif
+
+Conditions médicales
+
+Limites physiques
+
+Date du certificat médical
+
+Rappel automatique d’expiration
+
+
+
+
+
+
+
+
+5. Système de remises et parrainage
+🔹 5.1 Remises automatiques
+
+Groupe partenaire
+
+Famille
+
+Réduction anniversaire
+
+Offre "nouveau membre"
+
+🔹 5.2 Parrainage
+
+1 mois offert au parrain
+
+Réduction au filleul
+
+QR code par membre
+
+
+
+6. Gestion du personnel
+🔹 6.1 Planning du Staff
+
+Horaires
+
+Absences
+
+Congés
+
+🔹 6.2 Rôles avancés
+
+Coach
+
+Caissier
+
+Réceptionniste
+
+Super Admin
+
+🔹 6.3 Suivi des coachs
+
+Nombre de séances assurées
+
+Note de satisfaction
+
+Planning coach → créneaux
+
+
+
+
+7. Tableau de bord analytique
+🔹 7.1 KPI en temps réel
+
+Nombre d'entrées aujourd'hui
+
+Membre actifs / inactifs
+
+Abonnements expirés aujourd'hui
+
+Recettes du mois
+
+Top heures d'affluence
+
+🔹 7.2 Rapports PDF
+
+Rapport journalier
+
+Rapport hebdo
+
+Rapport mensuel
+
+Rapport annuel
+
+Export Excel global
+
+🔹 7.3 Diagrammes
+
+Courbes
+
+Bar charts
+
+Camemberts
+
+Heatmaps (fréquentation)
+
+
+
+
+
+11. Extensions futures possibles
+
+Système de boutique (vente t-shirts, casquettes, équipements)
+
+Gestion des stocks (serviettes, matériel)
+
+Gestion des casiers
+
+
+

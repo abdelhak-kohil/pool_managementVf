@@ -1,0 +1,256 @@
+"log_id","badge_uid","member_id","access_time","access_decision","denial_reason"
+"1","012547","3","2025-10-22 16:02:01.938018+02","granted",NULL
+"2","01225544","2","2025-10-22 16:02:16.36852+02","denied",NULL
+"3","UNKNOWN","3","2025-10-22 20:22:56+02","denied","Inactive or missing badge"
+"4","UNKNOWN","2","2025-10-22 20:23:02+02","denied","Inactive or missing badge"
+"7","UNKNOWN","1","2025-10-22 20:23:26+02","denied","Inactive or missing badge"
+"8","UNKNOWN","2","2025-10-22 20:23:30+02","denied","Inactive or missing badge"
+"9","UNKNOWN","3","2025-10-22 20:23:35+02","denied","Inactive or missing badge"
+"10","UNKNOWN","2","2025-10-22 20:24:11+02","denied","Inactive or missing badge"
+"11","UNKNOWN","1","2025-10-22 20:24:18+02","denied","Inactive or missing badge"
+"12","B-68F92FCC766BC","5","2025-10-22 20:26:18+02","granted",NULL
+"13","B-68F92FCC766BC","5","2025-10-22 20:27:30+02","denied","No active subscription"
+"14","B-68F92FCC766BC","5","2025-10-22 20:28:52+02","denied","Inactive or missing badge"
+"15","B-68F92FCC766BC","5","2025-10-22 20:28:57+02","denied","Inactive or missing badge"
+"16","B-68F92FCC766BC","5","2025-10-22 20:29:02+02","denied","Inactive or missing badge"
+"17","B-68F92FCC766BC","5","2025-10-22 20:29:05+02","denied","Inactive or missing badge"
+"18","B-68F92FCC766BC","5","2025-10-22 20:29:11+02","denied","No active subscription"
+"19","B-68F92FCC766BC","5","2025-10-22 20:29:12+02","denied","No active subscription"
+"20","UNKNOWN","3","2025-10-22 20:42:38+02","denied","Inactive or missing badge"
+"21","UNKNOWN","3","2025-10-22 21:05:34+02","denied","Inactive or missing badge"
+"22","UNKNOWN","1","2025-10-22 21:05:45+02","denied","Inactive or missing badge"
+"23","B-68F93720ACF83","6","2025-10-22 21:05:48+02","granted",NULL
+"24","B-68F93720ACF83","6","2025-10-22 21:05:55+02","granted",NULL
+"25","B-68F93720ACF83","6","2025-10-22 21:14:09+02","granted",NULL
+"27","B-68F93BBC8B4E9","7","2025-10-22 21:26:22+02","granted",NULL
+"28","UNKNOWN","3","2025-10-22 21:31:30+02","denied","Inactive or missing badge"
+"30","B-68F93720ACF83","6","2025-10-22 21:31:38+02","granted",NULL
+"32","B-68F93720ACF83","6","2025-10-22 21:32:58+02","granted",NULL
+"33","B-68F93BBC8B4E9","7","2025-10-22 21:33:04+02","granted",NULL
+"34","B-68F92FCC766BC","5","2025-10-22 21:33:08+02","granted",NULL
+"35","UNKNOWN","3","2025-10-22 21:33:13+02","denied","Inactive or missing badge"
+"36","UNKNOWN","2","2025-10-22 21:33:15+02","denied","Inactive or missing badge"
+"37","UNKNOWN","1","2025-10-22 21:33:18+02","denied","Inactive or missing badge"
+"38","B-68F93720ACF83","6","2025-10-22 21:33:20+02","granted",NULL
+"39","UNKNOWN","2","2025-10-23 01:09:36+02","denied","Inactive or missing badge"
+"40","B-68F9651092F50","9","2025-10-23 01:09:49+02","granted",NULL
+"41","UNKNOWN","3","2025-10-23 01:26:55+02","denied","Inactive or missing badge"
+"42","B-68F94CC8AF409","8","2025-10-23 01:27:42+02","granted",NULL
+"67","B-68F92FCC766BC","5","2025-10-23 11:37:39+02","granted",NULL
+"69","B-68F92FCC766BC","5","2025-10-23 11:37:57+02","granted",NULL
+"70","B-68F92FCC766BC","5","2025-10-23 11:39:51+02","granted",NULL
+"71","B-68F96967BBEE1","12","2025-10-23 11:51:09+02","granted",NULL
+"74","B-68F96B4B05AE3","13","2025-10-23 11:51:25+02","granted",NULL
+"76","B-68F96B4B05AE3","13","2025-10-23 11:54:01+02","granted",NULL
+"77","B-68F94CC8AF409","8","2025-10-23 11:54:13+02","granted",NULL
+"80","B-68F92FCC766BC","5","2025-10-23 11:58:33+02","granted",NULL
+"81","UNKNOWN","3","2025-10-23 11:58:36+02","denied","No badge assigned"
+"82","UNKNOWN","2","2025-10-23 11:58:40+02","denied","No badge assigned"
+"83","UNKNOWN","3","2025-10-23 11:59:12+02","denied","No badge assigned"
+"84","B-68F96B4B05AE3","13","2025-10-23 12:13:16+02","granted",NULL
+"85","B-68F96B4B05AE3","13","2025-10-23 12:13:46+02","granted",NULL
+"86","B-68F96B4B05AE3","13","2025-10-23 12:13:53+02","granted",NULL
+"87","B-68F96B4B05AE3","13","2025-10-23 12:13:57+02","granted",NULL
+"88","B-68F96B4B05AE3","13","2025-10-23 12:14:00+02","granted",NULL
+"89","B-68F9651092F50","9","2025-10-23 12:14:03+02","granted",NULL
+"90","B-68F9651092F50","9","2025-10-23 12:16:18+02","granted",NULL
+"91","B-68F93BBC8B4E9","7","2025-10-23 12:18:28+02","granted",NULL
+"92","B-68F96967BBEE1","12","2025-10-23 12:19:32+02","granted",NULL
+"93","B-68F96B4B05AE3","13","2025-10-23 12:20:04+02","granted",NULL
+"94","B-68F9651092F50","9","2025-10-23 12:29:53+02","granted",NULL
+"95","B-68F93720ACF83","6","2025-10-23 12:30:02+02","granted",NULL
+"96","UNKNOWN","2","2025-10-23 12:30:05+02","denied","No badge assigned"
+"97","B-68F96B4B05AE3","13","2025-10-23 12:31:25+02","granted",NULL
+"98","B-68F9651092F50","9","2025-10-23 12:31:28+02","granted",NULL
+"99","B-68F93720ACF83","6","2025-10-23 12:31:31+02","granted",NULL
+"100","UNKNOWN","2","2025-10-23 12:31:37+02","denied","No badge assigned"
+"101","B-68F96967BBEE1","12","2025-10-23 12:36:29+02","granted",NULL
+"102","B-68F94CC8AF409","8","2025-10-23 12:36:35+02","granted",NULL
+"103","UNKNOWN","3","2025-10-23 12:36:54+02","denied","No badge assigned"
+"104","UNKNOWN","3","2025-10-23 12:36:58+02","denied","No badge assigned"
+"105","UNKNOWN","3","2025-10-23 12:40:24+02","denied","No badge assigned"
+"106","B-68F96967BBEE1","12","2025-10-23 12:41:10+02","granted",NULL
+"107","B-68F96B4B05AE3","13","2025-10-23 12:52:09+02","granted",NULL
+"108","B-68F9651092F50","9","2025-10-23 12:52:11+02","granted",NULL
+"109","B-68F96B4B05AE3","13","2025-10-23 12:58:32+02","granted",NULL
+"110","B-68F96B4B05AE3","13","2025-10-23 13:05:53+02","granted",NULL
+"111","B-68F96967BBEE1","12","2025-10-23 13:12:33+02","granted",NULL
+"112","B-68F96B4B05AE3","13","2025-10-23 13:29:30+02","granted",NULL
+"113","UNKNOWN","3","2025-10-23 13:33:31+02","denied","No badge assigned"
+"114","B-68F92FCC766BC","5","2025-10-23 13:35:10+02","granted",NULL
+"115","B-68F92FCC766BC","5","2025-10-23 13:35:12+02","granted",NULL
+"118","UNKNOWN","2","2025-10-23 13:44:39+02","denied","No badge assigned"
+"119","B-68F92FCC766BC","5","2025-10-23 13:48:56+02","granted",NULL
+"120","B-68F93720ACF83","6","2025-10-23 13:48:58+02","granted",NULL
+"121","UNKNOWN","3","2025-10-23 13:55:17+02","denied","No badge assigned"
+"122","B-68F93720ACF83","6","2025-10-23 13:55:19+02","granted",NULL
+"123","B-68F96B4B05AE3","13","2025-10-23 14:34:49+02","granted",NULL
+"124","B-68F9651092F50","9","2025-10-23 15:13:20+02","granted",NULL
+"125","B-68F96B4B05AE3","13","2025-10-23 15:44:36+02","granted",NULL
+"126","UNKNOWN","3","2025-10-23 15:46:37+02","denied","No badge assigned"
+"127","UNKNOWN","2","2025-10-23 15:46:39+02","denied","No badge assigned"
+"128","UNKNOWN","2","2025-10-23 15:47:06+02","denied","No badge assigned"
+"129","B-68F96B4B05AE3","13","2025-10-23 16:06:33+02","granted",NULL
+"130","UNKNOWN","3","2025-10-23 17:10:47+02","denied","No badge assigned"
+"131","UNKNOWN","3","2025-10-23 17:15:18+02","denied","No badge assigned"
+"132","UNKNOWN","3","2025-10-23 17:15:35+02","denied","No badge assigned"
+"133","UNKNOWN","3","2025-10-23 17:16:22+02","denied","No badge assigned"
+"134","UNKNOWN","2","2025-10-23 17:23:24+02","denied","No badge assigned"
+"135","UNKNOWN","3","2025-10-23 17:32:56+02","denied","No badge assigned"
+"136","UNKNOWN","3","2025-10-23 17:33:19+02","denied","No badge assigned"
+"137","UNKNOWN","3","2025-10-23 17:43:25+02","denied","No badge assigned"
+"139","B-68F9651092F50","9","2025-10-23 18:08:28+02","granted",NULL
+"140","UNKNOWN","3","2025-10-23 18:51:09+02","denied","No badge assigned"
+"141","UNKNOWN","3","2025-10-23 19:01:21+02","denied","No badge assigned"
+"142","UNKNOWN","1","2025-10-23 21:06:01+02","denied","No badge assigned"
+"145","B-68F96B4B05AE3","13","2025-10-24 12:48:44+02","denied","Subscription expired or not yet active"
+"146","B-68F96967BBEE1","12","2025-10-24 12:48:57+02","denied","Subscription expired or not yet active"
+"147","B-68F94CC8AF409","8","2025-10-24 12:49:14+02","granted",NULL
+"148","B-68F94CC8AF409","8","2025-10-24 12:49:18+02","granted",NULL
+"149","B-68F94CC8AF409","8","2025-10-24 12:49:45+02","granted",NULL
+"150","UNKNOWN","7","2025-10-24 12:49:48+02","denied","No badge assigned"
+"151","B-68F96B4B05AE3","13","2025-10-24 13:47:13+02","denied","Subscription expired or not yet active"
+"152","B-68F96B4B05AE3","13","2025-10-24 13:47:16+02","denied","Subscription expired or not yet active"
+"153","B-68F96B4B05AE3","13","2025-10-24 13:47:20+02","denied","Subscription expired or not yet active"
+"154","B-68F96967BBEE1","12","2025-10-24 13:47:22+02","denied","Subscription expired or not yet active"
+"155","B-68F96967BBEE1","12","2025-10-24 13:47:26+02","denied","Subscription expired or not yet active"
+"156","B-68F9651092F50","9","2025-10-24 13:47:34+02","granted",NULL
+"157","B-68F96967BBEE1","12","2025-10-24 13:48:12+02","denied","Subscription expired or not yet active"
+"158","B-68F96967BBEE1","12","2025-10-24 13:48:46+02","denied","Subscription expired or not yet active"
+"159","B-68F9651092F50","9","2025-10-24 13:48:47+02","granted",NULL
+"160","B-68F9651092F50","9","2025-10-24 13:53:40+02","granted",NULL
+"161","B-68F9651092F50","9","2025-10-24 13:53:46+02","granted",NULL
+"162","B-68F96967BBEE1","12","2025-10-24 13:54:44+02","denied","Subscription expired or not yet active"
+"163","B-68F96967BBEE1","12","2025-10-24 14:02:43+02","denied","Subscription expired or not yet active"
+"164","B-68F96B4B05AE3","13","2025-10-24 14:02:46+02","denied","Subscription expired or not yet active"
+"166","B-68F96967BBEE1","12","2025-10-24 14:02:54+02","denied","Subscription expired or not yet active"
+"167","UNKNOWN","7","2025-10-24 14:03:02+02","denied","No badge assigned"
+"168","B-68F93720ACF83","6","2025-10-24 14:03:05+02","denied","Subscription expired or not yet active"
+"169","B-68F92FCC766BC","5","2025-10-24 14:03:07+02","denied","Subscription expired or not yet active"
+"170","B-68F96B4B05AE3","13","2025-10-24 14:09:09+02","denied","Abonnement expiré ou pas encore actif"
+"171","B-68F96B4B05AE3","13","2025-10-24 14:09:14+02","denied","Abonnement expiré ou pas encore actif"
+"172","B-68F96967BBEE1","12","2025-10-24 14:09:19+02","denied","Abonnement expiré ou pas encore actif"
+"173","B-68F94CC8AF409","8","2025-10-24 14:09:23+02","denied","Jour non autorisé"
+"174","B-68F94CC8AF409","8","2025-10-24 14:09:26+02","denied","Jour non autorisé"
+"175","B-68F93720ACF83","6","2025-10-24 14:09:30+02","denied","Abonnement expiré ou pas encore actif"
+"176","B-68F93720ACF83","6","2025-10-24 14:09:43+02","denied","Abonnement expiré ou pas encore actif"
+"177","B-68F93720ACF83","6","2025-10-24 14:09:47+02","denied","Abonnement expiré ou pas encore actif"
+"178","B-68F92FCC766BC","5","2025-10-24 14:09:52+02","denied","Abonnement expiré ou pas encore actif"
+"179","UNKNOWN","7","2025-10-24 14:09:59+02","denied","Aucun badge assigné"
+"181","B-68F96B4B05AE3","13","2025-10-24 14:19:54+02","denied","Aucun abonnement actif"
+"182","B-68F96967BBEE1","12","2025-10-24 14:19:57+02","denied","Aucun abonnement actif"
+"183","B-68F9651092F50","9","2025-10-24 14:19:59+02","denied","Aucun abonnement actif"
+"185","B-68FA72FC5164C","3","2025-10-24 14:20:06+02","denied","Aucun abonnement actif"
+"187","B-68F96B4B05AE3","13","2025-10-24 15:21:02+02","denied","Aucun abonnement actif"
+"188","B-68FA72FC5164C","3","2025-10-24 16:06:04+02","denied","Abonnement expiré ou pas encore actif"
+"190","B-68F92FCC766BC","5","2025-10-24 16:06:11+02","denied","Aucun abonnement actif"
+"191","B-68F93720ACF83","6","2025-10-24 16:06:14+02","denied","Aucun abonnement actif"
+"192","UNKNOWN","7","2025-10-24 16:06:16+02","denied","Aucun badge assigné"
+"193","B-68F94CC8AF409","8","2025-10-24 16:06:19+02","denied","Aucun abonnement actif"
+"194","B-68F9651092F50","9","2025-10-24 16:06:21+02","denied","Aucun abonnement actif"
+"195","B-68F96967BBEE1","12","2025-10-24 16:06:23+02","denied","Aucun abonnement actif"
+"196","B-68F96B4B05AE3","13","2025-10-24 16:06:25+02","denied","Aucun abonnement actif"
+"199","B-68FA72FC5164C","3","2025-10-24 17:52:09+02","denied","Abonnement expiré ou pas encore actif"
+"200","B-68FA72FC5164C","3","2025-10-24 17:53:15+02","denied","Abonnement expiré ou pas encore actif"
+"201","B-68FA72FC5164C","3","2025-10-24 18:06:18+02","denied","Abonnement expiré ou pas encore actif"
+"202","B-68FA72FC5164C","3","2025-10-24 18:07:02+02","denied","Abonnement expiré ou pas encore actif"
+"203","B-68FA72FC5164C","3","2025-10-24 18:07:20+02","denied","Abonnement expiré ou pas encore actif"
+"204","B-68FA72FC5164C","3","2025-10-24 18:08:39+02","granted",NULL
+"206","UNKNOWN","7","2025-10-24 18:34:13+02","denied","Aucun badge assigné"
+"207","B-68FA72FC5164C","3","2025-10-24 18:42:45+02","denied","Abonnement expiré ou pas encore actif"
+"208","B-68FA72FC5164C","3","2025-10-24 18:43:30+02","granted",NULL
+"209","B-68FA72FC5164C","3","2025-10-24 18:44:33+02","granted",NULL
+"210","B-68F96B4B05AE3","13","2025-10-24 19:10:29+02","denied","Abonnement expiré ou pas encore actif"
+"212","UNKNOWN","7","2025-10-24 19:10:34+02","denied","Aucun badge assigné"
+"213","B-68FA72FC5164C","3","2025-10-24 19:11:53+02","denied","Abonnement expiré ou pas encore actif"
+"215","B-68F96967BBEE1","12","2025-10-24 19:29:54+02","denied","Abonnement expiré ou pas encore actif"
+"217","UNKNOWN","7","2025-10-24 19:30:02+02","denied","Aucun badge assigné"
+"218","B-68FA72FC5164C","3","2025-10-24 19:30:10+02","denied","Abonnement expiré ou pas encore actif"
+"219","UNKNOWN","2","2025-10-24 19:30:15+02","denied","Aucun badge assigné"
+"220","UNKNOWN","1","2025-10-24 19:30:16+02","denied","Aucun badge assigné"
+"221","UNKNOWN","2","2025-10-24 19:30:18+02","denied","Aucun badge assigné"
+"222","UNKNOWN","1","2025-10-24 19:30:20+02","denied","Aucun badge assigné"
+"223","B-68F96967BBEE1","12","2025-10-24 19:43:52+02","denied","Abonnement expiré ou pas encore actif"
+"226","B-68FA72FC5164C","3","2025-10-24 20:54:48+02","denied","Abonnement expiré ou pas encore actif"
+"228","B-68F92FCC766BC","5","2025-10-24 20:54:54+02","denied","Abonnement expiré ou pas encore actif"
+"229","B-68F93720ACF83","6","2025-10-24 20:54:56+02","denied","Abonnement expiré ou pas encore actif"
+"230","B-68FA72FC5164C","3","2025-10-24 21:00:06+02","granted",NULL
+"231","B-68FA72FC5164C","3","2025-10-24 21:00:10+02","granted",NULL
+"232","UID-3001","17","2025-10-25 00:14:23+02","granted",NULL
+"233","UNKNOWN","6","2025-10-25 00:44:28+02","denied","Aucun badge assigné"
+"234","B-68FA72FC5164C","3","2025-10-25 00:44:49+02","granted",NULL
+"235","B-68F94CC8AF409","8","2025-10-25 00:45:00+02","denied","Abonnement expiré ou pas encore actif"
+"236","UID-4001","18","2025-10-25 11:40:19+02","denied","Jour non autorisé"
+"237","UID-4001","18","2025-10-25 11:40:24+02","denied","Jour non autorisé"
+"238","UID-4005","23","2025-10-26 01:21:52+02","denied","Abonnement expiré ou pas encore actif"
+"241","B-68F96967BBEE1","12","2025-10-26 15:58:22+01","denied","Abonnement expiré ou pas encore actif"
+"243","UNKNOWN","6","2025-10-26 15:59:37+01","denied","Aucun badge assigné"
+"244","UID-4006","1","2025-10-26 15:59:39+01","denied","Abonnement expiré ou pas encore actif"
+"245","UID-1005","2","2025-10-26 15:59:41+01","denied","Abonnement expiré ou pas encore actif"
+"246","UID-1001","3","2025-10-26 16:08:32+01","denied","Jour non autorisé"
+"248","UNKNOWN","5","2025-10-26 16:10:07+01","denied","Aucun badge assigné"
+"249","UNKNOWN","6","2025-10-26 16:10:11+01","denied","Aucun badge assigné"
+"250","UNKNOWN","7","2025-10-26 16:10:15+01","denied","Aucun badge assigné"
+"251","B-68F94CC8AF409","8","2025-10-26 16:10:18+01","denied","Abonnement expiré ou pas encore actif"
+"252","B-68F9651092F50","9","2025-10-26 16:10:21+01","denied","Abonnement expiré ou pas encore actif"
+"254","UID-1001","3","2025-10-26 17:04:05+01","denied","Jour non autorisé"
+"255","UID-1001","3","2025-10-26 17:04:39+01","denied","Jour non autorisé"
+"260","B-68FA45C356A1B","21","2025-10-27 23:21:44+01","denied","Abonnement expiré ou pas encore actif"
+"261","UID-1001","3","2025-10-27 23:21:56+01","granted",NULL
+"262","UID-1001","3","2025-10-27 23:22:37+01","granted",NULL
+"263","UNKNOWN","12","2025-10-27 23:22:40+01","denied","Aucun badge assigné"
+"264","B-68F9651092F50","9","2025-11-01 17:02:43+01","denied","Abonnement expiré ou pas encore actif"
+"265","UID-1001","3","2025-11-01 17:02:52+01","denied","Jour non autorisé"
+"266","UID-4005","23","2025-11-09 09:12:31+01","denied","Abonnement expiré ou pas encore actif"
+"267","B-68FA45C356A1B","21","2025-11-09 09:12:34+01","denied","Abonnement expiré ou pas encore actif"
+"268","UNKNOWN","17","2025-11-09 09:12:37+01","denied","Aucun badge assigné"
+"269","B-68F96B4B05AE3","13","2025-11-09 09:12:40+01","denied","Abonnement expiré ou pas encore actif"
+"270","UID-4005","23","2025-11-24 19:58:10+01","denied","Abonnement expiré ou pas encore actif"
+"271","UID-4001","18","2025-11-24 19:58:12+01","denied","Abonnement expiré ou pas encore actif"
+"272","UID-2002","12","2025-11-24 19:58:17+01","denied","Abonnement expiré ou pas encore actif"
+"273","UID-1001","3","2025-11-24 20:23:34+01","granted",NULL
+"274","UID-2003","5","2025-11-24 20:24:29+01","denied","Abonnement expiré ou pas encore actif"
+"275","UID-2003","5","2025-11-24 20:24:34+01","denied","Abonnement expiré ou pas encore actif"
+"276","UID-2003","5","2025-11-24 20:24:46+01","denied","Abonnement expiré ou pas encore actif"
+"277","UID-3005","7","2025-11-24 20:25:16+01","denied","Abonnement expiré ou pas encore actif"
+"278","UID-50001","6","2025-11-24 20:25:28+01","denied","Abonnement expiré ou pas encore actif"
+"279","UID-2003","5","2025-11-24 20:25:34+01","denied","Abonnement expiré ou pas encore actif"
+"280","UID-1001","3","2025-11-24 20:25:46+01","granted",NULL
+"281","UID-4005","23","2025-11-25 18:27:11+01","denied","Abonnement expiré ou pas encore actif"
+"282","UID-4005","23","2025-11-25 19:47:08+01","denied","Abonnement expiré ou pas encore actif"
+"283","B-68FA45C356A1B","21","2025-11-25 19:47:11+01","denied","Abonnement expiré ou pas encore actif"
+"284","UID-4006","1","2025-11-27 23:28:40+01","denied","Abonnement expiré ou pas encore actif"
+"285","UID-3006","3","2025-11-27 23:28:46+01","denied","Jour non autorisé"
+"286","UID-3006","3","2025-11-27 23:29:42+01","granted",NULL
+"287","UID-3006","3","2025-11-27 23:33:17+01","granted",NULL
+"288","UID-4005","23","2025-11-27 23:34:49+01","denied","Abonnement expiré ou pas encore actif"
+"289","UID-4005","23","2025-11-28 10:13:42+01","denied","Aucun abonnement actif ou valide"
+"290","UID-3006","3","2025-11-28 10:13:48+01","denied","Jour non autorisé"
+"291","UID-4005","23","2025-11-28 11:00:49+01","denied","Aucun abonnement actif ou valide"
+"292","B-68F96B4B05AE3","13","2025-11-28 11:00:51+01","denied","Aucun abonnement actif ou valide"
+"293","B-68F94CC8AF409","8","2025-11-28 11:00:54+01","denied","Aucun abonnement actif ou valide"
+"294","UID-3005","6","2025-11-28 11:00:57+01","denied","Aucun abonnement actif ou valide"
+"295","UID-4006","1","2025-11-28 11:01:02+01","denied","Aucun abonnement actif ou valide"
+"296","UID-1005","2","2025-11-28 11:01:04+01","denied","Aucun abonnement actif ou valide"
+"297","UID-3006","3","2025-11-28 11:01:06+01","denied","Jour non autorisé"
+"298","UID-50001","5","2025-11-28 11:01:09+01","denied","Aucun abonnement actif ou valide"
+"299","B-68F9651092F50","9","2025-11-28 11:02:02+01","denied","Aucun abonnement actif ou valide"
+"300","UID-2002","12","2025-11-28 11:05:45+01","granted",NULL
+"301","UID-3006","3","2025-11-28 11:05:52+01","granted",NULL
+"302","UID-3006","3","2025-11-28 11:05:56+01","granted",NULL
+"303","UID-2002","12","2025-11-28 11:06:01+01","granted",NULL
+"304","UID-1005","2","2025-11-28 11:09:59+01","granted",NULL
+"305","UID-4005","23","2025-11-28 11:21:26+01","denied","Aucun abonnement actif ou valide"
+"306","B-68FA45C356A1B","21","2025-11-28 11:21:28+01","denied","Aucun abonnement actif ou valide"
+"307","UID-4001","18","2025-11-28 11:21:30+01","granted",NULL
+"308","UID-2005","17","2025-11-28 11:21:35+01","denied","Aucun abonnement actif ou valide"
+"309","B-68F96B4B05AE3","13","2025-11-28 11:21:38+01","denied","Aucun abonnement actif ou valide"
+"310","UID-2002","12","2025-11-28 11:21:40+01","granted",NULL
+"311","B-68F9651092F50","9","2025-11-28 11:21:43+01","denied","Aucun abonnement actif ou valide"
+"312","B-68F94CC8AF409","8","2025-11-28 11:21:44+01","denied","Aucun abonnement actif ou valide"
+"313","UNKNOWN","7","2025-11-28 11:21:47+01","denied","Aucun badge assigné"
+"314","UID-3005","6","2025-11-28 11:21:49+01","denied","Aucun abonnement actif ou valide"
+"315","UID-50001","5","2025-11-28 11:21:53+01","denied","Aucun abonnement actif ou valide"
+"316","UID-3006","3","2025-11-28 11:21:54+01","granted",NULL
+"317","UID-1005","2","2025-11-28 11:21:57+01","granted",NULL
+"318","UID-4006","1","2025-11-28 11:21:59+01","denied","Aucun abonnement actif ou valide"
