@@ -1,0 +1,21 @@
+<Window x:Class="RfidAgent.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Admin Login" Height="250" Width="400"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" WindowStyle="None"
+        Background="White" BorderBrush="#1E3A8A" BorderThickness="1">
+    
+    <Grid Margin="20">
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="Admin Access" FontSize="20" FontWeight="Bold" Foreground="#1E3A8A" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            
+            <TextBlock Text="Password:" Margin="0,0,0,5"/>
+            <PasswordBox x:Name="PasswordInput" Padding="5" Margin="0,0,0,20"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancel" Width="80" Height="30" Margin="0,0,10,0" Click="Cancel_Click" Background="#EEE"/>
+                <Button Content="Login" Width="80" Height="30" Click="Login_Click" Background="#1E3A8A" Foreground="White"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

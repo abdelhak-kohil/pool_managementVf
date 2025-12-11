@@ -144,6 +144,7 @@ public function details($id)
             return response()->json(['error' => 'Créneau introuvable'], 404);
         }
 
+        
         // ✅ Formatage propre des champs
         $details = [
             'id' => $slot->id,

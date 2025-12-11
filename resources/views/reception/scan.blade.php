@@ -3,224 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borne d'Accès - Scan</title>
-    <script src="{{ asset('vendor/tailwindcss/tailwindcss.js') }}"></script>
-    <script src="{{ asset('vendor/alpine/alpine.min.js') }}" defer></script>
+    <title>Borne d'Accès</title>
+    
+    <!-- Fonts -->
     <link href="{{ asset('vendor/fonts/dm-sans.css') }}" rel="stylesheet">
+    
+    <!-- Scripts -->
+    <script src="{{ asset('vendor/alpine/alpine.min.js') }}" defer></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://unpkg.com/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+    <script src="{{ asset('vendor/tailwindcss/tailwindcss.js') }}"></script>
+    @vite(['resources/js/app.js'])
+
     <style>
         body { font-family: 'DM Sans', sans-serif; }
         [x-cloak] { display: none !important; }
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+            animation: move 20s infinite alternate;
         }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(20px, -20px) scale(1.1); }
         }
     </style>
 </head>
-<body class="bg-slate-100 h-screen flex flex-col items-center justify-center relative overflow-hidden" x-data="kioskScanner()" x-init="initScanner()">
+<body class="bg-slate-50 h-screen w-full overflow-hidden flex flex-col relative" x-data="kioskScanner()" x-init="initScanner()">
 
-    <!-- Abstract Background -->
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float"></div>
-        <div class="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" style="animation-delay: 2s"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float" style="animation-delay: 4s"></div>
+    <!-- Animated Background -->
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="blob bg-blue-300 w-96 h-96 rounded-full top-0 left-0 mix-blend-multiply"></div>
+        <div class="blob bg-cyan-300 w-96 h-96 rounded-full bottom-0 right-0 mix-blend-multiply animation-delay-2000"></div>
+        <div class="blob bg-indigo-300 w-80 h-80 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mix-blend-multiply animation-delay-4000"></div>
     </div>
 
-    <!-- Navbar -->
-    <nav class="absolute top-0 w-full p-6 flex justify-between items-center z-20">
-        <div class="flex items-center gap-3 bg-white/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/50 shadow-sm">
-            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span class="text-slate-600 font-medium text-sm">Système en ligne</span>
+    <!-- Top Bar -->
+    <header class="relative z-10 w-full p-6 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="h-10 w-10 bg-white rounded-xl shadow-md flex items-center justify-center text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-slate-800 tracking-tight">PoolManager<span class="text-blue-600">Pro</span></h1>
         </div>
-        <a href="{{ route('reception.index') }}" class="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors bg-white/50 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/50 shadow-sm hover:shadow-md hover:bg-white">
-            <span class="text-sm font-bold">Quitter</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-        </a>
-    </nav>
 
-    <!-- Main Card -->
-    <main class="w-full max-w-xl z-10 px-4">
-        <div class="glass rounded-3xl shadow-2xl border border-white/50 p-8 md:p-12 text-center transition-all duration-500 transform"
-             :class="{
-                'scale-105 shadow-green-200/50 border-green-200': state === 'success',
-                'scale-105 shadow-red-200/50 border-red-200': state === 'error'
-             }">
+        <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-3 shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <span class="text-sm font-medium text-slate-600">Borne Connectée</span>
+            </div>
+            <div class="h-4 w-px bg-slate-300"></div>
+            <span class="text-sm font-medium text-slate-500" x-text="currentTime"></span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 transition-all duration-500">
+        
+        <!-- IDLE STATE -->
+        <div x-show="state === 'idle'" 
+             x-transition:enter="transition ease-out duration-700" 
+             x-transition:enter-start="opacity-0 translate-y-8" 
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="text-center space-y-8">
             
-            <!-- Dynamic Icon Area -->
-            <div class="mb-10 relative h-32 flex items-center justify-center">
+            <div class="relative inline-block group">
+                <div class="absolute inset-0 bg-blue-500 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500 blur-xl"></div>
+                <!-- Animated Pulse Rings -->
+                <div class="absolute inset-0 rounded-full border-2 border-blue-500 opacity-20 animate-ping"></div>
+                <div class="absolute inset-2 rounded-full border border-blue-400 opacity-40 animate-[ping_3s_linear_infinite]"></div>
                 
-                <!-- Idle: Animated Scan Icon -->
-                <div x-show="state === 'idle'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-50" x-transition:enter-end="opacity-100 scale-100" class="absolute">
-                    <div class="relative">
-                        <div class="w-28 h-28 bg-blue-50 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                            </svg>
-                        </div>
-                        <div class="absolute inset-0 border-2 border-blue-500 rounded-full opacity-20 animate-ping"></div>
-                    </div>
+                <div class="relative w-48 h-48 bg-white/80 backdrop-blur-xl rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center justify-center border border-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 7a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2c0 1.1.9 2 2 2h.5a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-.5a2 2 0 0 0-2 2v2a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-2a2 2 0 0 0-2-2h-.5a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5H5a2 2 0 0 0 2-2V7z"/>
+                        <path d="M10 12a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
+                    </svg>
                 </div>
+            </div>
 
-                <!-- Processing: Spinner -->
-                <div x-show="state === 'processing'" x-cloak class="absolute">
-                    <div class="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-inner">
-                        <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-                    </div>
-                </div>
+            <div class="space-y-3">
+                <h2 class="text-4xl font-bold text-slate-800 tracking-tight">Veuillez scanner votre badge</h2>
+                <p class="text-lg text-slate-500 max-w-md mx-auto">Approchez votre carte ou bracelet du lecteur pour enregistrer votre entrée.</p>
+            </div>
+        </div>
 
-                <!-- Success: Checkmark -->
-                <div x-show="state === 'success'" x-cloak class="absolute">
-                    <div class="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center animate-[bounce_1s_ease-in-out]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- SUCCESS STATE -->
+        <div x-show="state === 'success'" x-cloak
+             x-transition:enter="transition cubic-bezier(0.175, 0.885, 0.32, 1.275) duration-700" 
+             x-transition:enter-start="opacity-0 scale-90" 
+             x-transition:enter-end="opacity-100 scale-100"
+             class="glass-panel w-full max-w-2xl rounded-3xl p-10 shadow-2xl border-t-4 border-emerald-500 text-center relative overflow-hidden">
+            
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-green-500"></div>
+
+            <div class="flex flex-col items-center gap-6">
+                <div class="relative">
+                    <img :src="profile.photo || '{{ asset('images/default-avatar.png') }}'" 
+                         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg bg-slate-200"
+                         alt="Membre">
+                    <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white rounded-full p-2 border-4 border-white shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
                 </div>
 
-                <!-- Error: X Mark -->
-                <div x-show="state === 'error'" x-cloak class="absolute">
-                    <div class="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center animate-[shake_0.5s_ease-in-out]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </div>
+                <div class="space-y-1">
+                    <h2 class="text-3xl font-bold text-slate-800" x-text="profile.name"></h2>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800" x-text="profile.type"></span>
+                </div>
+
+                <div class="w-full bg-slate-50 rounded-xl p-4 border border-slate-100 mt-2">
+                    <p class="text-xl font-semibold text-emerald-600" x-text="serverMessage"></p>
                 </div>
             </div>
-
-            <!-- Status Text -->
-            <div class="mb-10 transition-all duration-500 ease-out transform"
-                 :class="{
-                    'bg-emerald-50 border-emerald-100 p-6 rounded-2xl border shadow-sm scale-105': state === 'success',
-                    'bg-rose-50 border-rose-100 p-6 rounded-2xl border shadow-sm scale-105': state === 'error',
-                    'py-2': state === 'idle' || state === 'processing'
-                 }">
-                <h1 class="text-3xl font-bold tracking-tight transition-colors duration-300" 
-                    :class="{
-                        'text-slate-800': state === 'idle' || state === 'processing',
-                        'text-emerald-700': state === 'success',
-                        'text-rose-700': state === 'error'
-                    }"
-                    x-text="getTitle()"></h1>
-                <p class="text-lg font-medium mt-2 transition-colors duration-300" 
-                   :class="{
-                        'text-slate-500': state === 'idle' || state === 'processing',
-                        'text-emerald-600': state === 'success',
-                        'text-rose-600': state === 'error'
-                   }"
-                   x-text="getMessage()"></p>
-            </div>
-
-            <!-- Input Area -->
-            <div class="relative max-w-sm mx-auto group">
-                <div class="relative transition-all duration-300 transform group-focus-within:scale-105">
-                    <input 
-                        x-ref="scanInput"
-                        id="scanInput"
-                        type="text" 
-                        x-model="badgeUid" 
-                        @keydown.enter="processScan()"
-                        class="w-full bg-white border-0 text-slate-800 text-lg rounded-full py-4 pl-12 pr-6 focus:ring-4 focus:ring-blue-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] placeholder:text-slate-300 font-medium tracking-wide transition-all"
-                        placeholder="Scanner ou saisir ID..."
-                        autocomplete="off"
-                    >
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 group-focus-within:text-blue-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
+            
+            <!-- Confetti Effect (CSS only implementation for simplicity) -->
+            <div class="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(circle,_#10b981_2px,transparent_2.5px)] bg-[length:24px_24px]"></div>
         </div>
+
+        <!-- ERROR STATE -->
+        <div x-show="state === 'error'" x-cloak
+             x-transition:enter="transition cubic-bezier(0.36, 0, 0.66, -0.56) duration-500" 
+             x-transition:enter-start="opacity-0 translate-x-8" 
+             x-transition:enter-end="opacity-100 translate-x-0"
+             class="glass-panel w-full max-w-xl rounded-3xl p-10 shadow-xl border-t-4 border-rose-500 text-center relative">
+            
+            <div class="absolute top-0 right-0 p-8 opacity-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-40 w-40 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+
+            <div class="flex flex-col items-center gap-6 relative z-10">
+                
+                <!-- Expanded User Info on Error -->
+                <template x-if="profile.name">
+                    <div class="flex flex-col items-center gap-4 mb-4">
+                        <img :src="profile.photo || '{{ asset('images/default-avatar.png') }}'" 
+                             class="w-24 h-24 rounded-full object-cover border-4 border-rose-100 shadow-md bg-slate-200"
+                             alt="Membre">
+                        <h3 class="text-2xl font-bold text-slate-700" x-text="profile.name"></h3>
+                    </div>
+                </template>
+
+                <div class="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mb-2" x-show="!profile.name">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-3xl font-bold text-slate-800">Accès Refusé</h2>
+                    <p class="text-xl text-rose-600 font-medium" x-text="serverMessage"></p>
+                </div>
+
+                <div class="text-sm text-slate-500 mt-4">
+                    Veuillez contacter l'accueil.
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="absolute bottom-6 text-center w-full z-10">
-        <p class="text-slate-400 text-sm font-medium">PoolManager &copy; {{ date('Y') }}</p>
+    <footer class="relative z-10 w-full p-6 text-center">
+        <a href="{{ route('reception.index') }}" class="inline-flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+            Retour au tableau de bord
+        </a>
     </footer>
 
+    <!-- Logic -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('kioskScanner', () => ({
                 state: 'idle', // idle, processing, success, error
-                badgeUid: '',
                 serverMessage: '',
+                profile: { name: '', photo: '', type: '' },
                 resetTimer: null,
+                currentTime: '',
 
                 initScanner() {
-                    this.focusInput();
-                    document.addEventListener('click', (e) => {
-                        // Only refocus if not clicking a link or the input itself
-                        if(e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') this.focusInput();
+                    // Clock
+                    this.updateTime();
+                    setInterval(() => this.updateTime(), 1000);
+
+                    // 📡 Real-Time Listener (Hardcoded for Localhost Fix)
+                    const initEcho = () => {
+                        if (window.Echo && typeof window.Echo.disconnect === 'function') {
+                            window.Echo.disconnect();
+                        }
+
+                        window.Echo = new Echo({
+                            broadcaster: 'reverb',
+                            key: '{{ config('broadcasting.connections.reverb.key') }}',
+                            wsHost: '{{ config('broadcasting.connections.reverb.options.host') }}',
+                            wsPort: 8085, // HARDCODED FIX
+                            wssPort: 8085, // HARDCODED FIX
+                            forceTLS: false, // HARDCODED FIX
+                            enabledTransports: ['ws', 'wss'],
+                        });
+
+                        console.log('Kiosk: Listening for events...');
+                        window.Echo.channel('reception')
+                            .listen('.BadgeScanned', (e) => {
+                                console.log('Event received:', e);
+                                this.handleRemoteScan(e);
+                            });
+                    };
+
+                    const checkScripts = setInterval(() => {
+                        if (window.Echo && window.Pusher) {
+                            clearInterval(checkScripts);
+                            initEcho();
+                        }
+                    }, 500);
+                },
+
+                updateTime() {
+                    this.currentTime = new Date().toLocaleTimeString('fr-FR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
                     });
                 },
 
-                focusInput() {
-                    this.$nextTick(() => {
-                        this.$refs.scanInput.focus();
-                    });
-                },
-
-                getTitle() {
-                    switch(this.state) {
-                        case 'idle': return 'Scanner votre Badge';
-                        case 'processing': return 'Vérification...';
-                        case 'success': return 'Bienvenue !';
-                        case 'error': return 'Accès Refusé';
+                handleRemoteScan(data) {
+                    if (this.state === 'success' || this.state === 'error') {
+                        // Debounce slightly if swiping fast, or just overwrite immediately
+                        if (this.resetTimer) clearTimeout(this.resetTimer);
                     }
-                },
 
-                getMessage() {
-                    if (this.state === 'idle') return 'Approchez le badge du lecteur ou saisissez l\'ID ci-dessous.';
-                    if (this.state === 'processing') return 'Nous vérifions vos droits d\'accès.';
-                    return this.serverMessage;
-                },
-
-                processScan() {
-                    if (!this.badgeUid.trim() || this.state === 'processing') return;
-
-                    const scannedUid = this.badgeUid;
-                    this.badgeUid = ''; 
-                    this.state = 'processing';
+                    this.state = data.decision === 'granted' ? 'success' : 'error';
+                    this.serverMessage = data.decision === 'granted' 
+                        ? (data.reason || 'Accès Autorisé') // Use reason field for "Bienvenue..." usually
+                        : (data.reason || 'Accès Refusé');
                     
-                    if (this.resetTimer) clearTimeout(this.resetTimer);
+                    if (data.person) {
+                        this.profile = data.person;
+                    }
 
-                    fetch('{{ route("reception.checkin.badge") }}', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}' 
-                        },
-                        body: JSON.stringify({ badge_uid: scannedUid })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        this.state = data.success ? 'success' : 'error';
-                        this.serverMessage = data.message;
-                        
-                        this.resetTimer = setTimeout(() => {
-                            this.state = 'idle';
-                            this.serverMessage = '';
-                        }, 3500);
-                    })
-                    .catch(err => {
-                        console.error('Scan error:', err);
-                        this.state = 'error';
-                        this.serverMessage = 'Erreur de connexion au serveur.';
-                        this.resetTimer = setTimeout(() => {
-                            this.state = 'idle';
-                        }, 3500);
-                    });
+                    // Auto-reset
+                    this.resetTimer = setTimeout(() => {
+                        this.state = 'idle';
+                    }, 4000);
                 }
             }));
         });

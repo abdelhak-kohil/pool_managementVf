@@ -99,6 +99,8 @@ return [
 
     'key' => env('APP_KEY'),
 
+    'rfid_api_key' => env('RFID_API_KEY', 'dev-secret'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))

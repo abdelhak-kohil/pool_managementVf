@@ -1,0 +1,20 @@
+﻿RfidAgent
+
+
+winexe
+C#
+.cs
+D:\Laravel Applications\pool_project\windows_client_application\RfidAgent\obj\Debug\net9.0-windows\
+RfidAgent
+none
+false
+TRACE;DEBUG;NET;NET9_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
+D:\Laravel Applications\pool_project\windows_client_application\RfidAgent\App.xaml
+4385740476
+
+21991850652
+215-598353281
+MainWindow.xaml;Views\LoginWindow.xaml;Views\ManualScanWindow.xaml;Views\SettingsWindow.xaml;
+
+False
+

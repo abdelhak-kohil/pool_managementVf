@@ -1,0 +1,2712 @@
+[17:11:00] [Info] Application Started
+[17:14:01] [Info] Application Started
+[17:20:56] [Info] Application Started
+[17:22:04] [Info] Processing Scan: 456546 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[17:22:11] [Warning] Access Denied for 456546: Network Error: Hôte inconnu. (pool-manager.local:443)
+[17:26:40] [Info] Application Started
+[17:27:40] [Info] Application Started
+[17:31:32] [Info] Application Started
+[17:36:07] [Info] Application Started
+[17:36:59] [Info] Testing Connectivity to: https://pool-manager.local/api/v1
+[17:37:07] [Error] Test Connection Failed: Hôte inconnu. (pool-manager.local:443)
+[18:45:07] [Info] Application Started
+[18:45:24] [Info] Testing Connectivity to: https://pool-manager.local/api/v1
+[18:45:31] [Error] Test Connection Failed: Hôte inconnu. (pool-manager.local:443)
+[18:46:29] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/membe
+[18:46:33] [Warning] Test Connection returned: NotFound
+[18:46:42] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/
+[18:46:44] [Warning] Test Connection returned: NotFound
+[18:47:36] [Info] Processing Scan: BDG000005 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[18:47:44] [Error] Error processing scan: Hôte inconnu. (pool-manager.local:443)
+[18:47:44] [Info] Scan saved to offline storage: BDG000005
+[18:47:54] [Info] Processing Scan: BDG000005 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[18:47:54] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[18:47:54] [Info] Scan saved to offline storage: BDG000005
+[18:48:13] [Info] Processing Scan: BDG000003 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[18:48:13] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[18:48:13] [Info] Scan saved to offline storage: BDG000003
+[18:49:52] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[18:49:52] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[18:49:52] [Info] Scan saved to offline storage: BDG000001
+[18:50:21] [Info] Testing Connectivity to: https://pool-manager.local/api/v1
+[18:50:29] [Error] Test Connection Failed: Hôte inconnu. (pool-manager.local:443)
+[18:50:47] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/member
+[18:50:51] [Warning] Test Connection returned: MethodNotAllowed
+[18:50:54] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/member
+[18:50:57] [Warning] Test Connection returned: MethodNotAllowed
+[21:20:36] [Info] Heartbeat Service Started
+[21:20:36] [Info] Application Started
+[21:20:39] [Warning] Heartbeat Failed: NotFound
+[21:21:04] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/member
+[21:21:09] [Warning] Test Connection returned: MethodNotAllowed
+[21:21:10] [Warning] Heartbeat Failed: NotFound
+[21:21:29] [Info] Processing Scan: BDG000003 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[21:21:32] [Warning] Access Denied for BDG000003: Badge Unknown
+[21:21:39] [Warning] Heartbeat Failed: NotFound
+[21:22:09] [Warning] Heartbeat Failed: NotFound
+[21:22:39] [Warning] Heartbeat Failed: NotFound
+[21:23:09] [Warning] Heartbeat Failed: NotFound
+[21:23:39] [Warning] Heartbeat Failed: NotFound
+[21:24:09] [Warning] Heartbeat Failed: NotFound
+[21:24:39] [Warning] Heartbeat Failed: NotFound
+[21:25:09] [Warning] Heartbeat Failed: NotFound
+[21:25:39] [Warning] Heartbeat Failed: NotFound
+[21:26:09] [Warning] Heartbeat Failed: NotFound
+[21:26:39] [Warning] Heartbeat Failed: NotFound
+[21:27:09] [Warning] Heartbeat Failed: NotFound
+[21:27:39] [Warning] Heartbeat Failed: NotFound
+[21:28:09] [Warning] Heartbeat Failed: NotFound
+[21:28:39] [Warning] Heartbeat Failed: NotFound
+[21:29:09] [Warning] Heartbeat Failed: NotFound
+[21:29:39] [Warning] Heartbeat Failed: NotFound
+[21:30:00] [Info] Heartbeat Service Stopped
+[21:34:06] [Info] Heartbeat Service Started
+[21:34:06] [Info] Application Started
+[21:34:09] [Warning] Heartbeat Failed: NotFound
+[21:34:39] [Warning] Heartbeat Failed: NotFound
+[21:35:09] [Warning] Heartbeat Failed: NotFound
+[21:35:39] [Warning] Heartbeat Failed: NotFound
+[21:36:09] [Warning] Heartbeat Failed: NotFound
+[21:36:25] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/member
+[21:36:30] [Warning] Test Connection returned: MethodNotAllowed
+[21:36:39] [Warning] Heartbeat Failed: NotFound
+[21:37:09] [Warning] Heartbeat Failed: NotFound
+[21:37:39] [Warning] Heartbeat Failed: NotFound
+[21:38:09] [Warning] Heartbeat Failed: NotFound
+[21:38:39] [Warning] Heartbeat Failed: NotFound
+[21:39:09] [Warning] Heartbeat Failed: NotFound
+[21:39:39] [Warning] Heartbeat Failed: NotFound
+[21:40:09] [Warning] Heartbeat Failed: NotFound
+[21:40:39] [Warning] Heartbeat Failed: NotFound
+[21:41:09] [Warning] Heartbeat Failed: NotFound
+[21:41:39] [Warning] Heartbeat Failed: NotFound
+[21:42:09] [Warning] Heartbeat Failed: NotFound
+[21:42:39] [Warning] Heartbeat Failed: NotFound
+[21:43:09] [Warning] Heartbeat Failed: NotFound
+[21:43:39] [Warning] Heartbeat Failed: NotFound
+[21:44:09] [Warning] Heartbeat Failed: NotFound
+[21:44:39] [Warning] Heartbeat Failed: NotFound
+[21:45:09] [Warning] Heartbeat Failed: NotFound
+[21:45:39] [Warning] Heartbeat Failed: NotFound
+[21:46:09] [Warning] Heartbeat Failed: NotFound
+[21:46:39] [Warning] Heartbeat Failed: NotFound
+[21:47:09] [Warning] Heartbeat Failed: NotFound
+[21:47:39] [Warning] Heartbeat Failed: NotFound
+[21:48:09] [Warning] Heartbeat Failed: NotFound
+[21:48:39] [Warning] Heartbeat Failed: NotFound
+[21:49:09] [Warning] Heartbeat Failed: NotFound
+[21:49:39] [Warning] Heartbeat Failed: NotFound
+[21:50:09] [Warning] Heartbeat Failed: NotFound
+[21:50:39] [Warning] Heartbeat Failed: NotFound
+[21:51:09] [Warning] Heartbeat Failed: NotFound
+[21:51:39] [Warning] Heartbeat Failed: NotFound
+[21:52:09] [Warning] Heartbeat Failed: NotFound
+[21:52:39] [Warning] Heartbeat Failed: NotFound
+[21:53:09] [Warning] Heartbeat Failed: NotFound
+[21:53:39] [Warning] Heartbeat Failed: NotFound
+[21:54:09] [Warning] Heartbeat Failed: NotFound
+[21:54:39] [Warning] Heartbeat Failed: NotFound
+[21:55:09] [Warning] Heartbeat Failed: NotFound
+[21:55:25] [Info] Heartbeat Service Stopped
+[21:55:35] [Info] Heartbeat Service Started
+[21:55:35] [Info] Application Started
+[21:55:39] [Error] Heartbeat Error: Aucune connexion n’a pu être établie car l’ordinateur cible l’a expressément refusée. (localhost:8000)
+[21:55:45] [Info] Heartbeat Service Stopped
+[21:58:35] [Info] Heartbeat Service Started
+[21:58:35] [Info] Application Started
+[21:58:38] [Warning] Heartbeat Failed: NotFound
+[21:59:07] [Warning] Heartbeat Failed: NotFound
+[21:59:31] [Info] Testing Connectivity to: http://localhost:8000/api
+[21:59:33] [Warning] Test Connection returned: NotFound
+[21:59:37] [Warning] Heartbeat Failed: NotFound
+[22:00:00] [Info] Heartbeat Service Stopped
+[22:01:13] [Info] Heartbeat Service Started
+[22:01:13] [Info] Application Started
+[22:01:16] [Warning] Heartbeat Failed: NotFound
+[22:01:46] [Warning] Heartbeat Failed: NotFound
+[22:02:16] [Warning] Heartbeat Failed: NotFound
+[22:02:46] [Warning] Heartbeat Failed: NotFound
+[22:03:16] [Warning] Heartbeat Failed: NotFound
+[22:03:46] [Warning] Heartbeat Failed: NotFound
+[22:04:16] [Warning] Heartbeat Failed: NotFound
+[22:04:46] [Warning] Heartbeat Failed: NotFound
+[22:05:16] [Warning] Heartbeat Failed: NotFound
+[22:05:46] [Warning] Heartbeat Failed: NotFound
+[22:06:16] [Warning] Heartbeat Failed: NotFound
+[22:06:46] [Warning] Heartbeat Failed: NotFound
+[22:07:16] [Warning] Heartbeat Failed: NotFound
+[22:07:46] [Warning] Heartbeat Failed: NotFound
+[22:08:16] [Warning] Heartbeat Failed: NotFound
+[22:08:46] [Warning] Heartbeat Failed: NotFound
+[22:09:16] [Warning] Heartbeat Failed: NotFound
+[22:09:46] [Warning] Heartbeat Failed: NotFound
+[22:10:16] [Warning] Heartbeat Failed: NotFound
+[22:10:46] [Warning] Heartbeat Failed: NotFound
+[22:11:16] [Warning] Heartbeat Failed: NotFound
+[22:11:46] [Warning] Heartbeat Failed: NotFound
+[22:12:16] [Warning] Heartbeat Failed: NotFound
+[22:12:46] [Warning] Heartbeat Failed: NotFound
+[22:13:16] [Warning] Heartbeat Failed: NotFound
+[22:13:46] [Warning] Heartbeat Failed: NotFound
+[22:14:16] [Warning] Heartbeat Failed: NotFound
+[22:14:46] [Warning] Heartbeat Failed: NotFound
+[22:15:16] [Warning] Heartbeat Failed: NotFound
+[22:15:46] [Warning] Heartbeat Failed: NotFound
+[22:16:16] [Warning] Heartbeat Failed: NotFound
+[22:16:46] [Warning] Heartbeat Failed: NotFound
+[22:17:16] [Warning] Heartbeat Failed: NotFound
+[22:17:46] [Warning] Heartbeat Failed: NotFound
+[22:18:16] [Warning] Heartbeat Failed: NotFound
+[22:19:46] [Info] Heartbeat Service Started
+[22:19:47] [Info] Application Started
+[22:19:49] [Warning] Heartbeat Failed: NotFound
+[22:20:19] [Warning] Heartbeat Failed: NotFound
+[22:20:20] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:20:23] [Warning] Access Denied for BDG000001: Badge Unknown
+[22:20:49] [Warning] Heartbeat Failed: NotFound
+[22:21:19] [Warning] Heartbeat Failed: NotFound
+[22:21:49] [Warning] Heartbeat Failed: NotFound
+[22:22:19] [Warning] Heartbeat Failed: NotFound
+[22:22:49] [Warning] Heartbeat Failed: NotFound
+[22:22:59] [Info] Heartbeat Service Stopped
+[22:29:23] [Info] Heartbeat Service Started
+[22:29:23] [Info] Application Started
+[22:29:25] [Warning] Heartbeat Failed: NotFound
+[22:29:55] [Warning] Heartbeat Failed: NotFound
+[22:30:24] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/member
+[22:30:25] [Warning] Heartbeat Failed: NotFound
+[22:30:29] [Warning] Test Connection returned: MethodNotAllowed
+[22:30:39] [Info] Testing Connectivity to: http://localhost:8000/api
+[22:30:42] [Warning] Test Connection returned: NotFound
+[22:30:55] [Warning] Heartbeat Failed: NotFound
+[22:31:25] [Warning] Heartbeat Failed: NotFound
+[22:31:55] [Warning] Heartbeat Failed: NotFound
+[22:32:25] [Warning] Heartbeat Failed: NotFound
+[22:32:55] [Warning] Heartbeat Failed: NotFound
+[22:33:01] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/membe
+[22:33:04] [Warning] Test Connection returned: NotFound
+[22:33:25] [Warning] Heartbeat Failed: NotFound
+[22:33:49] [Info] Testing Connectivity to: http://localhost:8000/api/v1/checkin/membe
+[22:33:52] [Warning] Test Connection returned: NotFound
+[22:33:55] [Warning] Heartbeat Failed: NotFound
+[22:34:25] [Warning] Heartbeat Failed: NotFound
+[22:34:55] [Warning] Heartbeat Failed: NotFound
+[22:35:25] [Warning] Heartbeat Failed: NotFound
+[22:35:55] [Warning] Heartbeat Failed: NotFound
+[22:36:25] [Warning] Heartbeat Failed: NotFound
+[22:36:55] [Warning] Heartbeat Failed: NotFound
+[22:37:25] [Warning] Heartbeat Failed: NotFound
+[22:37:55] [Warning] Heartbeat Failed: NotFound
+[22:38:25] [Warning] Heartbeat Failed: NotFound
+[22:38:26] [Info] Testing Connectivity to: http://localhost:8000/api
+[22:38:29] [Warning] Test Connection returned: NotFound
+[22:38:55] [Warning] Heartbeat Failed: NotFound
+[22:38:58] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:39:01] [Warning] Access Denied for BDG000002: Badge Unknown
+[22:39:25] [Warning] Heartbeat Failed: NotFound
+[22:39:55] [Warning] Heartbeat Failed: NotFound
+[22:40:48] [Info] Heartbeat Service Started
+[22:40:48] [Info] Application Started
+[22:40:51] [Warning] Heartbeat Failed: Unauthorized
+[22:41:21] [Warning] Heartbeat Failed: Unauthorized
+[22:41:51] [Warning] Heartbeat Failed: Unauthorized
+[22:42:31] [Info] Heartbeat Service Started
+[22:42:31] [Info] Application Started
+[22:42:34] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:43:04] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:43:34] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:44:04] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:44:34] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:45:03] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:45:34] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:46:04] [Warning] Heartbeat Failed: Unauthorized - {"success":false,"message":"Unauthorized: Invalid API Key"}
+[22:46:34] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"rfid_devices\" where (\"device_id...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:47:04] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"rfid_devices\" where (\"device_id...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:47:07] [Info] Testing Connectivity to: http://localhost:8000/api
+[22:47:10] [Warning] Test Connection returned: NotFound
+[22:47:34] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"rfid_devices\" where (\"device_id...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:48:04] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab pool_schema.rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"pool_schema\".\"rfid_devices\" whe...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"pool_schema\".\"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:48:34] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab pool_schema.rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"pool_schema\".\"rfid_devices\" whe...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"pool_schema\".\"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:49:04] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab pool_schema.rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"pool_schema\".\"rfid_devices\" whe...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"pool_schema\".\"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:49:34] [Warning] Heartbeat Failed: InternalServerError - {
+    "message": "SQLSTATE[42P01]: Undefined table: 7 ERREUR:  la relation \u00ab pool_schema.rfid_devices \u00bb n'existe pas\nLINE 1: select exists(select * from \"pool_schema\".\"rfid_devices\" whe...\n                                    ^ (Connection: pgsql, SQL: select exists(select * from \"pool_schema\".\"rfid_devices\" where (\"device_id\" = 41d116c0-49f9-4df6-96da-97cb8c77e837)) as \"exists\")",
+    "exception": "Illuminate\\Database\\QueryException",
+    "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+    "line": 824,
+    "trace": [
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 778,
+            "function": "runQueryCallback",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+            "line": 397,
+            "function": "run",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3561,
+            "function": "select",
+            "class": "Illuminate\\Database\\Connection",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php",
+            "line": 3949,
+            "function": "exists",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Controllers\\Api\\HeartbeatController.php",
+            "line": 24,
+            "function": "updateOrInsert",
+            "class": "Illuminate\\Database\\Query\\Builder",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php",
+            "line": 46,
+            "function": "store",
+            "class": "App\\Http\\Controllers\\Api\\HeartbeatController",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 265,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\ControllerDispatcher",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php",
+            "line": 211,
+            "function": "runController",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 822,
+            "function": "run",
+            "class": "Illuminate\\Routing\\Route",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Routing\\Router::runRouteWithinStack():821}",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\app\\Http\\Middleware\\EnsureApiKey.php",
+            "line": 34,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "App\\Http\\Middleware\\EnsureApiKey",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php",
+            "line": 50,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\SubstituteBindings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 166,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php",
+            "line": 93,
+            "function": "handleRequest",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Routing\\Middleware\\ThrottleRequests",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 821,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 800,
+            "function": "runRouteWithinStack",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 764,
+            "function": "runRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php",
+            "line": 753,
+            "function": "dispatchToRoute",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 200,
+            "function": "dispatch",
+            "class": "Illuminate\\Routing\\Router",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 180,
+            "function": "{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php",
+            "line": 31,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php",
+            "line": 21,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php",
+            "line": 51,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php",
+            "line": 27,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePostSize",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php",
+            "line": 109,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php",
+            "line": 61,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\HandleCors",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php",
+            "line": 58,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\TrustProxies",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php",
+            "line": 22,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePathEncoding.php",
+            "line": 26,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 219,
+            "function": "handle",
+            "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php",
+            "line": 137,
+            "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 175,
+            "function": "then",
+            "class": "Illuminate\\Pipeline\\Pipeline",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php",
+            "line": 144,
+            "function": "sendRequestThroughRouter",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1220,
+            "function": "handle",
+            "class": "Illuminate\\Foundation\\Http\\Kernel",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "D:\\Laravel Applications\\pool_project\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
+[22:50:58] [Info] Testing Connectivity to: http://localhost:8000/api
+[22:51:01] [Warning] Test Connection returned: NotFound
+[22:54:24] [Info] Heartbeat Service Started
+[22:54:25] [Info] Application Started
+[22:54:43] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:54:46] [Warning] Access Denied for BDG000001: Aucun abonnement actif.
+[22:54:57] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:54:57] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[22:55:08] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:55:08] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[22:55:21] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:55:21] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[22:55:31] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:55:31] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[22:55:36] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[22:55:36] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[22:56:43] [Info] Heartbeat Service Stopped
+[23:02:25] [Info] Heartbeat Service Started
+[23:02:26] [Info] Application Started
+[23:02:44] [Info] Testing Connectivity to: http://localhost:8000/api
+[23:02:47] [Warning] Test Connection returned: NotFound
+[23:03:04] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:03:06] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:03:25] [Info] Processing Scan: BDG000004 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:03:25] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[23:03:37] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:03:37] [Error] Error processing scan: This instance has already started one or more requests. Properties can only be modified before sending the first request.
+[23:04:21] [Info] Heartbeat Service Stopped
+[23:07:43] [Info] Heartbeat Service Started
+[23:07:43] [Info] Application Started
+[23:07:57] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:08:00] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:08:10] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:08:12] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:08:22] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:08:24] [Warning] Access Denied for BDG000001: Aucun abonnement actif.
+[23:08:36] [Info] Processing Scan: BDG000003 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:08:39] [Warning] Access Denied for BDG000003: Aucun abonnement actif.
+[23:08:53] [Info] Heartbeat Service Stopped
+[23:12:09] [Info] Heartbeat Service Started
+[23:12:09] [Info] Application Started
+[23:12:18] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:12:21] [Warning] Access Denied for BDG000001: Aucun abonnement actif.
+[23:16:04] [Info] Heartbeat Service Stopped
+[23:16:14] [Info] Heartbeat Service Started
+[23:16:15] [Info] Application Started
+[23:16:25] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:16:28] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:17:03] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:17:05] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:17:23] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:17:26] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:21:10] [Info] Heartbeat Service Started
+[23:21:10] [Info] Application Started
+[23:23:58] [Info] Heartbeat Service Stopped
+[23:24:08] [Info] Heartbeat Service Started
+[23:24:09] [Info] Application Started
+[23:24:24] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:24:25] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:24:39] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:24:40] [Warning] Access Denied for BDG000001: Aucun abonnement actif.
+[23:24:52] [Info] Processing Scan: BDG000004 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:24:52] [Warning] Access Denied for BDG000004: Aucun abonnement actif.
+[23:25:09] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:25:10] [Warning] Access Denied for BDG000001: Aucun abonnement actif.
+[23:25:18] [Info] Processing Scan: BDG000001 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:25:19] [Warning] Access Denied for BDG000001: Aucun abonnement actif.
+[23:34:25] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:34:28] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:42:56] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:42:58] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:43:25] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:43:26] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[23:52:07] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[23:52:08] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:09:42] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:09:43] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:10:06] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:10:07] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:11:46] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:11:47] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:11:55] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:11:55] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:14:15] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:14:16] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:14:25] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:14:25] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:14:53] [Info] Processing Scan: BDG000002 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:14:54] [Warning] Access Denied for BDG000002: Aucun abonnement actif.
+[00:15:06] [Info] Processing Scan: BDG000004 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:15:06] [Warning] Access Denied for BDG000004: Aucun abonnement actif.
+[00:17:03] [Info] Processing Scan: BDG000004 (Device: 41d116c0-49f9-4df6-96da-97cb8c77e837)
+[00:17:03] [Warning] Access Denied for BDG000004: Aucun abonnement actif.
+[00:17:35] [Info] Heartbeat Service Stopped
