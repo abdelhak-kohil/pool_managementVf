@@ -51,7 +51,7 @@
                 <td class="py-3 px-4 text-right">
                     <div class="flex justify-end gap-3">
                         <a href="{{ route('partner-groups.edit', $group->group_id) }}" class="text-yellow-600 hover:text-yellow-800 font-medium">✏️ Modifier</a>
-                        @if (Auth::user()->role->role_name === 'Admin')
+                        @if (Auth::user()->role->role_name === 'admin')
                         <form action="{{ route('partner-groups.destroy', $group->group_id) }}" method="POST" class="delete-form inline-block">
                             @csrf @method('DELETE')
                             <button type="button" class="text-red-600 hover:text-red-800 font-medium delete-btn">🗑 Supprimer</button>

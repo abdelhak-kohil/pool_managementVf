@@ -22,6 +22,17 @@
   <!-- ===== MOBILE OVERLAY ===== -->
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-40"></div>
 
+  <!-- ===== LICENSE EXPIRY BANNER ===== -->
+  @php
+      $daysRemaining = \App\Modules\Licensing\Facades\License::isValid() ? \App\Modules\Licensing\Facades\License::daysRemaining() : -1;
+  @endphp
+  
+  @if($daysRemaining !== null && $daysRemaining >= 0 && $daysRemaining < 30)
+  <div class="fixed top-0 left-0 right-0 bg-yellow-500 text-white text-center py-1 z-50 text-sm font-bold shadow-md">
+      ⚠️ Votre licence expire dans {{ (int)$daysRemaining }} jours. <a href="{{ route('admin.license.index') }}" class="underline hover:text-yellow-100">Renouveler maintenant</a>.
+  </div>
+  @endif
+
   <!-- ===== SIDEBAR ===== -->
   @if (Auth::check())
   <aside id="sidebar"
@@ -76,6 +87,7 @@
       </div>
 
       <!-- === 2. Gestion Membres === -->
+      @if(\App\Modules\Licensing\Facades\License::hasModule('crm'))
       <div class="space-y-1">
         <button @click="openMembers = !openMembers" 
                 class="flex justify-between items-center w-full px-4 py-2 text-gray-600 font-semibold uppercase text-xs tracking-wide hover:text-blue-700">
@@ -100,11 +112,29 @@
           </a>
           @endif
 
+          @if (in_array($role, ['receptionniste', 'admin']))
+          <a href="{{ route('reception.index') }}" 
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('reception.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+            🛎️ Réception
+          </a>
+          @endif
+
+          @if(in_array($role, ['admin','receptionniste']))
+          <a href="{{ route('reservations.index') }}" 
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('reservations.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+             📅 Réservations
+          </a>
+          @endif
+
 
 
 
         </div>
+        </div>
       </div>
+      @endif
 
       <!-- === 3. Activités & Planning === -->
       <div class="space-y-1">
@@ -117,40 +147,35 @@
         </button>
 
         <div x-show="openPlanning" x-transition class="ml-3 border-l border-gray-200 pl-3 space-y-1">
-          @if ($role === 'admin')
+
           <a href="{{ route('schedule.index') }}" 
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
              {{ request()->routeIs('schedule.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
             📅 Planning Hebdomadaire
           </a>
           
+          @if ($role === 'admin')
           <a href="{{ route('timeslots.index') }}" 
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
              {{ request()->routeIs('timeslots.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
              ⏱ Créneaux
           </a>
+          @endif
 
           <a href="{{ route('activities.index') }}" 
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
              {{ request()->routeIs('activities.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
             🏊 Activités
           </a>
-          @endif
 
-          @if(in_array($role, ['admin','receptionniste']))
-          <a href="{{ route('reservations.index') }}" 
-             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
-             {{ request()->routeIs('reservations.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
-             📅 Réservations
-          </a>
-          @endif
+
           
 
         </div>
       </div>
 
       <!-- === 4. Finance === -->
-      @if (in_array($role, ['admin', 'financer']))
+      @if (in_array($role, ['admin', 'financer']) && \App\Modules\Licensing\Facades\License::hasModule('finance'))
       <div class="space-y-1">
         <button @click="openFinance = !openFinance" 
                 class="flex justify-between items-center w-full px-4 py-2 text-gray-600 font-semibold uppercase text-xs tracking-wide hover:text-blue-700">
@@ -188,6 +213,7 @@
       </div>
 
       <!-- === 5. Ventes === -->
+      @if(\App\Modules\Licensing\Facades\License::hasModule('shop'))
       <div class="space-y-1">
         <button @click="openSales = !openSales" 
                 class="flex justify-between items-center w-full px-4 py-2 text-gray-600 font-semibold uppercase text-xs tracking-wide hover:text-blue-700">
@@ -222,10 +248,13 @@
             📂 Catégories Produits
           </a>
         </div>
+        </div>
       </div>
+      @endif
       @endif
 
       <!-- === 5. RH & Staff === -->
+      @if(\App\Modules\Licensing\Facades\License::hasModule('hr'))
       <div class="space-y-1">
         <button @click="openHR = !openHR" 
                 class="flex justify-between items-center w-full px-4 py-2 text-gray-600 font-semibold uppercase text-xs tracking-wide hover:text-blue-700">
@@ -237,11 +266,7 @@
 
         <div x-show="openHR" x-transition class="ml-3 border-l border-gray-200 pl-3 space-y-1">
           @if ($role === 'admin')
-          <a href="{{ route('staff.index') }}" 
-             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
-             {{ request()->routeIs('staff.index') || request()->routeIs('staff.create') || request()->routeIs('staff.edit') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
-            👨‍💼 Personnel
-          </a>
+
 
           <a href="{{ route('staff.hr.dashboard') }}"
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
@@ -271,17 +296,13 @@
 
           @endif
 
-          @if (in_array($role, ['receptionniste', 'admin']))
-          <a href="{{ route('reception.index') }}" 
-             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
-             {{ request()->routeIs('reception.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
-            🛎️ Réception
-          </a>
-          @endif
+
         </div>
       </div>
+      @endif
 
       <!-- === Maintenance === -->
+      @if(\App\Modules\Licensing\Facades\License::hasModule('operations'))
       <div class="space-y-1">
         <button @click="openMaintenance = !openMaintenance" 
                 class="flex justify-between items-center w-full px-4 py-2 text-gray-600 font-semibold uppercase text-xs tracking-wide hover:text-blue-700">
@@ -333,7 +354,9 @@
             ✅ Check-lists
           </a>
         </div>
+        </div>
       </div>
+      @endif
 
       <!-- === 6. Administration === -->
       @if ($role === 'admin')
@@ -347,6 +370,11 @@
         </button>
 
         <div x-show="openAdmin" x-transition class="ml-3 border-l border-gray-200 pl-3 space-y-1">
+          <a href="{{ route('staff.index') }}" 
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('staff.index') || request()->routeIs('staff.create') || request()->routeIs('staff.edit') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+            👨‍💼 Personnel
+          </a>
           <a href="{{ route('roles.index') }}" 
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
              {{ request()->routeIs('roles.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
@@ -371,6 +399,19 @@
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
              {{ request()->routeIs('partner-groups.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
             🏫 Groupes partenaires
+          </a>
+          
+          @if(\App\Modules\Licensing\Facades\License::hasModule('backups'))
+          <a href="{{ route('admin.backups.index') }}"
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('admin.backups.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+            💾 Sauvegardes
+          </a>
+          @endif
+          <a href="{{ route('admin.license.index') }}" 
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('admin.license.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+            🔑 Licence
           </a>
         </div>
       </div>

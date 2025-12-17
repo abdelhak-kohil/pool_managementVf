@@ -26,7 +26,7 @@ class PlanController extends Controller
         return view('plans.create', compact('types'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Modules\Catalog\Actions\CreatePlanAction $action)
     {
         $request->validate([
             'plan_name' => 'required|string|max:255',
@@ -38,19 +38,31 @@ class PlanController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        // Apply business logic
-        if ($request->plan_type === 'per_visit') {
-            $request->merge([
-                'visits_per_week' => null,
-                'duration_months' => null,
-            ]);
-        }
-
         try {
-            Plan::create($request->only([
-                'plan_name', 'description', 'plan_type',
-                'visits_per_week', 'duration_months', 'is_active'
-            ]));
+            // Apply business logic for merging nulls (optional if front-end handles it, but good safety)
+            // But DTO constructor handles direct input.
+            // Let's modify Request first or let DTO logic handle it?
+            // Existing logic modified request. Let's keep it here or move to DTO.
+            // DTO takes raw input. Let's merge into request before DTO creation so DTO gets clean data?
+            // Actually, DTO standardizes keys.
+            // Creating DTO:
+            $dto = \App\Modules\Catalog\DTOs\PlanData::fromRequest($request);
+            // However, existing logic forces nulls for 'per_visit'.
+            // DTO just takes input. We should set them to null in DTO if type is per_visit.
+            // Or better, logic inside Action? Or logic here?
+            // Cleaner: DTOFactory/Request logic.
+            // I'll adjust DTO creation to handle this specific rule or just modify request.
+            // Modifying request is simplest for migration.
+             if ($request->plan_type === 'per_visit') {
+                $request->merge([
+                    'visits_per_week' => null,
+                    'duration_months' => null,
+                ]);
+                // Re-create DTO with modified request
+                $dto = \App\Modules\Catalog\DTOs\PlanData::fromRequest($request);
+            }
+
+            $action->execute($dto);
 
             return redirect()->route('plans.index')->with('success', '✅ Plan créé avec succès.');
         } catch (\Throwable $e) {
@@ -65,7 +77,7 @@ class PlanController extends Controller
         return view('plans.edit', compact('plan', 'types'));
     }
 
-    public function update(Request $request, Plan $plan)
+    public function update(Request $request, Plan $plan, \App\Modules\Catalog\Actions\UpdatePlanAction $action)
     {
         $request->validate([
             'plan_name' => 'required|string|max:255',
@@ -77,18 +89,16 @@ class PlanController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        if ($request->plan_type === 'per_visit') {
-            $request->merge([
-                'visits_per_week' => null,
-                'duration_months' => null,
-            ]);
-        }
-
         try {
-            $plan->update($request->only([
-                'plan_name', 'description', 'plan_type',
-                'visits_per_week', 'duration_months', 'is_active'
-            ]));
+            if ($request->plan_type === 'per_visit') {
+                $request->merge([
+                    'visits_per_week' => null,
+                    'duration_months' => null,
+                ]);
+            }
+            
+            $dto = \App\Modules\Catalog\DTOs\PlanData::fromRequest($request);
+            $action->execute($plan, $dto);
 
             return redirect()->route('plans.index')->with('success', '✅ Plan mis à jour avec succès.');
         } catch (\Throwable $e) {
@@ -100,6 +110,7 @@ class PlanController extends Controller
     public function destroy(Plan $plan)
     {
         try {
+            // Ideally use DeletePlanAction if complex checks needed.
             $plan->delete();
             return redirect()->route('plans.index')->with('success', '🗑️ Plan supprimé avec succès.');
         } catch (\Throwable $e) {

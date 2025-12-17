@@ -2,57 +2,115 @@
 @section('title', 'Nouveau Groupe Partenaire')
 
 @section('content')
-<div class="space-y-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-gray-800">🏫 Nouveau Groupe Partenaire</h2>
-        <a href="{{ route('partner-groups.index') }}" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition">
-            ← Retour
-        </a>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Header & Navigation -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <nav class="flex mb-1" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('partner-groups.index') }}" class="text-gray-500 hover:text-gray-700 font-medium text-sm">Groupes</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                            <span class="ml-1 text-gray-400 font-medium text-sm md:ml-2">Nouveau</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Nouveau Groupe Partenaire</h2>
+            <p class="text-gray-500 mt-1">Créez un nouvel accès groupe pour les associations, écoles ou entreprises.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('partner-groups.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                <svg class="w-5 h-5 mr-2 -ml-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+                Annuler
+            </a>
+        </div>
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-white shadow rounded-xl border border-gray-100 p-8">
-        <form action="{{ route('partner-groups.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @csrf
+    <!-- Main Form Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="p-6 md:p-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <span class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </span>
+                Informations du Groupe
+            </h3>
 
-            <div>
-                <label class="block text-gray-700 font-medium mb-2">Nom du groupe</label>
-                <input type="text" name="name" value="{{ old('name') }}" 
-                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition duration-200" 
-                       required>
-            </div>
+            <form action="{{ route('partner-groups.store') }}" method="POST">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom de l'organisation <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" 
+                               class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                               placeholder="Ex: Association Sportive des Nageurs"
+                               required>
+                    </div>
 
-            <div>
-                <label class="block text-gray-700 font-medium mb-2">Nom du contact</label>
-                <input type="text" name="contact_name" value="{{ old('contact_name') }}" 
-                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition duration-200">
-            </div>
+                    <!-- Contact Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom du contact référent</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </div>
+                            <input type="text" name="contact_name" value="{{ old('contact_name') }}" 
+                                   class="block w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                                   placeholder="Jean Dupont">
+                        </div>
+                    </div>
 
-            <div>
-                <label class="block text-gray-700 font-medium mb-2">Téléphone</label>
-                <input type="text" name="contact_phone" value="{{ old('contact_phone') }}" 
-                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition duration-200">
-            </div>
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                        <div class="relative rounded-md shadow-sm">
+                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            </div>
+                            <input type="text" name="contact_phone" value="{{ old('contact_phone') }}" 
+                                   class="block w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                                   placeholder="06 12 34 56 78">
+                        </div>
+                    </div>
 
-            <div>
-                <label class="block text-gray-700 font-medium mb-2">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}" 
-                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition duration-200">
-            </div>
+                    <!-- Email -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email de contact</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            </div>
+                            <input type="email" name="email" value="{{ old('email') }}" 
+                                   class="block w-full pl-10 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                                   placeholder="contact@organisation.com">
+                        </div>
+                    </div>
 
-            <div class="md:col-span-2">
-                <label class="block text-gray-700 font-medium mb-2">Notes</label>
-                <textarea name="notes" rows="3" 
-                          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition duration-200">{{ old('notes') }}</textarea>
-            </div>
+                    <!-- Notes -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes internes</label>
+                        <textarea name="notes" rows="4" 
+                                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                                  placeholder="Observations, conditions particulières...">{{ old('notes') }}</textarea>
+                    </div>
+                </div>
 
-            <div class="md:col-span-2 flex justify-end pt-4 border-t border-gray-100">
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md">
-                    Enregistrer
-                </button>
-            </div>
-        </form>
+                <!-- Footer Actions -->
+                <div class="mt-8 flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+                    <a href="{{ route('partner-groups.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Annuler
+                    </a>
+                    <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        Créer le groupe
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

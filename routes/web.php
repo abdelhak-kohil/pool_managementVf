@@ -51,9 +51,16 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
 
     // Dashboard
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    
+    // License Management
+    Route::middleware('role:admin')->prefix('license')->name('admin.license.')->group(function() {
+        Route::get('/', [App\Http\Controllers\Admin\LicenseController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\Admin\LicenseController::class, 'update'])->name('update');
+        Route::post('/toggle', [App\Http\Controllers\Admin\LicenseController::class, 'toggleStatus'])->name('toggle');
+    });
 
-    // Members
-    Route::middleware('permission:members.view')->group(function () {
+    // Members (CRM)
+    Route::middleware(['permission:members.view', 'module:crm'])->group(function () {
         Route::get('members', [MemberController::class, 'index'])->name('members.index');
         Route::get('members/search', [MemberController::class, 'search'])->name('members.search');
         Route::get('members/{member}/info', [MemberController::class, 'info'])->name('members.info');
@@ -63,6 +70,46 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
     Route::get('members/{member}/edit', [MemberController::class, 'edit'])->name('members.edit')->middleware('permission:members.edit');
     Route::put('members/{member}', [MemberController::class, 'update'])->name('members.update')->middleware('permission:members.edit');
     Route::delete('members/{member}', [MemberController::class, 'destroy'])->name('members.destroy')->middleware('permission:members.delete');
+
+    // Reception Area (Moved to CRM Module)
+    Route::middleware(['role:admin,receptionniste', 'module:crm'])->prefix('reception')->group(function () {
+        Route::get('/', [ReceptionController::class, 'index'])->name('reception.index');
+        Route::get('/scan', [ReceptionController::class, 'scan'])->name('reception.scan');
+        Route::post('member/add', [ReceptionController::class, 'storeMember'])->name('reception.member.store');
+        Route::post('badge/update/{member}', [ReceptionController::class, 'updateBadge'])->name('reception.badge.update');
+        Route::post('checkin/{member}', [ReceptionController::class, 'checkIn'])->name('reception.checkin');
+        Route::post('checkin-badge', [ReceptionController::class, 'checkInByBadge'])->name('reception.checkin.badge');
+        Route::post('checkin-group', [\App\Http\Controllers\Api\RfidController::class, 'checkInGroup'])->name('reception.checkin.group');
+
+        // AJAX
+        Route::get('search', [ReceptionController::class, 'search'])->name('reception.search');
+        Route::get('member/{member}/logs', [ReceptionController::class, 'memberLogs'])->name('reception.member.logs');
+        Route::get('today-accesses', [ReceptionController::class, 'todayAccesses'])->name('reception.today.accesses');
+        
+        // Reservations (Protected by CRM License)
+        Route::get('reservations/search-members', [ReservationController::class, 'searchMembers'])->name('reservations.searchMembers');
+        Route::get('reservations/search-groups', [ReservationController::class, 'searchGroups'])->name('reservations.searchGroups');
+        Route::get('reservations/search', [ReservationController::class, 'search'])->name('reservations.search');
+        Route::resource('reservations', ReservationController::class)->except(['show', 'edit', 'update', 'destroy']);
+        Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy')->middleware('role:admin');
+    });
+
+    // Subscriptions (Protected by CRM License)
+    Route::middleware(['module:crm'])->group(function() {
+        Route::middleware('permission:subscriptions.view')->get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('subscriptions/create', [SubscriptionController::class, 'create'])->name('subscriptions.create')->middleware('permission:subscriptions.create');
+        Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store')->middleware('permission:subscriptions.create');
+        Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit')->middleware('permission:subscriptions.edit');
+        Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update')->middleware('permission:subscriptions.edit');
+        Route::delete('subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy')->middleware('permission:subscriptions.delete');
+        
+        Route::post('subscriptions/{id}/deactivate', [SubscriptionController::class, 'deactivate'])->name('subscriptions.deactivate');
+        Route::get('member-subscriptions', [MemberSubscriptionController::class, 'index'])->name('members.subscriptions.index');
+
+        // Payment AJAX
+        Route::post('subscriptions/{subscription}/payments/ajax', [PaymentController::class, 'storeAjax'])
+            ->name('subscriptions.payments.ajax')->middleware('permission:payments.create');
+    });
 
     // Badges
     Route::get('badges/search', [AccessBadgeController::class, 'search'])->name('badges.search');
@@ -77,8 +124,8 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
         Route::resource('permissions', PermissionController::class)->except(['show']);
     });
 
-    // Backups (Admin Only)
-    Route::middleware('role:admin')->prefix('backups')->name('admin.backups.')->group(function () {
+    // Backups (Admin Only + License)
+    Route::middleware(['role:admin', 'module:backups'])->prefix('backups')->name('admin.backups.')->group(function () {
         Route::get('/', [App\Http\Controllers\Admin\BackupController::class, 'index'])->name('index');
         Route::post('/store', [App\Http\Controllers\Admin\BackupController::class, 'store'])->name('store');
         Route::get('/download/{id}', [App\Http\Controllers\Admin\BackupController::class, 'download'])->name('download');
@@ -89,9 +136,9 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
         Route::post('/settings/test-connection', [App\Http\Controllers\Admin\BackupSettingController::class, 'testConnection'])->name('settings.test-connection');
     });
 
-    // Staff
+    // Staff (Core - Available without HR License)
     Route::middleware('permission:staff.view')->get('staff', [StaffController::class, 'index'])->name('staff.index');
-    Route::get('staff/{id}/profile', [StaffController::class, 'show'])->name('staff.show'); // New Profile Route
+    Route::get('staff/{id}/profile', [StaffController::class, 'show'])->name('staff.show');
     Route::middleware('permission:staff.create')->group(function () {
         Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
         Route::post('staff', [StaffController::class, 'store'])->name('staff.store');
@@ -102,44 +149,68 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
     });
     Route::delete('staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy')->middleware('permission:staff.delete');
 
-    // Human Resources / Attendance (Admin Staff Area)
-    Route::middleware('permission:staff.view')->prefix('staff/hr')->name('staff.hr.')->group(function () {
-        Route::get('pointage', [\App\Http\Controllers\Staff\AttendanceController::class, 'pointage'])->name('pointage');
-        Route::post('pointage', [\App\Http\Controllers\Staff\AttendanceController::class, 'storePointage'])->name('pointage.store');
-        Route::get('dashboard', [\App\Http\Controllers\Staff\AttendanceController::class, 'index'])->name('dashboard');
+    // HR & Advanced Staff Features (Protected by License)
+    Route::middleware(['module:hr'])->group(function() {
         
-        // Reports
-        Route::get('reports/pdf', [\App\Http\Controllers\Staff\AttendanceReportController::class, 'exportPdf'])->name('reports.pdf');
-        Route::get('reports/excel', [\App\Http\Controllers\Staff\AttendanceReportController::class, 'exportExcel'])->name('reports.excel');
+        // Human Resources / Attendance (Admin Staff Area)
+        Route::middleware('permission:staff.view')->prefix('staff/hr')->name('staff.hr.')->group(function () {
+            Route::get('pointage', [\App\Http\Controllers\Staff\AttendanceController::class, 'pointage'])->name('pointage');
+            Route::post('pointage', [\App\Http\Controllers\Staff\AttendanceController::class, 'storePointage'])->name('pointage.store');
+            Route::get('dashboard', [\App\Http\Controllers\Staff\AttendanceController::class, 'index'])->name('dashboard');
+            
+            // Reports
+            Route::get('reports/pdf', [\App\Http\Controllers\Staff\AttendanceReportController::class, 'exportPdf'])->name('reports.pdf');
+            Route::get('reports/excel', [\App\Http\Controllers\Staff\AttendanceReportController::class, 'exportExcel'])->name('reports.excel');
 
-        // Settings
-        Route::get('settings', [\App\Http\Controllers\Staff\AttendanceSettingsController::class, 'edit'])->name('settings.edit');
-        Route::post('settings', [\App\Http\Controllers\Staff\AttendanceSettingsController::class, 'update'])->name('settings.update');
+            // Settings
+            Route::get('settings', [\App\Http\Controllers\Staff\AttendanceSettingsController::class, 'edit'])->name('settings.edit');
+            Route::post('settings', [\App\Http\Controllers\Staff\AttendanceSettingsController::class, 'update'])->name('settings.update');
 
-        // Validation Validation
-        Route::get('validation', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'index'])->name('validation.index');
-        Route::post('validation/{id}/validate', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'validateAttendance'])->name('validation.validate');
-        Route::post('validation/{id}/reject', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'reject'])->name('validation.reject');
-        Route::post('validation/{id}/correct', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'correct'])->name('validation.correct');
+            // Validation Validation
+            Route::get('validation', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'index'])->name('validation.index');
+            Route::post('validation/{id}/validate', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'validateAttendance'])->name('validation.validate');
+            Route::post('validation/{id}/reject', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'reject'])->name('validation.reject');
+            Route::post('validation/{id}/correct', [\App\Http\Controllers\Staff\AttendanceValidationController::class, 'correct'])->name('validation.correct');
 
-        // Security / Access Control
-        Route::get('security/simulator', [\App\Http\Controllers\Staff\AccessControlController::class, 'simulator'])->name('security.simulator');
-        Route::get('security/logs', [\App\Http\Controllers\Staff\AccessControlController::class, 'logs'])->name('security.logs');
-        Route::post('security/scan', [\App\Http\Controllers\Staff\AccessControlController::class, 'scan'])->name('security.scan');
-    });
+            // Security / Access Control
+            Route::get('security/simulator', [\App\Http\Controllers\Staff\AccessControlController::class, 'simulator'])->name('security.simulator');
+            Route::get('security/logs', [\App\Http\Controllers\Staff\AccessControlController::class, 'logs'])->name('security.logs');
+            Route::post('security/scan', [\App\Http\Controllers\Staff\AccessControlController::class, 'scan'])->name('security.scan');
+        });
 
-    // Staff Planning & Leaves
-    Route::prefix('staff')->name('staff.')->group(function () {
-        Route::get('planning', [StaffPlanningController::class, 'index'])->name('planning.index');
-        Route::get('planning/events', [StaffPlanningController::class, 'events'])->name('planning.events');
-        Route::post('planning/store', [StaffPlanningController::class, 'storeSchedule'])->name('planning.store');
-        Route::put('planning/{id}', [StaffPlanningController::class, 'updateSchedule'])->name('planning.update');
-        Route::delete('planning/{id}', [StaffPlanningController::class, 'destroySchedule'])->name('planning.destroy')->middleware('role:admin');
+        // Staff Planning & Leaves
+        Route::prefix('staff')->name('staff.')->group(function () {
+            Route::get('planning', [StaffPlanningController::class, 'index'])->name('planning.index');
+            Route::get('planning/events', [StaffPlanningController::class, 'events'])->name('planning.events');
+            Route::post('planning/store', [StaffPlanningController::class, 'storeSchedule'])->name('planning.store');
+            Route::put('planning/{id}', [StaffPlanningController::class, 'updateSchedule'])->name('planning.update');
+            Route::delete('planning/{id}', [StaffPlanningController::class, 'destroySchedule'])->name('planning.destroy')->middleware('role:admin');
 
-        Route::get('leaves', [StaffPlanningController::class, 'indexLeaves'])->name('leaves.index');
-        Route::post('leaves', [StaffPlanningController::class, 'storeLeave'])->name('leaves.store');
-        Route::post('leaves/{id}/status', [StaffPlanningController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
-        Route::delete('leaves/{id}', [StaffPlanningController::class, 'destroyLeave'])->name('leaves.destroy')->middleware('role:admin');
+            Route::get('leaves', [StaffPlanningController::class, 'indexLeaves'])->name('leaves.index');
+            Route::post('leaves', [StaffPlanningController::class, 'storeLeave'])->name('leaves.store');
+            Route::post('leaves/{id}/status', [StaffPlanningController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
+            Route::delete('leaves/{id}', [StaffPlanningController::class, 'destroyLeave'])->name('leaves.destroy')->middleware('role:admin');
+        });
+
+        // Coaches (Protected by HR License)
+        Route::resource('coaches', CoachController::class);
+        
+        // Coach Planning
+        Route::get('coaches-planning', [CoachPlanningController::class, 'index'])->name('coaches.planning');
+        Route::post('coaches-planning/update', [CoachPlanningController::class, 'updateSlot'])->name('coaches.planning.update');
+
+        // Coach Reporting
+        Route::get('coaches-reports', [CoachReportingController::class, 'index'])->name('coaches.reports.index');
+        Route::get('coaches-reports/preview', [CoachReportingController::class, 'preview'])->name('coaches.reports.preview');
+        Route::get('coaches-reports/export', [CoachReportingController::class, 'exportPdf'])->name('coaches.reports.export');
+        Route::get('coaches-reports/export-excel', [CoachReportingController::class, 'exportExcel'])->name('coaches.reports.excel');
+        Route::get('coaches-reports/global-export', [CoachReportingController::class, 'exportGlobalPdf'])->name('coaches.reports.global');
+        Route::get('coaches-reports/global-export-excel', [CoachReportingController::class, 'exportGlobalExcel'])->name('coaches.reports.global.excel');
+
+        // Coach Attendance
+        Route::get('coaches-attendance', [CoachAttendanceController::class, 'index'])->name('coaches.attendance.index');
+
+
     });
 
     // Activities
@@ -152,14 +223,20 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
 
     // Partner Groups
     Route::resource('partner-groups', PartnerGroupController::class)->except(['destroy']);
+    Route::prefix('partner-groups')->name('partner-groups.')->group(function() {
+        Route::get('/{partnerGroup}/attendance', [PartnerGroupController::class, 'attendance'])->name('attendance');
+        Route::post('/{partnerGroup}/badges', [PartnerGroupController::class, 'addBadge'])->name('badges.add');
+        Route::post('/{partnerGroup}/badges/{badge}/toggle', [PartnerGroupController::class, 'toggleBadgeStatus'])->name('badges.toggle');
+        Route::delete('/{partnerGroup}/badges/{badge}', [PartnerGroupController::class, 'removeBadge'])->name('badges.remove');
+        
+        Route::post('/{partnerGroup}/slots', [PartnerGroupController::class, 'addSlot'])->name('slots.add');
+        Route::delete('/{partnerGroup}/slots/{slot}', [PartnerGroupController::class, 'removeSlot'])->name('slots.remove');
+
+        Route::post('/{partnerGroup}/subscription', [PartnerGroupController::class, 'storeSubscription'])->name('subscription.store');
+    });
     Route::delete('partner-groups/{partner_group}', [PartnerGroupController::class, 'destroy'])->name('partner-groups.destroy')->middleware('role:admin');
 
-    // Reservations
-    Route::get('reservations/search-members', [ReservationController::class, 'searchMembers'])->name('reservations.searchMembers');
-    Route::get('reservations/search-groups', [ReservationController::class, 'searchGroups'])->name('reservations.searchGroups');
-    Route::get('reservations/search', [ReservationController::class, 'search'])->name('reservations.search');
-    Route::resource('reservations', ReservationController::class)->except(['show', 'edit', 'update', 'destroy']);
-    Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy')->middleware('role:admin');
+
 
     // Attendance Dashboard & Reports (Admin Only)
     Route::middleware(['role:admin'])->group(function () {
@@ -174,7 +251,7 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
     });
 
     // Schedule (Calendar) - Admin: full access, Réceptionniste: read-only, Others: no access
-    Route::middleware('role:admin,réceptionniste')->group(function () {
+    Route::middleware('role:admin,receptionniste')->group(function () {
         Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
         Route::get('/schedule/events', [ScheduleController::class, 'events'])->name('schedule.events');
         Route::get('/schedule/details/{id}', [ScheduleController::class, 'details'])->name('schedule.details');
@@ -192,32 +269,17 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
         Route::get('/show/{id}', [AuditLogController::class, 'show'])->name('show');
     });
 
-    // Coaches
-    // Coaches
-    Route::resource('coaches', CoachController::class);
-    
-    // Coach Planning
-    Route::get('coaches-planning', [CoachPlanningController::class, 'index'])->name('coaches.planning');
-    Route::post('coaches-planning/update', [CoachPlanningController::class, 'updateSlot'])->name('coaches.planning.update');
 
-    // Coach Reporting
-    Route::get('coaches-reports', [CoachReportingController::class, 'index'])->name('coaches.reports.index');
-    Route::get('coaches-reports/preview', [CoachReportingController::class, 'preview'])->name('coaches.reports.preview');
-    Route::get('coaches-reports/export', [CoachReportingController::class, 'exportPdf'])->name('coaches.reports.export');
-    Route::get('coaches-reports/export-excel', [CoachReportingController::class, 'exportExcel'])->name('coaches.reports.excel');
-    Route::get('coaches-reports/global-export', [CoachReportingController::class, 'exportGlobalPdf'])->name('coaches.reports.global');
-    Route::get('coaches-reports/global-export-excel', [CoachReportingController::class, 'exportGlobalExcel'])->name('coaches.reports.global.excel');
 
-    // Coach Attendance
-    Route::get('coaches-attendance', [CoachAttendanceController::class, 'index'])->name('coaches.attendance.index');
-
-    // Shop (Products)
-    Route::resource('products', ProductController::class);
-    Route::get('products/image/{image}/delete', [ProductController::class, 'deleteImage'])->name('products.deleteImage');
-    Route::resource('categories', CategoryController::class);
+    // Shop (Products) - Inventory
+    Route::middleware('module:shop')->group(function() {
+        Route::resource('products', ProductController::class);
+        Route::get('products/image/{image}/delete', [ProductController::class, 'deleteImage'])->name('products.deleteImage');
+        Route::resource('categories', CategoryController::class);
+    });
 
     // Shop (POS) - Admin & Receptionniste
-    Route::middleware(['role:admin,receptionniste'])->group(function () {
+    Route::middleware(['role:admin,receptionniste', 'module:shop'])->group(function () {
         Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
         Route::get('/shop/sale/{id}/receipt', [ShopController::class, 'downloadReceipt'])->name('shop.sale.receipt'); // Shared Receipt Logic
         Route::get('/shop/sale/{id}/ticket', [ShopController::class, 'downloadTicket'])->name('shop.sale.ticket'); // Thermal Ticket Logic
@@ -228,7 +290,7 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
     // Sales Dashboard - Admin Only
     Route::middleware(['role:admin'])->get('/sales/dashboard', [SalesDashboardController::class, 'index'])->name('sales.dashboard');
 });
-Route::middleware(['auth', 'pgaudit'])->prefix('finance')->group(function () {
+Route::middleware(['auth', 'pgaudit', 'module:finance'])->prefix('finance')->group(function () {
     
     Route::middleware('permission:finance.view_stats')->group(function () {
         Route::get('/', [FinanceController::class, 'dashboard'])->name('finance.dashboard');
@@ -239,20 +301,7 @@ Route::middleware(['auth', 'pgaudit'])->prefix('finance')->group(function () {
     Route::resource('plans', PlanController::class)->except(['show', 'destroy']);
     Route::delete('plans/{plan}', [PlanController::class, 'destroy'])->name('plans.destroy')->middleware('role:admin');
 
-    // Subscriptions
-    Route::middleware('permission:subscriptions.view')->get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-    Route::get('subscriptions/create', [SubscriptionController::class, 'create'])->name('subscriptions.create')->middleware('permission:subscriptions.create');
-    Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store')->middleware('permission:subscriptions.create');
-    Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit')->middleware('permission:subscriptions.edit');
-    Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update')->middleware('permission:subscriptions.edit');
-    Route::delete('subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy')->middleware('permission:subscriptions.delete');
-    
-    Route::post('subscriptions/{id}/deactivate', [SubscriptionController::class, 'deactivate'])->name('subscriptions.deactivate');
-    Route::get('member-subscriptions', [MemberSubscriptionController::class, 'index'])->name('members.subscriptions.index');
 
-    // Payment AJAX
-    Route::post('subscriptions/{subscription}/payments/ajax', [PaymentController::class, 'storeAjax'])
-        ->name('subscriptions.payments.ajax')->middleware('permission:payments.create');
 
     // Payments
     Route::middleware('permission:payments.view')->get('payments', [PaymentController::class, 'index'])->name('payments.index');
@@ -284,35 +333,14 @@ Route::middleware(['auth', 'pgaudit'])->prefix('finance')->group(function () {
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy')->middleware('permission:expenses.delete');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Reception Area (Admin + Receptionniste)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:admin,receptionniste', 'pgaudit'])->prefix('reception')->group(function () {
-    Route::get('/', [ReceptionController::class, 'index'])->name('reception.index');
-    Route::get('/scan', [ReceptionController::class, 'scan'])->name('reception.scan');
-    Route::post('member/add', [ReceptionController::class, 'storeMember'])->name('reception.member.store');
-    Route::post('badge/update/{member}', [ReceptionController::class, 'updateBadge'])->name('reception.badge.update');
-    Route::post('checkin/{member}', [ReceptionController::class, 'checkIn'])->name('reception.checkin');
-    Route::post('checkin-badge', [ReceptionController::class, 'checkInByBadge'])->name('reception.checkin.badge');
 
-
-
-    // AJAX
-    Route::get('search', [ReceptionController::class, 'search'])->name('reception.search');
-    Route::get('member/{member}/logs', [ReceptionController::class, 'memberLogs'])->name('reception.member.logs');
-    Route::get('today-accesses', [ReceptionController::class, 'todayAccesses'])->name('reception.today.accesses');
-
-
-});
 
 /*
 |--------------------------------------------------------------------------
 | Pool Maintenance Module
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'pgaudit'])->prefix('pool')->name('pool.')->group(function () {
+Route::middleware(['auth', 'pgaudit', 'module:operations'])->prefix('pool')->name('pool.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Pool\PoolDashboardController::class, 'index'])->name('dashboard');

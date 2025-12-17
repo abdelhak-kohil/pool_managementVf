@@ -31,7 +31,7 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, \App\Modules\Shop\Actions\Inventory\CreateProductAction $action)
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -44,37 +44,32 @@ class ProductController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $product = Product::create($request->except('images'));
+        try {
+            $dto = \App\Modules\Shop\DTOs\ProductData::fromRequest($request);
+            $product = $action->execute($dto);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create([
-                    'image_path' => $path,
-                    'is_primary' => $index === 0 // First image is primary by default
-                ]);
-                
-                // Set legacy image_path for backward compatibility
-                if ($index === 0) {
-                    $product->update(['image_path' => $path]);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $index => $image) {
+                    $path = $image->store('products', 'public');
+                    $product->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => $index === 0 
+                    ]);
+                    
+                    if ($index === 0) {
+                        $product->update(['image_path' => $path]);
+                    }
                 }
             }
+
+            return redirect()->route('products.index')->with('success', 'Produit créé avec succès.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Erreur création produit : ' . $e->getMessage())->withInput();
         }
-
-        return redirect()->route('products.index')->with('success', 'Produit créé avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+    // ... show ...
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Product $product)
     {
         $categories = Category::all();
@@ -84,7 +79,7 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product, \App\Modules\Shop\Actions\Inventory\UpdateProductAction $action)
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -97,24 +92,28 @@ class ProductController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $product->update($request->except('images'));
+        try {
+            $dto = \App\Modules\Shop\DTOs\ProductData::fromRequest($request);
+            $action->execute($product, $dto);
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create([
-                    'image_path' => $path,
-                    'is_primary' => false
-                ]);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('products', 'public');
+                    $product->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => false
+                    ]);
+                }
+                
+                if (!$product->image_path && $product->images()->exists()) {
+                    $product->update(['image_path' => $product->images()->first()->image_path]);
+                }
             }
-            
-            // Update legacy image_path if it's empty and we have images
-            if (!$product->image_path && $product->images()->exists()) {
-                $product->update(['image_path' => $product->images()->first()->image_path]);
-            }
+
+            return redirect()->route('products.index')->with('success', 'Produit mis à jour avec succès.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Erreur maj produit : ' . $e->getMessage())->withInput();
         }
-
-        return redirect()->route('products.index')->with('success', 'Produit mis à jour avec succès.');
     }
 
     /**

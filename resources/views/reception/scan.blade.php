@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Borne d'Accès</title>
     
     <!-- Fonts -->
@@ -126,6 +127,11 @@
                 <div class="space-y-1">
                     <h2 class="text-3xl font-bold text-slate-800" x-text="profile.name"></h2>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800" x-text="profile.type"></span>
+                    
+                    <template x-if="profile.remaining_sessions !== null">
+                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-800" 
+                               x-text="'Séances restantes : ' + profile.remaining_sessions"></span>
+                    </template>
                 </div>
 
                 <div class="w-full bg-slate-50 rounded-xl p-4 border border-slate-100 mt-2">
@@ -135,6 +141,35 @@
             
             <!-- Confetti Effect (CSS only implementation for simplicity) -->
             <div class="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(circle,_#10b981_2px,transparent_2.5px)] bg-[length:24px_24px]"></div>
+        </div>
+
+        <!-- GROUP CHECK-IN FORM -->
+        <div x-show="state === 'group_checkin'" x-cloak
+             x-transition:enter="transition cubic-bezier(0.175, 0.885, 0.32, 1.275) duration-700" 
+             x-transition:enter-start="opacity-0 scale-90" 
+             x-transition:enter-end="opacity-100 scale-100"
+             class="glass-panel w-full max-w-xl rounded-3xl p-10 shadow-2xl border-t-4 border-blue-500 text-center relative">
+            
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Entrée Groupe</h2>
+            <h3 class="text-xl text-blue-600 font-semibold mb-6" x-text="profile.name || 'Groupe Inconnu'"></h3>
+
+            <div class="mb-6">
+                <label class="block text-slate-600 text-sm font-bold mb-2">Nombre de participants</label>
+                <div class="flex items-center justify-center gap-4">
+                    <button @click="countInput = Math.max(1, countInput - 1)" 
+                            class="w-12 h-12 rounded-full bg-slate-200 text-slate-600 font-bold text-xl hover:bg-slate-300 transition">-</button>
+                    <input type="number" x-model.number="countInput" 
+                           class="w-24 text-center text-3xl font-bold text-slate-800 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-0 p-2" 
+                           min="1">
+                    <button @click="countInput++" 
+                            class="w-12 h-12 rounded-full bg-slate-200 text-slate-600 font-bold text-xl hover:bg-slate-300 transition">+</button>
+                </div>
+            </div>
+
+            <button @click="submitGroupCheck()" 
+                    class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 transition transform hover:scale-[1.02] active:scale-95">
+                Valider l'Entrée
+            </button>
         </div>
 
         <!-- ERROR STATE -->
@@ -195,9 +230,11 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('kioskScanner', () => ({
-                state: 'idle', // idle, processing, success, error
+                state: 'idle', // idle, processing, success, error, group_checkin
                 serverMessage: '',
                 profile: { name: '', photo: '', type: '' },
+                countInput: 1,
+                currentBadge: null,
                 resetTimer: null,
                 currentTime: '',
 
@@ -222,12 +259,10 @@
                             enabledTransports: ['ws', 'wss'],
                         });
 
-                        console.log('Kiosk: Listening for events...');
+                        console.log('Kiosk: Listening for events on reception channel...');
                         window.Echo.channel('reception')
-                            .listen('.BadgeScanned', (e) => {
-                                console.log('Event received:', e);
-                                this.handleRemoteScan(e);
-                            });
+                            .listen('.BadgeScanned', (e) => this.handleRemoteScan(e))
+                            .listen('BadgeScanned', (e) => this.handleRemoteScan(e));
                     };
 
                     const checkScripts = setInterval(() => {
@@ -245,22 +280,72 @@
                     });
                 },
 
+                submitGroupCheck() {
+                    if (!this.currentBadge) return;
+                    
+                    fetch('{{ route('reception.checkin.group') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            badge_uid: this.currentBadge,
+                            attendees: this.countInput
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                             // Success is handled by broadcast usually, but we can set it here too to be snappy
+                             this.state = 'success';
+                             this.serverMessage = data.message;
+                        } else {
+                             this.state = 'error';
+                             this.serverMessage = data.message;
+                        }
+                        this.countInput = 1;
+                        this.currentBadge = null;
+                        this.autoReset();
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        this.state = 'error';
+                        this.serverMessage = "Erreur de connexion";
+                        this.autoReset();
+                    });
+                },
+
                 handleRemoteScan(data) {
                     if (this.state === 'success' || this.state === 'error') {
-                        // Debounce slightly if swiping fast, or just overwrite immediately
                         if (this.resetTimer) clearTimeout(this.resetTimer);
+                    }
+
+                    // GROUP CHECK-IN FLOW
+                    if (data.action === 'request_count') {
+                        this.state = 'group_checkin';
+                        this.currentBadge = data.badge_uid;
+                        this.profile = data.person;
+                        this.countInput = 1;
+                        // Don't auto-reset while typing
+                        if (this.resetTimer) clearTimeout(this.resetTimer);
+                        return;
                     }
 
                     this.state = data.decision === 'granted' ? 'success' : 'error';
                     this.serverMessage = data.decision === 'granted' 
-                        ? (data.reason || 'Accès Autorisé') // Use reason field for "Bienvenue..." usually
+                        ? (data.reason || 'Accès Autorisé') 
                         : (data.reason || 'Accès Refusé');
                     
                     if (data.person) {
                         this.profile = data.person;
                     }
 
-                    // Auto-reset
+                    this.autoReset();
+                },
+
+                autoReset() {
+                    if (this.resetTimer) clearTimeout(this.resetTimer);
                     this.resetTimer = setTimeout(() => {
                         this.state = 'idle';
                     }, 4000);

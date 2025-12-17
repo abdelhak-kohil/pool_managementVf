@@ -91,7 +91,8 @@ public function create()
 
 
     // === STORE NEW PAYMENT ===
-    public function store(Request $request)
+    // === STORE NEW PAYMENT ===
+    public function store(Request $request, \App\Modules\Finance\Actions\Payments\CreatePaymentAction $action)
     {
         $request->validate([
             'subscription_id' => 'required|exists:subscriptions,subscription_id',
@@ -101,14 +102,8 @@ public function create()
         ]);
 
         try {
-            Payment::create([
-                'subscription_id'     => $request->subscription_id,
-                'amount'              => $request->amount,
-                'payment_method'      => $request->payment_method,
-                'received_by_staff_id'=> Auth::user()->staff_id,
-                'notes'               => $request->notes,
-                'payment_date'        => now(),
-            ]);
+            $dto = \App\Modules\Finance\DTOs\PaymentData::fromRequest($request);
+            $action->execute($dto, Auth::user()->staff_id);
 
             return redirect()->route('payments.index')
                 ->with('success', 'Paiement enregistré avec succès ✅');
@@ -117,10 +112,8 @@ public function create()
         }
     }
 
-
-
 // ====   store with Ajax ========
-public function storeAjax(Request $request, Subscription $subscription)
+public function storeAjax(Request $request, Subscription $subscription, \App\Modules\Finance\Actions\Payments\CreatePaymentAction $action)
 {
     try {
         $validated = $request->validate([
@@ -129,24 +122,18 @@ public function storeAjax(Request $request, Subscription $subscription)
             'notes' => 'nullable|string',
         ]);
 
-        // Insert new payment
-        $paymentId = DB::table('pool_schema.payments')->insertGetId([
-            'subscription_id' => $subscription->subscription_id,
-            'amount' => $validated['amount'],
-            'payment_method' => $validated['payment_method'],
-            'notes' => $validated['notes'] ?? null,
-            'received_by_staff_id' => Auth::user()->staff_id ?? 1,
-            'payment_date' => now(),
-        ],'payment_id');
+        // Manually build DTO since Ajax request format matches generic PaymentData needs (except date which is auto)
+        // Actually fromRequest uses input keys which match.
+        // We need to inject subscription_id into request or manual DTO map if not present in input.
+        // The ajax route is POST /subscriptions/{subscription}/payments/ajax
+        // Does the request body contain subscription_id? Likely not, passed via URL.
+        // We must merge it or construct DTO manually.
+        $request->merge(['subscription_id' => $subscription->subscription_id]);
+        
+        $dto = \App\Modules\Finance\DTOs\PaymentData::fromRequest($request);
+        $newPayment = $action->execute($dto, Auth::user()->staff_id ?? 1);
 
-        // Get inserted payment info
-        $newPayment = DB::table('pool_schema.payments')
-            ->join('pool_schema.staff', 'pool_schema.staff.staff_id', '=', 'pool_schema.payments.received_by_staff_id')
-            ->select('payment_id', 'amount', 'payment_method', 'payment_date', 'staff.first_name as staff_name')
-            ->where('payment_id', $paymentId)
-            ->first();
-
-        // Recalculate payment summary
+        // Recalculate payment summary (Logic remains here for response formatting)
         $payments = DB::table('pool_schema.payments')
             ->where('subscription_id', $subscription->subscription_id)
             ->get();
@@ -160,14 +147,20 @@ public function storeAjax(Request $request, Subscription $subscription)
         $remaining = max(0, $planPrice - $totalPaid);
         $progress = $planPrice > 0 ? round(($totalPaid / $planPrice) * 100, 1) : 0;
 
+        // Need staff name for response. $newPayment is model, has relationships if configured, or we query.
+        $staffName = $newPayment->staff ? $newPayment->staff->first_name : 'N/A';
+        // Or using previous query logic if model relations not loaded:
+        if (!$newPayment->relationLoaded('staff')) $newPayment->load('staff');
+        $staffName = $newPayment->staff ? $newPayment->staff->first_name : 'N/A';
+
         return response()->json([
             'success' => true,
             'message' => 'Paiement ajouté avec succès.',
             'payment' => [
-                'date' => \Carbon\Carbon::parse($newPayment->payment_date)->format('d/m/Y H:i'),
+                'date' => $newPayment->payment_date ? \Carbon\Carbon::parse($newPayment->payment_date)->format('d/m/Y H:i') : now()->format('d/m/Y H:i'),
                 'amount' => number_format($newPayment->amount, 2),
                 'method' => ucfirst($newPayment->payment_method),
-                'staff' => $newPayment->staff_name ?? 'N/A',
+                'staff' => $staffName,
             ],
             'summary' => [
                 'totalPaid' => number_format($totalPaid, 2),
@@ -200,7 +193,7 @@ public function storeAjax(Request $request, Subscription $subscription)
     }
 
     // === UPDATE PAYMENT ===
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, \App\Modules\Finance\Actions\Payments\UpdatePaymentAction $action)
     {
         $request->validate([
             'subscription_id' => 'required|exists:subscriptions,subscription_id',
@@ -211,14 +204,8 @@ public function storeAjax(Request $request, Subscription $subscription)
 
         try {
             $payment = Payment::findOrFail($id);
-            $payment->update([
-                'subscription_id'     => $request->subscription_id,
-                'amount'              => $request->amount,
-                'payment_method'      => $request->payment_method,
-                'notes'               => $request->notes,
-                'received_by_staff_id'=> Auth::user()->staff_id,
-                'payment_date'        => now(),
-            ]);
+            $dto = \App\Modules\Finance\DTOs\PaymentData::fromRequest($request);
+            $action->execute($payment, $dto, Auth::user()->staff_id);
 
             return redirect()->route('payments.index')
                 ->with('success', 'Paiement mis à jour avec succès ✅');
@@ -228,10 +215,11 @@ public function storeAjax(Request $request, Subscription $subscription)
     }
 
     // === DELETE PAYMENT ===
-    public function destroy($id)
+    public function destroy($id, \App\Modules\Finance\Actions\Payments\DeletePaymentAction $action)
     {
         try {
-            Payment::findOrFail($id)->delete();
+            $payment = Payment::findOrFail($id);
+            $action->execute($payment);
             return redirect()->route('payments.index')->with('success', 'Paiement supprimé avec succès 🗑️');
         } catch (Throwable $e) {
             return back()->with('error', 'Erreur lors de la suppression : ' . $e->getMessage());

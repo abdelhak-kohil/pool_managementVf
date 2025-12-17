@@ -56,7 +56,9 @@
         /* === Data envoyé à AlpineJS === */
         $subData = [
           'id' => $sub->subscription_id,
-          'member' => $sub->member->first_name . ' ' . $sub->member->last_name,
+          'member' => $sub->member 
+              ? $sub->member->first_name . ' ' . $sub->member->last_name 
+              : ($sub->partnerGroup->name ?? 'Groupe Partenaire'),
 
           'badge' => [
             'uid' => $badge->badge_uid ?? 'Aucun',
@@ -100,7 +102,17 @@
 
       <tr class="hover:bg-blue-50 transition">
         <td class="py-3 px-4 text-gray-500">{{ ($subscriptions->currentPage() - 1) * $subscriptions->perPage() + $loop->iteration }}</td>
-        <td class="py-3 px-4 font-medium">{{ $sub->member->first_name }} {{ $sub->member->last_name }}</td>
+        <td class="py-3 px-4 font-medium">
+            @if($sub->member)
+                {{ $sub->member->first_name }} {{ $sub->member->last_name }}
+            @elseif($sub->partnerGroup)
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    🏢 {{ $sub->partnerGroup->name }}
+                </span>
+            @else
+                <span class="text-gray-400 italic">Inconnu</span>
+            @endif
+        </td>
         <td class="py-3 px-4">{{ $sub->activity->name ?? '-' }}</td>
         <td class="py-3 px-4">{{ $sub->start_date->format('Y-m-d') }} → {{ $sub->end_date->format('Y-m-d') }}</td>
         <td class="py-3 px-4 text-center">{{ $sub->visits_per_week ?? '-' }}</td>

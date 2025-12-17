@@ -54,4 +54,10 @@ class TimeSlot extends Model
     {
         return $this->hasMany(\App\Models\Finance\SubscriptionSlot::class, 'slot_id');
     }
+
+    public function partnerGroups()
+    {
+        return $this->belongsToMany(\App\Models\Member\PartnerGroup::class, 'pool_schema.partner_group_slots', 'slot_id', 'partner_group_id')
+                    ->withPivot(['id', 'max_capacity']);
+    }
 }

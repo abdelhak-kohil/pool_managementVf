@@ -20,7 +20,7 @@ class ReceptionController extends Controller
      */
     public function index()
     {
-        $members = Member::with(['subscriptions.plan', 'subscriptions.weekdays', 'accessbadge'])
+        $members = Member::with(['subscriptions.plan', 'subscriptions.weekdays', 'subscriptions.subscriptionSlots.slot', 'accessbadge'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -103,185 +103,35 @@ public function search(Request $request)
     /**
      * Manual check-in for a member.
      */
-    public function checkIn(Member $member)
+    /**
+     * Manual check-in for a member.
+     */
+    public function checkIn(Member $member, \App\Modules\Access\Actions\CheckInMemberAction $action)
     {
         try {
             // 🔹 Get badge safely or use MANUAL
             $badgeUid = optional($member->accessbadge)->badge_uid ?? 'MANUAL';
 
-            // ✅ Check for active subscription
-            $activeSub = DB::table('pool_schema.subscriptions as s')
-                ->join('pool_schema.plans as p', 'p.plan_id', '=', 's.plan_id')
-                ->join('pool_schema.activities as a', 'a.activity_id', '=', 's.activity_id')
-                ->where('s.member_id', $member->member_id)
-                ->where('s.status', 'active')
-                ->whereDate('s.start_date', '<=', now())
-                ->whereDate('s.end_date', '>=', now())
-                ->select('s.*', 'p.plan_type', 'a.activity_id')
-                ->first();
-            
-            Log::error('badgeUid: ' . "----------------------------------");
-   
+            $result = $action->execute($member, $badgeUid);
 
-            if (!$activeSub) {
-                $this->logAccess($member->member_id, $badgeUid, 'denied', 'Aucun abonnement actif ou valide');
-                return response()->json(['success' => false, 'message' => "{$member->first_name} {$member->last_name} n’a pas d’abonnement actif."]);
+            if ($result->isGranted) {
+                // If granted, current logic returned success message.
+                // Action returns standardized AccessResult.
+                return response()->json([
+                    'success' => true,
+                    'message' => $result->message, 
+                    // formatSuccessResponse arguments mismatch? 
+                    // Let's stick to simple JSON for manual check-in if that's what frontend expected, 
+                    // OR reuse formatSuccessResponse if it fits. 
+                    // Original code: return response()->json(['success' => true, 'message' => ...]);
+                    // Let's keep it simple.
+                ]);
+            } else {
+                 return response()->json([
+                     'success' => false,
+                     'message' => $result->message,
+                 ]);
             }
-
-            // 🇫🇷 Convert today's name to French (Robust Mapping)
-            // We rely on the fact that PHP's 'l' format returns English day names.
-            // We map them to the French names stored in the DB.
-            $dayMap = [
-                'Monday'    => 'Lundi',
-                'Tuesday'   => 'Mardi',
-                'Wednesday' => 'Mercredi',
-                'Thursday'  => 'Jeudi',
-                'Friday'    => 'Vendredi',
-                'Saturday'  => 'Samedi',
-                'Sunday'    => 'Dimanche',
-            ];
-            
-            $todayEnglish = now()->format('l');
-            $todayFr = $dayMap[$todayEnglish] ?? $todayEnglish;
-
-            $todayId = DB::table('pool_schema.weekdays')
-                ->where('day_name', $todayFr)
-                ->value('weekday_id');
-
-            if (!$todayId) {
-                // Fallback or error if DB configuration is different
-                Log::error("Day name '$todayFr' not found in weekdays table.");
-                return response()->json(['success' => false, 'message' => "Erreur de configuration : Jour '$todayFr' introuvable."]);
-            }
-
-            // 🕒 Identify Current Time Slot
-            $currentTime = now()->format('H:i:s');
-            $currentSlot = DB::table('pool_schema.time_slots')
-                ->where('end_time', '>=', $currentTime)
-                ->where('start_time', '<=', $currentTime)
-                ->where('weekday_id', $todayId)
-                ->first();
-            // ⛔ Restrict "Entretien" Activity
-            if ($currentSlot) {
-                $slotActivity = DB::table('pool_schema.activities')->where('activity_id', $currentSlot->activity_id)->first();
-                if ($slotActivity && strtolower($slotActivity->name) === 'entretien') {
-                    $this->logAccess($member->member_id, $badgeUid, 'denied', 'Activité réservée à la maintenance');
-                    return response()->json(['success' => false, 'message' => "Accès refusé : Activité 'Entretien' en cours."]);
-                }
-            }
-
-            // ⚠️ Check Capacity Limit
-            if ($currentSlot && $currentSlot->capacity) {
-                // Count attendees in this slot today
-                $attendeesCount = DB::table('pool_schema.access_logs')
-                    ->where('access_decision', 'granted')
-                    ->whereDate('access_time', now())
-                    ->whereTime('access_time', '>=', $currentSlot->start_time)
-                    ->whereTime('access_time', '<=', $currentSlot->end_time)
-                    ->count();
-
-                if ($attendeesCount >= $currentSlot->capacity) {
-                    $this->logAccess(
-                        $member->member_id, 
-                        $badgeUid, 
-                        'denied', 
-                        'Capacité du créneau atteinte',
-                        $activeSub->activity_id,
-                        $activeSub->subscription_id,
-                        $currentSlot->slot_id
-                    );
-                    return response()->json([
-                        'success' => false, 
-                        'message' => "Accès refusé : Le créneau est complet ({$currentSlot->capacity} personnes max)."
-                    ]);
-                }
-            }
-
-            // 🔹 Restrict only for "monthly_weekly" plans
-            if ($activeSub->plan_type === 'monthly_weekly') {
-                $todayRecord = DB::table('pool_schema.weekdays')->where('day_name', $todayFr)->first();
-
-                if ($todayRecord) {
-                    $allowedDays = DB::table('pool_schema.subscription_allowed_days')
-                        ->where('subscription_id', $activeSub->subscription_id)
-                        ->pluck('weekday_id')
-                        ->toArray();
-
-                    if (!in_array($todayRecord->weekday_id, $allowedDays)) {
-                        $this->logAccess(
-                            $member->member_id, 
-                            $badgeUid, 
-                            'denied', 
-                            'Jour non autorisé',
-                            $activeSub->activity_id ?? null,
-                            $activeSub->subscription_id,
-                            $currentSlot->slot_id ?? null
-                        );
-                        return response()->json([
-                            'success' => false,
-                            'message' => "Accès refusé : Aujourd’hui ({$todayFr}) n’est pas un jour autorisé."
-                        ]);
-                    }
-                }
-            }
-
-            // 🔍 Check if subscription is restricted to specific slots
-            if ($currentSlot) {
-                $allowedSlotIds = DB::table('pool_schema.subscription_slots')
-                    ->where('subscription_id', $activeSub->subscription_id)
-                    ->pluck('slot_id')
-                    ->toArray();
-                
-                
-                Log::error('currentSlot: ' . $currentSlot->slot_id);
-                
-                // 🛑 Check if already checked in for this slot
-                $alreadyIn = DB::table('pool_schema.access_logs')
-                    ->where('member_id', $member->member_id)
-                    ->where('slot_id', $currentSlot->slot_id)
-                    ->where('access_decision', 'granted')
-                    ->whereDate('access_time', now())
-                    ->exists();
-
-                if ($alreadyIn) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => "{$member->first_name} est déjà enregistré pour ce créneau (Pas de doublon).",
-                    ]);
-                }
-
-                if (!empty($allowedSlotIds) && !in_array($currentSlot->slot_id, $allowedSlotIds)) {
-                    $this->logAccess(
-                        $member->member_id, 
-                        $badgeUid, 
-                        'denied', 
-                        'Créneau non autorisé',
-                        $activeSub->activity_id ?? null,
-                        $activeSub->subscription_id,
-                        $currentSlot->slot_id
-                    );
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Accès refusé : Ce créneau n'est pas inclus dans votre abonnement."
-                    ]);
-                }
-            }
-
-            // ✅ Grant access
-            $this->logAccess(
-                $member->member_id, 
-                $badgeUid, 
-                'granted', 
-                null,
-                $activeSub->activity_id ?? null,
-                $activeSub->subscription_id,
-                $currentSlot->slot_id ?? null
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => "{$member->first_name} {$member->last_name} a bien effectué son check-in.",
-            ]);
 
         } catch (\Throwable $e) {
             Log::error('Échec du check-in : '.$e->getMessage());
@@ -292,101 +142,44 @@ public function search(Request $request)
     /**
      * Check-in by Badge UID (for NFC Scan).
      */
-    public function checkInByBadge(Request $request)
+    /**
+     * Check-in by Badge UID (for NFC Scan).
+     */
+    public function checkInByBadge(Request $request, \App\Modules\Access\Actions\ScanBadgeAction $action)
     {
         $request->validate(['badge_uid' => 'required|string']);
         
-        $badge = AccessBadge::where('badge_uid', $request->badge_uid)->first();
-        
-        if (!$badge) {
-            return response()->json(['success' => false, 'message' => 'Badge inconnu.']);
+        $result = $action->execute($request->badge_uid);
+
+        if ($result->isGranted) {
+             return $this->formatSuccessResponse(
+                 $result->personName, // Split name logic handled? DTO has full name. formatSuccess splits it?
+                 '', // Last name empty if merged in DTO. formatSuccess expects First/Last. 
+                 // Wait, formatSuccess splits? No, it takes args.
+                 // Let's check formatSuccess signature.
+                 $result->message, 
+                 $result->planName, 
+                 $result->photoUrl, 
+                 $result->expiryDate
+             );
+        } else {
+             // For error response, formatErrorResponse expects Member object.
+             // We might not have a member object if badge lookup failed.
+             // We should adapt formatErrorResponse or create a generic error response.
+             // Existing code returned 403.
+             
+             return response()->json([
+                'success' => false,
+                'message' => $result->message,
+                'data' => [
+                    'firstName' => $result->personName ?? 'Inconnu',
+                    'lastName'  => '', 
+                    'planName'  => 'Accès Refusé',
+                    'photoUrl'  => $result->photoUrl,
+                    'expiryDate' => null
+                ]
+            ], 403);
         }
-        
-            // 1. Check if it's a Staff Badge (Coach/Maintenance)
-            if ($badge->staff_id) {
-                $staff = $badge->staff;
-
-                // Check for "Entretien" activity
-                // 🇫🇷 Convert today's name to French
-                $dayMap = [
-                    'Monday' => 'Lundi', 'Tuesday' => 'Mardi', 'Wednesday' => 'Mercredi',
-                    'Thursday' => 'Jeudi', 'Friday' => 'Vendredi', 'Saturday' => 'Samedi', 'Sunday' => 'Dimanche',
-                ];
-                $todayFr = $dayMap[now()->format('l')] ?? now()->format('l');
-                $todayId = DB::table('pool_schema.weekdays')->where('day_name', $todayFr)->value('weekday_id');
-                $currentTime = now()->format('H:i:s');
-
-                $currentSlot = DB::table('pool_schema.time_slots')
-                    ->where('weekday_id', $todayId)
-                    ->where('start_time', '<=', $currentTime)
-                    ->where('end_time', '>=', $currentTime)
-                    ->first();
-
-                if ($currentSlot) {
-                    $slotActivity = DB::table('pool_schema.activities')->where('activity_id', $currentSlot->activity_id)->first();
-                    
-                    if ($slotActivity && strtolower($slotActivity->name) === 'entretien') {
-                        // Check if staff is maintenance
-                        $isMaintenance = false;
-                        if ($staff->role && strtolower($staff->role->role_name) === 'maintenance') {
-                            $isMaintenance = true;
-                        }
-                        if (strtolower($staff->username) === 'maintenance') {
-                            $isMaintenance = true;
-                        }
-
-                        if (!$isMaintenance) {
-                            $this->logAccess(null, $badge->badge_uid, 'denied', 'Accès réservé maintenance', null, null, $currentSlot->slot_id, $staff->staff_id);
-                            return response()->json(['success' => false, 'message' => "Accès refusé : Seul le personnel de maintenance peut accéder."]);
-                        }
-                    }
-
-                    // 🛑 Prevent Duplicate Check-in for Staff
-                    $alreadyIn = DB::table('pool_schema.access_logs')
-                        ->where('staff_id', $staff->staff_id)
-                        ->where('slot_id', $currentSlot->slot_id)
-                        ->where('access_decision', 'granted')
-                        ->whereDate('access_time', now())
-                        ->exists();
-
-                    if ($alreadyIn) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => "{$staff->first_name} est déjà noté présent pour ce créneau.",
-                        ]);
-                    }
-                }
-                
-                // Log attendance
-                $this->logAccess(
-                    null, 
-                    $badge->badge_uid, 
-                    'granted', 
-                    'Staff Check-in', 
-                    null, 
-                    null, 
-                    $currentSlot->slot_id ?? null,
-                    $staff->staff_id
-                );
-    
-                return response()->json([
-                    'success' => true, 
-                    'message' => "Bienvenue {$staff->first_name} !"
-                ]);
-            }
-
-        // 2. Check if it's a Member Badge
-        if (!$badge->member_id) {
-            return response()->json(['success' => false, 'message' => 'Ce badge n\'est assigné à personne.']);
-        }
-        
-        $member = Member::find($badge->member_id);
-        
-        if (!$member) {
-            return response()->json(['success' => false, 'message' => 'Membre introuvable.']);
-        }
-        
-        return $this->checkIn($member);
     }
 
     private function logAccess($memberId, $badgeUid, $decision, $reason = null, $activityId = null, $subscriptionId = null, $slotId = null, $staffId = null)

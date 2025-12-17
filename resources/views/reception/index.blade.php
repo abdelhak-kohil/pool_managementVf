@@ -138,7 +138,7 @@ document.addEventListener('alpine:init', () => {
 
     fetchMemberLogs(memberId) {
       this.memberLogs = []; // Reset visual
-      fetch(`/reception/member/${memberId}/logs`)
+      fetch(`/admin/reception/member/${memberId}/logs`)
         .then(res => res.json())
         .then(data => this.memberLogs = data)
         .catch(err => console.error('Logs fetch error:', err));
@@ -146,7 +146,7 @@ document.addEventListener('alpine:init', () => {
 
     checkIn(memberId) {
       Swal.showLoading();
-      fetch(`/reception/checkin/${memberId}`, {
+      fetch(`/admin/reception/checkin/${memberId}`, {
         method: 'POST',
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
       })

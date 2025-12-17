@@ -45,6 +45,11 @@ class Subscription extends Model
         return $this->belongsTo(\App\Models\Member\Member::class, 'member_id', 'member_id');
     }
 
+    public function partnerGroup()
+    {
+        return $this->belongsTo(\App\Models\Member\PartnerGroup::class, 'partner_group_id', 'group_id');
+    }
+
     public function plan()
     {
         return $this->belongsTo(Plan::class, 'plan_id', 'plan_id');

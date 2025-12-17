@@ -19,7 +19,10 @@ class RfidController extends Controller
      * Handle Member/Staff Check-In via RFID.
      * Matches logic from ReceptionController::checkInByBadge
      */
-    public function checkInMember(Request $request)
+    /**
+     * Handle Member/Staff Check-In via RFID.
+     */
+    public function checkInMember(Request $request, \App\Modules\Access\Actions\ScanBadgeAction $action)
     {
         $request->validate([
             'badge_uid' => 'required|string',
@@ -30,113 +33,104 @@ class RfidController extends Controller
         $readerId = $request->input('reader_id', 'API');
 
         try {
-            // 1. Find Badge
-            $badge = AccessBadge::where('badge_uid', $badgeUid)->first();
+            $result = $action->execute($badgeUid);
 
-            if (!$badge) {
+            if ($result->isGranted) {
+                // Success: Return expected Client Format
+                // The client likely expects: { success: true, message: ..., data: {...} }
+                // We should reuse the format methods if possible, but they are private.
+                // Or recreate response. Existing code used formatSuccessResponse.
+                
+                // Let's create a response compatible with the client.
+                return response()->json([
+                    'success' => true,
+                    'message' => $result->message,
+                    'data' => [
+                        'firstName' => explode(' ', $result->personName)[0] ?? '',
+                        'lastName' =>  explode(' ', $result->personName)[1] ?? '',
+                        'planName' => $result->planName ?? $result->personType, 
+                        'photoUrl' => $result->photoUrl,
+                        'expiryDate' => $result->expiryDate ? Carbon::parse($result->expiryDate)->toDateString() : 'Active',
+                        'remainingSessions' => $result->remainingSessions,
+                        // Pass raw result data in case it's a group or other special type
+                        'raw' => $result
+                    ]
+                ]);
+
+            } else {
                  return response()->json([
                     'success' => false,
-                    'message' => 'Badge inconnu.',
-                    'code' => 404
-                ], 404);
+                    'message' => $result->message
+                ], 403);
             }
 
-            // ---------------------------------------------------------
-            // A) STAFF CHECK-IN LOGIC
-            // ---------------------------------------------------------
-            if ($badge->staff_id) {
-                return $this->processStaffCheckIn($badge, $readerId);
+        } catch (\Exception $e) {
+            Log::error("Error processing RFID scan: " . $e->getMessage());
+             return response()->json([
+                'success' => false,
+                'message' => 'Erreur système: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function checkInGroup(Request $request, \App\Modules\Access\Actions\CheckInGroupAction $action)
+    {
+        try {
+            $request->validate([
+                'badge_uid' => 'required|string',
+                'attendees' => 'required|integer|min:1',
+                'reader_id' => 'nullable|string',
+            ]);
+
+            $badgeUid = $request->input('badge_uid');
+            $attendees = $request->input('attendees');
+            $readerId = $request->input('reader_id', 'API');
+            
+            // Find badge and staff (assume current user or override)
+            $badge = AccessBadge::where('badge_uid', $badgeUid)->first();
+            if (!$badge) {
+                return response()->json(['success' => false, 'message' => 'Badge introuvable.'], 404);
             }
 
-            // ---------------------------------------------------------
-            // B) MEMBER CHECK-IN LOGIC
-            // ---------------------------------------------------------
-            if (!$badge->member_id) {
-                return response()->json(['success' => false, 'message' => 'Badge non assigné.'], 404);
+            // Ideally, we need the Staff ID. For API usage, Auth::id() should work if authenticated as staff.
+            // Or passed via request. For now, assume generic staff or Auth.
+            // If not authenticated, we might need a default staff or error.
+            $staff = auth()->user() ? (auth()->user()->staff ?? Staff::first()) : Staff::first(); 
+
+            if (!$staff) {
+                 return response()->json(['success' => false, 'message' => 'Staff non identifié (Aucun profil Staff trouvé).'], 403);
             }
 
-            $member = Member::with(['subscriptions.plan', 'subscriptions.weekdays'])->find($badge->member_id);
-            if (!$member) {
-                return response()->json(['success' => false, 'message' => 'Membre introuvable.'], 404);
-            }
+            $result = $action->execute($badge, $staff, $attendees);
 
-            return $this->processMemberCheckIn($member, $badge->badge_uid, $readerId);
+            if ($result->isGranted) {
+                 return response()->json([
+                    'success' => true,
+                    'message' => $result->message,
+                    'data' => [
+                        'firstName' => $result->personName,
+                        'lastName' => '', // Groups generally just have a single name
+                        'planName' => $result->planName,
+                        'photoUrl' => $result->photoUrl,
+                        'expiryDate' => null,
+                        'remainingSessions' => $result->remainingSessions
+                    ]
+                ]);
+            } else {
+                 return response()->json([
+                    'success' => false,
+                    'message' => $result->message,
+                    'data' => [
+                        'firstName' => $result->personName, // Show group name even on error
+                        'planName' => 'Refusé'
+                    ]
+                ], 403);
+            }
 
         } catch (\Throwable $e) {
             Log::error("RFID Error: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()], 500);
         }
-    }
-
-    /**
-     * Process Staff Check-In
-     */
-    private function processStaffCheckIn($badge, $readerId)
-    {
-        $staff = $badge->staff;
-        if (!$staff) return response()->json(['success' => false, 'message' => 'Staff introuvable.'], 404);
-
-        // Date/Time setup
-        $dayMap = [
-            'Monday' => 'Lundi', 'Tuesday' => 'Mardi', 'Wednesday' => 'Mercredi',
-            'Thursday' => 'Jeudi', 'Friday' => 'Vendredi', 'Saturday' => 'Samedi', 'Sunday' => 'Dimanche',
-        ];
-        $todayFr = $dayMap[now()->format('l')] ?? now()->format('l');
-        $todayId = DB::table('pool_schema.weekdays')->where('day_name', $todayFr)->value('weekday_id');
-        $currentTime = now()->format('H:i:s');
-
-        // Identify Slot
-        $currentSlot = DB::table('pool_schema.time_slots')
-            ->where('weekday_id', $todayId)
-            ->where('start_time', '<=', $currentTime)
-            ->where('end_time', '>=', $currentTime)
-            ->first();
-
-        if ($currentSlot) {
-            $slotActivity = DB::table('pool_schema.activities')->where('activity_id', $currentSlot->activity_id)->first();
-            
-            // Maintenance Restriction
-            if ($slotActivity && strtolower($slotActivity->name) === 'entretien') {
-                $isMaintenance = false;
-                if ($staff->role && strtolower($staff->role->role_name) === 'maintenance') $isMaintenance = true;
-                if (strtolower($staff->username) === 'maintenance') $isMaintenance = true;
-
-                if (!$isMaintenance) {
-                    $this->logAccess(null, $badge->badge_uid, 'denied', 'Accès réservé maintenance', null, null, $currentSlot->slot_id, $staff->staff_id);
-                    return response()->json(['success' => false, 'message' => "Accès réservé à la maintenance."], 403);
-                }
-            }
-
-            // Duplicate Check
-            $alreadyIn = DB::table('pool_schema.access_logs')
-                ->where('staff_id', $staff->staff_id)
-                ->where('slot_id', $currentSlot->slot_id)
-                ->where('access_decision', 'granted')
-                ->whereDate('access_time', now())
-                ->exists();
-
-            if ($alreadyIn) {
-                // Return success but indicate already entered
-                 return $this->formatSuccessResponse(
-                    $staff->first_name,
-                    $staff->last_name,
-                    "Déjà présent (Staff)",
-                    "Staff",
-                    null
-                );
-            }
-        }
-
-        // Grant Access
-        $this->logAccess(null, $badge->badge_uid, 'granted', 'Staff Check-in', null, null, $currentSlot->slot_id ?? null, $staff->staff_id);
-
-        return $this->formatSuccessResponse(
-            $staff->first_name,
-            $staff->last_name,
-            "Bienvenue Staff",
-            "Personnel",
-            null
-        );
     }
 
     /**

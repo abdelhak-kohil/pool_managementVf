@@ -14,10 +14,10 @@ class AccessBadge extends Model
 
     protected $fillable = [
         'member_id',
+        'partner_group_id',
         'badge_uid',
         'status',
         'issued_at',
-        'expires_at',
         'expires_at',
         'staff_id',
     ];
@@ -40,5 +40,11 @@ class AccessBadge extends Model
     public function staff()
     {
         return $this->belongsTo(\App\Models\Staff\Staff::class, 'staff_id', 'staff_id');
+    }
+
+    // Badge belongs to a Partner Group
+    public function partnerGroup()
+    {
+        return $this->belongsTo(PartnerGroup::class, 'partner_group_id', 'group_id');
     }
 }

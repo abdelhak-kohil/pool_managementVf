@@ -21,25 +21,28 @@ class ActivityController extends Controller
         return view('activities.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Modules\Catalog\Actions\CreateActivityAction $action)
     {
         try {
-        
-        $data = $request->validate([
-            'name' => 'required|string|max:100|unique:activities,name',
-            'description' => 'nullable|string',
-            'access_type' => 'nullable|string|max:50',
-            'color_code' => 'nullable|string|max:20',
-            'is_active' => 'boolean'
-        ]);
-        
-        Activity::create($data);
-        return redirect()->route('activities.index')->with('success', 'Activité ajoutée avec succès.');
-        }catch (\Throwable $e) {
+            // Validation remains similar or can be moved to FormRequest. 
+            // DTO accepts Request, but validation should happen before DTO creation usually.
+            // Existing code validated inside store.
+            $request->validate([
+                'name' => 'required|string|max:100|unique:activities,name',
+                'description' => 'nullable|string',
+                'access_type' => 'nullable|string|max:50',
+                'color_code' => 'nullable|string|max:20',
+                'is_active' => 'boolean'
+            ]);
+            
+            $dto = \App\Modules\Catalog\DTOs\ActivityData::fromRequest($request);
+            $action->execute($dto);
+
+            return redirect()->route('activities.index')->with('success', 'Activité ajoutée avec succès.');
+        } catch (\Throwable $e) {
             Log::error('Erreur ajouter activity : ' . $e->getMessage());
             return back()->with('error', 'Impossible d\'ajouter cette activité.');
         }
-    
     }
 
     public function edit(Activity $activity)
@@ -47,9 +50,9 @@ class ActivityController extends Controller
         return view('activities.edit', compact('activity'));
     }
 
-    public function update(Request $request, Activity $activity)
+    public function update(Request $request, Activity $activity, \App\Modules\Catalog\Actions\UpdateActivityAction $action)
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:100|unique:activities,name,' . $activity->activity_id . ',activity_id',
             'description' => 'nullable|string',
             'access_type' => 'nullable|string|max:50',
@@ -57,7 +60,9 @@ class ActivityController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        $activity->update($data);
+        $dto = \App\Modules\Catalog\DTOs\ActivityData::fromRequest($request);
+        $action->execute($activity, $dto);
+
         return redirect()->route('activities.index')->with('success', 'Activité mise à jour avec succès.');
     }
 

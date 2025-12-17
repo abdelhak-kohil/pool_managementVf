@@ -38,27 +38,28 @@
                   Visibility="{Binding IsFeedbackActive, Converter={StaticResource BoolToVis}}" 
                   IsHitTestVisible="False">
                 <Border Background="{Binding BackgroundColor}" Opacity="0.95" CornerRadius="12">
+                   <!-- Content Omitted for brevity, logic remains same -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Success Icon/Text -->
-                        <TextBlock Text="{Binding StatusMessage}" 
-                                   Foreground="White" 
-                                   FontSize="64" 
-                                   FontWeight="Bold" 
-                                   HorizontalAlignment="Center" 
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap" Margin="30"/>
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="White" FontSize="64" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="30"/>
+                        <TextBlock Text="{Binding StatusSubMessage}" Foreground="White" FontSize="32" HorizontalAlignment="Center" Opacity="0.9" TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding StatusSubMessage, Converter={StaticResource StringToVis}}"/>
                         
-                        <TextBlock Text="{Binding StatusSubMessage}" 
-                                   Foreground="White" 
-                                   FontSize="32" 
-                                   HorizontalAlignment="Center" 
-                                   Opacity="0.9"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap"
-                                   Visibility="{Binding StatusSubMessage, Converter={StaticResource StringToVis}}"/>
+                         <!-- MEMBER DETAILS -->
+                        <StackPanel Margin="0,30,0,0" Visibility="{Binding HasMember, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding CurrentMember.FullName}" Foreground="White" FontSize="48" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                                <Border Background="White" CornerRadius="8" Padding="15,5" Margin="5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📅 " FontSize="20"/>
+                                        <TextBlock Text="{Binding CurrentMember.PlanName}" Foreground="#334155" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
+
+
 
             <!-- 1. HEADER -->
             <Grid Grid.Row="0" Background="White" Height="60" MouseLeftButtonDown="Header_MouseDown">

@@ -25,6 +25,9 @@ namespace RfidAgent.Models
 
         [JsonPropertyName("expiryDate")]
         public string ExpiryDate { get; set; } = string.Empty; // Keep as string for simple display or DateTime
+
+        [JsonPropertyName("remainingSessions")]
+        public int? RemainingSessions { get; set; }
         
         public string FullName => $"{FirstName} {LastName}";
     }

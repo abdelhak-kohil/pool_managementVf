@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RfidAgent")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a115f0886a3d7a967298fc9716ab1ac67294823")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7566ddd2ace4ecc9d582b8dc2bdaf22cfeeb528")]
 [assembly: System.Reflection.AssemblyProductAttribute("RfidAgent")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RfidAgent")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

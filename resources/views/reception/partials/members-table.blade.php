@@ -78,7 +78,11 @@
                                 'status' => ucfirst($s->status ?? 'unknown'),
                                 'statusClass' => $statusClass,
                                 'visits' => $s->visits_per_week ?? '-',
-                                'days' => $s->weekdays && $s->weekdays->count() ? $s->weekdays->pluck('day_name')->join(', ') : 'Tous'
+                                'visits' => $s->visits_per_week ?? '-',
+                                'days' => $s->weekdays && $s->weekdays->count() ? $s->weekdays->pluck('day_name')->join(', ') : 'Tous',
+                                'slots' => $s->subscriptionSlots && $s->subscriptionSlots->count() 
+                                    ? $s->subscriptionSlots->map(fn($ss) => $ss->slot ? (\Carbon\Carbon::parse($ss->slot->start_time)->format('H:i') . '-' . \Carbon\Carbon::parse($ss->slot->end_time)->format('H:i')) : '')->filter()->join(', ') 
+                                    : 'Tous'
                             ];
                         });
                     @endphp
@@ -244,6 +248,7 @@
                             <div>📅 <span x-text="sub.start"></span> ➝ <span x-text="sub.end"></span></div>
                             <div>🎯 <span x-text="sub.visits"></span> visites/semaine</div>
                             <div class="col-span-2">📆 Jours: <span x-text="sub.days"></span></div>
+                            <div class="col-span-2">⏰ Créneaux: <span x-text="sub.slots"></span></div>
                         </div>
                     </div>
                 </template>
@@ -261,7 +266,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
-                            <template x-for="log in memberLogs" :key="log.id">
+                            <template x-for="log in memberLogs" :key="log.log_id">
                                 <tr class="text-sm text-gray-700">
                                     <td class="px-4 py-2 whitespace-nowrap" x-text="new Date(log.access_time).toLocaleString()"></td>
                                     <td class="px-4 py-2 whitespace-nowrap">

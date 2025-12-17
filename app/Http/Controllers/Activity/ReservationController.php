@@ -71,9 +71,9 @@ class ReservationController extends Controller
     }
 
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Modules\Operations\Actions\Reservations\CreateReservationAction $action)
     {
-        $validated = $request->validate([
+        $request->validate([
             'slot_id' => 'required|integer|exists:time_slots,slot_id',
             'reservation_type' => 'required|string|in:member_private,partner_group',
             'member_id' => 'nullable|integer|exists:members,member_id',
@@ -81,55 +81,27 @@ class ReservationController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        // 🔍 Vérifier que le créneau existe
-        $slot = DB::table('pool_schema.time_slots')
-            ->where('slot_id', $validated['slot_id'])
-            ->first();
+        try {
+            $dto = \App\Modules\Operations\DTOs\ReservationData::fromRequest($request);
+            $action->execute($dto);
+            
+            return redirect()->route('reservations.index')->with('success', '✅ Réservation effectuée avec succès.');
 
-        if (!$slot) {
-            return back()->with('error', '❌ Créneau introuvable.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->with('error', $e->validator->errors()->first());
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Une erreur est survenue lors de la réservation.');
         }
-
-        // ❌ Si le créneau est marqué comme bloqué (mais on autorise "vide" car c'est l'activité réservable)
-        // On bloque seulement si "entretien" est mentionné ou si is_blocked est vrai ET que ce n'est pas juste pour dire "réservable"
-        // Check if activity is "Entretien"
-        $activity = DB::table('pool_schema.activities')->where('activity_id', $slot->activity_id)->first();
-        if ($activity && strtolower($activity->name) === 'entretien') {
-            return back()->with('error', '⛔ Cette activité est réservée à la maintenance.');
-        }
-
-        if ($slot->is_blocked || str_contains(strtolower($slot->notes ?? ''), 'entretien')) {
-            return back()->with('error', '⛔ Ce créneau est bloqué ou réservé pour entretien.');
-        }
-
-        // ❌ Vérifier s’il existe déjà une réservation confirmée sur ce créneau
-        $existing = DB::table('pool_schema.reservations')
-            ->where('slot_id', $slot->slot_id)
-            ->where('status', 'confirmed')
-            ->first();
-
-        if ($existing) {
-            return back()->with('error', '⚠️ Ce créneau est déjà réservé.');
-        }
-
-        // ✅ Si libre, créer la réservation
-        DB::table('pool_schema.reservations')->insert([
-            'slot_id' => $slot->slot_id,
-            'member_id' => $validated['reservation_type'] === 'member_private' ? $validated['member_id'] : null,
-            'partner_group_id' => $validated['reservation_type'] === 'partner_group' ? $validated['partner_group_id'] : null,
-            'reservation_type' => $validated['reservation_type'],
-            'reserved_at' => now(),
-            'status' => 'confirmed',
-            'notes' => $validated['notes'] ?? null
-        ]);
-
-        return redirect()->route('reservations.index')->with('success', '✅ Réservation effectuée avec succès.');
     }
 
-    public function destroy(Reservation $reservation)
+    public function destroy(Reservation $reservation, \App\Modules\Operations\Actions\Reservations\CancelReservationAction $action)
     {
-        $reservation->delete();
-        return back()->with('success', 'Réservation annulée.');
+        try {
+            $action->execute($reservation);
+            return back()->with('success', 'Réservation annulée.');
+        } catch (\Throwable $e) {
+             return back()->with('error', 'Erreur lors de l\'annulation.');
+        }
     }
 
 

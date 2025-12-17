@@ -54,10 +54,9 @@ class ExpenseController extends Controller
         return view('finance.expenses.index', compact('expenses', 'totalExpenses', 'categories'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Modules\Finance\Actions\Expenses\CreateExpenseAction $action)
     {
-        $user = Auth::user();
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'expense_date' => 'required|date',
@@ -67,16 +66,18 @@ class ExpenseController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $validated['created_by'] = $user->staff_id;
-
-        Expense::create($validated);
-
-        return redirect()->route('expenses.index')->with('success', 'Dépense ajoutée avec succès.');
+        try {
+            $dto = \App\Modules\Finance\DTOs\ExpenseData::fromRequest($request);
+            $action->execute($dto, Auth::user()->staff_id);
+            return redirect()->route('expenses.index')->with('success', 'Dépense ajoutée avec succès.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Erreur lors de l\'ajout : ' . $e->getMessage());
+        }
     }
 
-    public function update(Request $request, Expense $expense)
+    public function update(Request $request, Expense $expense, \App\Modules\Finance\Actions\Expenses\UpdateExpenseAction $action)
     {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
             'expense_date' => 'required|date',
@@ -86,9 +87,13 @@ class ExpenseController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $expense->update($validated);
-
-        return redirect()->route('expenses.index')->with('success', 'Dépense mise à jour avec succès.');
+        try {
+            $dto = \App\Modules\Finance\DTOs\ExpenseData::fromRequest($request);
+            $action->execute($expense, $dto);
+            return redirect()->route('expenses.index')->with('success', 'Dépense mise à jour avec succès.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
+        }
     }
 
     public function destroy(Expense $expense)

@@ -142,7 +142,7 @@ namespace RfidAgent.ViewModels
                 }
                 else
                 {
-                    CurrentMember = result.Member; // Member might be null (unknown badge) or populated (denied access)
+                    CurrentMember = result.Member; 
                     SetState(AppState.Error, "Access Denied", result.ErrorMessage);
                     _audioService.PlayError();
                     _logger.Warning($"Access Denied for {uid}: {result.ErrorMessage}");
@@ -151,7 +151,6 @@ namespace RfidAgent.ViewModels
             catch (Exception ex)
             {
                 _logger.Error($"Error processing scan: {ex.Message}");
-                // Offline Mode REMOVED - Always show error
                 SetState(AppState.Error, "Network Error", ex.Message);
                 _audioService.PlayError();
             }

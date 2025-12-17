@@ -130,7 +130,7 @@
                 <label class="flex items-center gap-3 border rounded-lg p-3 bg-gray-50 hover:bg-blue-50 cursor-pointer">
 
                     <input type="checkbox"
-                           name="slot_id[]"
+                           name="slot_ids[]"
                            value="{{ $slot->slot_id }}"
                            class="slot-checkbox accent-blue-600"
                            {{ in_array($slot->slot_id, $currentSlots) ? 'checked' : '' }}>
@@ -370,7 +370,7 @@ async function refreshSlots() {
 
         const checkbox = document.createElement('input');
         checkbox.type = "checkbox";
-        checkbox.name = "slot_id[]";
+        checkbox.name = "slot_ids[]";
         checkbox.value = slot.slot_id;
         checkbox.className = "slot-checkbox accent-blue-600";
 
@@ -449,7 +449,7 @@ async function refreshprice() {
 
         const checkbox = document.createElement('input');
         checkbox.type = "checkbox";
-        checkbox.name = "slot_id[]";
+        checkbox.name = "slot_ids[]";
         checkbox.value = slot.slot_id;
         checkbox.className = "slot-checkbox accent-blue-600";
 

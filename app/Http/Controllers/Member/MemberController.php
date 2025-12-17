@@ -46,362 +46,76 @@ class MemberController extends Controller
 
 
 
-public function store(Request $request)
-{
-    DB::beginTransaction();
-    try {
-        // 1️⃣ Validation Common
-        $request->validate([
-            // Member
-            'first_name'       => 'required|string|max:100',
-            'last_name'        => 'required|string|max:100',
-            'phone_number'     => 'nullable|string|max:20',
-            'email'            => 'nullable|email|max:150',
-            'date_of_birth'    => 'nullable|date',
-            'address'          => 'nullable|string|max:255',
-            'badge_uid'        => 'required|string|exists:access_badges,badge_uid',
-            'badge_status'     => 'required|string|in:active,inactive,lost',
-            'photo'            => 'nullable|image|max:2048',
-            'emergency_contact_name' => 'nullable|string|max:100',
-            'emergency_contact_phone' => 'nullable|string|max:20',
-            'notes'            => 'nullable|string',
-            'health_conditions'=> 'nullable|string',
+    public function store(\App\Http\Requests\Member\StoreMemberRequest $request, \App\Modules\CRM\Actions\CreateMemberAction $createMemberAction)
+    {
+        try {
+            $user = Auth::user();
+            $staffId = $user->staff_id ?? $user->user_id ?? null;
 
-            // Subscription & Payment
-            'activity_id'      => 'required|exists:activities,activity_id',
-            'plan_id'          => 'required|exists:plans,plan_id',
-            'start_date'       => 'required|date',
-            'end_date'         => 'required|date|after_or_equal:start_date',
-            'status'           => 'required|string|in:active,paused',
-            'slot_ids'         => 'required|array',
-            'slot_ids.*'       => 'integer|distinct',
-            'amount'           => 'required|numeric|min:0.01',
-            'payment_method'   => 'required|string|in:cash,card,transfer',
-        ]);
+            // Prepare DTOs
+            $memberData = \App\Modules\CRM\DTOs\MemberData::fromRequest($request);
+            // Re-use Subscription DTO logic (passing null for member_id as it's generated inside action)
+            // But wait, DTO fromRequest expects direct inputs. 
+            // We need to ensure we pass the right inputs or manually construct it if field names differ.
+            // Fortunately, field names align (plan_id, activity_id, etc.) with StoreMemberRequest which contains all fields.
+            // But we must be careful with 'member_id' which is 0 or null initially.
+            $subscriptionData = \App\Modules\Sales\DTOs\SubscriptionData::fromRequest($request, $staffId);
 
-        $user = Auth::user();
-        $createdBy = $user->staff_id ?? null; // Staff ID for creator fields
+            $createMemberAction->execute($memberData, $subscriptionData, $staffId);
 
-        // 2️⃣ Create Member
-        $member = Member::create([
-            'first_name'   => $request->first_name,
-            'last_name'    => $request->last_name,
-            'phone_number' => $request->phone_number,
-            'email'        => $request->email,
-            'date_of_birth'=> $request->date_of_birth,
-            'address'      => $request->address,
-            'photo_path'   => $request->file('photo') ? $request->file('photo')->store('members/photos', 'public') : null,
-            'emergency_contact_name' => $request->emergency_contact_name,
-            'emergency_contact_phone' => $request->emergency_contact_phone,
-            'notes'        => $request->notes,
-            'health_conditions' => $request->health_conditions,
-            'created_by'   => $createdBy,
-            'updated_by'   => $createdBy,
-        ]);
+            return redirect()
+                ->route('members.index')
+                ->with('success', 'Membre et abonnement créés avec succès !');
 
-        // 3️⃣ Assign Badge
-        $badge = AccessBadge::where('badge_uid', $request->badge_uid)->first();
-        if ($badge) {
-            $badge->update([
-                'member_id' => $member->member_id,
-                'status'    => $request->badge_status,
-            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withInput()->withErrors($e->errors());
+        } catch (\Throwable $e) {
+            Log::error('Erreur création membre (store): '.$e->getMessage());
+            return back()->withInput()->with('error', 'Erreur: ' . $e->getMessage());
         }
-
-        // 4️⃣ Validate Plan & Slots (Logic copied from SubscriptionController)
-        $plan = DB::table('pool_schema.plans')->where('plan_id', $request->plan_id)->first();
-        $planType = $plan->plan_type;
-        $requiredSlotsCount = $planType === 'monthly_weekly' ? (int) $plan->visits_per_week : 1;
-
-        // Date Restrictions (Simplified for brevity, but crucial checks)
-        $start = \Carbon\Carbon::parse($request->start_date);
-        
-        if ($planType === 'monthly_weekly') {
-            if ($start->day !== 1) throw new \Exception('Les abonnements mensuels doivent commencer le 1er du mois.');
-        }
-        if ($planType === 'per_visit') {
-            if (!$start->isSameDay(now())) throw new \Exception('Les abonnements à la séance doivent être pour aujourd’hui.');
-        }
-
-        // Validate Slot Count
-        $selectedSlots = $request->slot_ids ?? [];
-        if (count($selectedSlots) !== $requiredSlotsCount) {
-             throw new \Exception("Ce plan requiert exactement {$requiredSlotsCount} créneau(x).");
-        }
-
-        // Validate Slots Existence & Blocked Status
-        $slots = DB::table('pool_schema.time_slots')->whereIn('slot_id', $selectedSlots)->get();
-        if ($slots->count() !== count($selectedSlots)) throw new \Exception('Un ou plusieurs créneaux sont introuvables.');
-
-        foreach ($slots as $s) {
-            if ($s->is_blocked) throw new \Exception("Le créneau {$s->slot_id} est bloqué.");
-            
-            // Per-Visit: Strict "Currently Active" check (as per frontend logic)
-            if ($planType === 'per_visit') {
-                $slotStart = \Carbon\Carbon::parse($s->start_time);
-                $slotEnd = \Carbon\Carbon::parse($s->end_time);
-
-                // Align dates to today (since per_visit is for today)
-                $startDateTime = now()->setTimeFrom($slotStart);
-                $endDateTime = now()->setTimeFrom($slotEnd);
-                $now = now();
-
-                // 1. Cannot be before start time
-                if ($now->lt($startDateTime)) {
-                    throw new \Exception("Le créneau de {$s->start_time} n'a pas encore commencé. (Attendez l'heure de début)");
-                }
-
-                // 2. Cannot be after end time
-                if ($now->gt($endDateTime)) {
-                    throw new \Exception("Le créneau de {$s->start_time} est déjà terminé.");
-                }
-            }
-        }
-
-        // 5️⃣ Price Validation
-        $activityPlan = DB::table('pool_schema.activity_plan_prices')
-            ->where('plan_id', $request->plan_id)
-            ->where('activity_id', $request->activity_id)
-            ->first();
-            
-        if (!$activityPlan) throw new \Exception('Aucun tarif trouvé pour cette combinaison.');
-        
-        if ($request->amount > $activityPlan->price) {
-            throw new \Exception('Le montant payé dépasse le prix de l’abonnement.');
-        }
-
-        // 6️⃣ Prevent Overlapping Monthly Subscriptions
-        if ($planType === 'monthly_weekly') {
-             // Check against $member->member_id
-             // Since member is new, they have no OTHER subscriptions generally, 
-             // BUT in weird race conditions or re-use logic it's good practice.
-             // Here it's a new member, so overlap is impossible unless we allow multiple subs on creation?
-             // We only create one here. So skipping complex overlap check for NEW member.
-        }
-
-        // 7️⃣ Create Subscription
-        $subscription = Subscription::create([
-            'member_id'       => $member->member_id,
-            'plan_id'         => $request->plan_id,
-            'activity_id'     => $request->activity_id,
-            'start_date'      => $request->start_date,
-            'end_date'        => $request->end_date,
-            'status'          => $request->status,
-            'visits_per_week' => $planType === 'monthly_weekly' ? $plan->visits_per_week : null,
-            'created_by'      => $createdBy,
-            'updated_by'      => $createdBy,
-            'created_at'      => now(),
-            'updated_at'      => now(),
-        ]);
-        $subscriptionId = $subscription->subscription_id;
-
-        // 8️⃣ Insert Slots
-        $weekdayIds = [];
-        foreach ($slots as $s) {
-            DB::table('pool_schema.subscription_slots')->insert([
-                'subscription_id' => $subscriptionId,
-                'slot_id'         => $s->slot_id,
-                'created_at'      => now(),
-            ]);
-            $weekdayIds[] = $s->weekday_id;
-        }
-
-        // 9️⃣ Insert Allowed Days (if monthly)
-        if ($planType === 'monthly_weekly') {
-            $weekdayIds = array_unique($weekdayIds);
-            foreach ($weekdayIds as $wd) {
-                DB::table('pool_schema.subscription_allowed_days')->insert([
-                    'subscription_id' => $subscriptionId,
-                    'weekday_id'      => $wd,
-                ]);
-            }
-        }
-
-        // 🔟 Create Payment
-        Payment::create([
-            'subscription_id'      => $subscriptionId,
-            'amount'               => $request->amount,
-            'payment_method'       => $request->payment_method,
-            'notes'                => $request->notes, // Shared notes field
-            'received_by_staff_id' => $createdBy,
-            'payment_date'         => now(),
-        ]);
-
-        DB::commit();
-
-        return redirect()
-            ->route('members.index')
-            ->with('success', 'Membre et abonnement créés avec succès !');
-
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        Log::error('Erreur création membre: '.$e->getMessage());
-        return back()->withInput()->with('error', 'Erreur: ' . $e->getMessage());
     }
-}
 
     public function edit($id)
     {
         $member = Member::with(['subscriptions.plan', 'accessBadge'])->findOrFail($id);
         $plans = Plan::where('is_active', true)->get();
         $weekdays = DB::table('pool_schema.weekdays')->get();
-        //dd($member);
-        // Fetch only free (unassigned) badges
-    $badges = DB::table('pool_schema.access_badges')
-        ->whereNull('member_id')
-        ->where('status', '!=', 'blocked')
-        ->get();
-
+        
+        $badges = DB::table('pool_schema.access_badges')
+            ->whereNull('member_id')
+            ->where('status', '!=', 'blocked')
+            ->get();
 
         return view('members.edit', compact('member', 'plans', 'weekdays','badges'));
     }
 
-  /**
-     * Update a member, their badge, and subscription statuses.
-     */
-    public function update(Request $request, $id)
-{
-    $request->validate([
-        'first_name'    => 'required|string|max:100',
-        'last_name'     => 'required|string|max:100',
-        'phone_number'  => 'nullable|string|max:20',
-        'address'       => 'nullable|string|max:255',
-        'date_of_birth' => 'nullable|date',
-        'badge_id'      => 'nullable|integer|exists:access_badges,badge_id',
+    public function update(\App\Http\Requests\Member\UpdateMemberRequest $request, $id, \App\Modules\CRM\Actions\UpdateMemberAction $action)
+    {
+        try {
+            $user = Auth::user();
+            $staffId = $user->staff_id ?? $user->user_id ?? null;
 
-        // Only the status is editable in this screen
-        'subscriptions' => 'array|nullable',
-        'subscriptions.*.status' => 'string|in:active,paused,expired,cancelled',
-        'photo'            => 'nullable|image|max:2048',
-        'emergency_contact_name' => 'nullable|string|max:100',
-        'emergency_contact_phone' => 'nullable|string|max:20',
-        'notes'            => 'nullable|string',
-        'health_conditions'=> 'nullable|string',
-    ]);
+             $memberData = \App\Modules\CRM\DTOs\MemberData::fromRequest($request);
 
-    DB::beginTransaction();
+            $action->execute(
+                $id,
+                $memberData,
+                $request->badge_id,
+                $request->input('subscriptions', []),
+                $staffId
+            );
 
-    try {
-        $member = Member::with(['subscriptions', 'accessBadge'])->findOrFail($id);
-        $user = Auth::user();
-        $staffId = $user->staff_id ?? null;
+            return redirect()->route('members.index')
+                ->with('success', 'Membre mis à jour avec succès.');
 
-        /**
-         * 1️⃣ UPDATE MEMBER INFORMATION
-         */
-        $member->update([
-            'first_name'    => $request->first_name,
-            'last_name'     => $request->last_name,
-            'phone_number'  => $request->phone_number,
-            'address'       => $request->address,
-            'date_of_birth' => $request->date_of_birth,
-            'emergency_contact_name' => $request->emergency_contact_name,
-            'emergency_contact_phone' => $request->emergency_contact_phone,
-            'notes'        => $request->notes,
-            'health_conditions' => $request->health_conditions,
-            'updated_by'    => $staffId,
-            'updated_at'    => now(),
-        ]);
-
-        if ($request->hasFile('photo')) {
-            if ($member->photo_path) {
-                Storage::disk('public')->delete($member->photo_path);
-            }
-            $member->update(['photo_path' => $request->file('photo')->store('members/photos', 'public')]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+             return back()->withInput()->withErrors($e->errors());
+        } catch (\Throwable $e) {
+            Log::error('Erreur Member update: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Erreur lors de la mise à jour du membre.');
         }
-
-        /**
-         * 2️⃣ HANDLE BADGE CHANGE
-         */
-        $requestedBadgeId = $request->badge_id;
-
-        if ($requestedBadgeId) {
-            $currentBadge = $member->accessBadge;
-
-            if (!$currentBadge || $currentBadge->badge_id != $requestedBadgeId) {
-
-                if ($currentBadge) {
-                    DB::table('pool_schema.access_badges')
-                        ->where('badge_id', $currentBadge->badge_id)
-                        ->update([
-                            'member_id' => null,
-                            'status'    => 'inactive',
-                        ]);
-                }
-
-                $newBadge = DB::table('pool_schema.access_badges')
-                    ->lockForUpdate()
-                    ->where('badge_id', $requestedBadgeId)
-                    ->first();
-
-                if (!$newBadge || (!is_null($newBadge->member_id) && $newBadge->member_id != $member->member_id)) {
-                    DB::rollBack();
-                    return back()->with('error', 'Le badge sélectionné est déjà attribué.')->withInput();
-                }
-
-                DB::table('pool_schema.access_badges')
-                    ->where('badge_id', $requestedBadgeId)
-                    ->update([
-                        'member_id' => $member->member_id,
-                        'status'    => 'active',
-                        'issued_at' => now(),
-                    ]);
-            }
-        }
-
-        /**
-         * 3️⃣ UPDATE SUBSCRIPTION STATUSES
-         */
-        if ($request->filled('subscriptions')) {
-
-            // Apply status changes
-            foreach ($request->subscriptions as $subId => $subData) {
-                $sub = Subscription::find($subId);
-
-                if ($sub && $sub->member_id == $member->member_id) {
-                    $sub->update([
-                        'status'      => $subData['status'],
-                        'updated_by'  => $staffId,
-                        'updated_at'  => now(),
-                    ]);
-                }
-            }
-
-            /**
-             * 4️⃣ PREVENT MULTIPLE ACTIVE monthly_weekly SUBSCRIPTIONS
-             */
-            $activeWeeklyCount = DB::table('pool_schema.subscriptions as s')
-                ->join('pool_schema.plans as p', 'p.plan_id', '=', 's.plan_id')
-                ->where('s.member_id', $member->member_id)
-                ->where('s.status', 'active')
-                ->where('p.plan_type', 'monthly_weekly')
-                ->count();
-
-            if ($activeWeeklyCount > 1) {
-                DB::rollBack();
-                return back()->with('error',
-                    "Impossible : un membre ne peut pas avoir plus d’un abonnement actif de type 'mensuel/hebdomadaire'."
-                )->withInput();
-            }
-        }
-
-        DB::commit();
-
-        return redirect()->route('members.index')
-            ->with('success', 'Membre mis à jour avec succès.');
-
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        Log::error('Erreur Member update: '.$e->getMessage());
-
-        return back()->with('error', 'Erreur lors de la mise à jour du membre.')->withInput();
     }
-}
 
-
-/**
-     * AJAX live search for members (returns HTML partial)
-     */
     public function search(Request $request)
     {
         try {
@@ -410,7 +124,6 @@ public function store(Request $request)
             $membersQuery = Member::with(['subscriptions.plan', 'accessBadge', 'createdBy', 'updatedBy']);
 
             if ($q !== '') {
-                // Use ILIKE for Postgres (case-insensitive)
                 $membersQuery->where(function ($builder) use ($q) {
                     $builder->where('first_name', 'ILIKE', "%{$q}%")
                             ->orWhere('last_name', 'ILIKE', "%{$q}%")
@@ -430,8 +143,7 @@ public function store(Request $request)
 
             return response()->json(['html' => $html]);
         } catch (\Exception $e) {
-            // Log detailed error for debugging (stack trace included)
-            Log::error('Members::search error: '.$e->getMessage(), ['exception' => $e]);
+             Log::error('Members::search error: '.$e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'Server error while searching members.'], 500);
         }
     }
@@ -442,28 +154,19 @@ public function show($id)
     return redirect()->route('members.index');
 }
 
-    public function destroy($id)
+    public function destroy($id, \App\Modules\CRM\Actions\DeleteMemberAction $action)
     {
         try {
-            $member = Member::findOrFail($id);
-
-            // 🛡️ Prevent deletion if member has subscriptions
-            if ($member->subscriptions()->count() > 0) {
-                return back()->with('error', 'Impossible de supprimer ce membre car il possède des abonnements. Veuillez les supprimer ou les archiver d’abord.');
-            }
-
-            // 🛡️ Prevent deletion if member has access logs (history)
-            if ($member->accessLogs()->count() > 0) {
-                return back()->with('error', 'Impossible de supprimer ce membre car il possède un historique d’accès. Veuillez le désactiver à la place.');
-            }
-
-            if ($member->accessBadge) {
-                $member->accessBadge->delete();
-            }
-
-            $member->delete();
+            $action->execute($id);
 
             return redirect()->route('members.index')->with('success', 'Membre supprimé avec succès.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+             // Action throws ValidationException for logic business rules (has subs, history)
+             return back()->with('error', $e->validator->errors()->first()); 
+             // Or $e->getMessage() if it was generic, but ValidationException messages are in validator
+             // Actually ValidationException::withMessages creates a validator.
+             // Let's grab the first error.
         } catch (\Throwable $e) {
             Log::error('Erreur suppression membre: ' . $e->getMessage());
             return back()->with('error', 'Une erreur est survenue lors de la suppression.');

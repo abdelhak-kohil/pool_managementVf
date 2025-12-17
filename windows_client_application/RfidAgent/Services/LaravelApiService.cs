@@ -9,6 +9,7 @@ namespace RfidAgent.Services
     public interface ILaravelApiService
     {
         Task<(bool Success, Member? Member, string ErrorMessage)> CheckInMemberAsync(string badgeUid, string readerId);
+        Task<(bool Success, Member? Member, string ErrorMessage)> CheckInGroupAsync(string badgeUid, int attendees, string readerId);
     }
 
     public class LaravelApiService : ILaravelApiService
@@ -94,7 +95,8 @@ namespace RfidAgent.Services
                                     LastName = dataProp.TryGetProperty("lastName", out var ln) ? ln.GetString() ?? "" : "",
                                     PhotoUrl = dataProp.TryGetProperty("photoUrl", out var ph) ? ph.GetString() ?? "" : "",
                                     PlanName = dataProp.TryGetProperty("planName", out var pl) ? pl.GetString() ?? "" : "",
-                                    ExpiryDate = dataProp.TryGetProperty("expiryDate", out var ed) ? ed.GetString() ?? "" : ""
+                                    ExpiryDate = dataProp.TryGetProperty("expiryDate", out var ed) ? ed.GetString() ?? "" : "",
+                                    RemainingSessions = dataProp.TryGetProperty("remainingSessions", out var rs) && rs.ValueKind == System.Text.Json.JsonValueKind.Number ? rs.GetInt32() : (int?)null
                                 };
                             }
                         }
@@ -130,6 +132,81 @@ namespace RfidAgent.Services
                 _logger?.Error($"API Unexpected Exception: {ex.Message}");
                 throw; 
             }
+        }
+        public async Task<(bool Success, Member? Member, string ErrorMessage)> CheckInGroupAsync(string badgeUid, int attendees, string readerId)
+        {
+            try
+            {
+                 var payload = new 
+                 { 
+                     badge_uid = badgeUid, 
+                     attendees = attendees,
+                     reader_id = readerId 
+                 };
+
+                 string baseUrl = _settings.ApiBaseUrl.TrimEnd('/');
+                 string url = $"{baseUrl}/v1/checkin/group";
+                 _logger?.Info($"API POST Request: {url} | Badge: {badgeUid} | Count: {attendees}");
+
+                 var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Post, url);
+                 request.Content = JsonContent.Create(payload);
+                 
+                 if (!string.IsNullOrEmpty(_settings.ApiKey))
+                 {
+                     request.Headers.Add("X-API-KEY", _settings.ApiKey);
+                     request.Headers.Add("X-DEVICE-ID", _settings.DeviceId);
+                 }
+
+                 var response = await _httpClient.SendAsync(request);
+                 
+                 // Reuse handling logic? 
+                 // For now, duplicate standard handling for safety
+                 if (response.IsSuccessStatusCode)
+                 {
+                     var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<Member>>();
+                     if (apiResponse != null && apiResponse.Data != null)
+                     {
+                         _logger?.Info($"API Success (Group): {apiResponse.Message}");
+                         return (true, apiResponse.Data, string.Empty);
+                     }
+                     return (false, null, "Invalid API Response");
+                 }
+                 else
+                 {
+                     // Return errors
+                     string error = await ExtractError(response);
+                     return (false, null, error);
+                 }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error($"API Group Error: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async Task<string> ExtractError(System.Net.Http.HttpResponseMessage response)
+        {
+             // 403 Forbidden / 401 Unauthorized
+            string msg = $"Access Denied ({(int)response.StatusCode})";
+
+            try 
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                using (var doc = System.Text.Json.JsonDocument.Parse(jsonString))
+                {
+                    var root = doc.RootElement;
+                    if (root.TryGetProperty("message", out var msgProp))
+                    {
+                        msg = msgProp.GetString() ?? msg;
+                    }
+                }
+            }
+            catch 
+            {
+               // Fallback
+            }
+            return msg;
         }
     }
 }

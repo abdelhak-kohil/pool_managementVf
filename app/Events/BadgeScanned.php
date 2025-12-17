@@ -22,6 +22,7 @@ class BadgeScanned implements ShouldBroadcastNow
     public function __construct(array $scanData)
     {
         $this->data = $scanData;
+        \Illuminate\Support\Facades\Log::info('BadgeScanned Event Constructed', $scanData);
     }
 
     /**

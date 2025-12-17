@@ -21,7 +21,7 @@ class ShopController extends Controller
         return view('shop.index', compact('categories', 'products'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Modules\Shop\Actions\Sales\ProcessSaleAction $action)
     {
         $request->validate([
             'cart' => 'required|array|min:1',
@@ -30,50 +30,20 @@ class ShopController extends Controller
             'payment_method' => 'required|in:cash,card,other',
             'member_id' => 'nullable|exists:members,member_id',
         ]);
-        Log::error($request->all());
-        DB::beginTransaction();
 
         try {
-            $totalAmount = 0;
-            $saleItems = [];
+            $dto = \App\Modules\Shop\DTOs\SaleData::fromRequest($request);
+            // Staff ID from Auth
+            $sale = $action->execute($dto, Auth::id());
 
-            foreach ($request->cart as $item) {
-                $product = Product::lockForUpdate()->find($item['id']);
-
-                if ($product->stock_quantity < $item['quantity']) {
-                    throw new \Exception("Stock insuffisant pour {$product->name}");
-                }
-
-                $subtotal = $product->price * $item['quantity'];
-                $totalAmount += $subtotal;
-
-                $product->decrement('stock_quantity', $item['quantity']);
-
-                $saleItems[] = [
-                    'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'subtotal' => $subtotal,
-                ];
-            }
-
-            $sale = Sale::create([
-                'staff_id' => Auth::id(),
-                'member_id' => $request->member_id,
-                'total_amount' => $totalAmount,
-                'payment_method' => $request->payment_method,
+            return response()->json([
+                'success' => true, 
+                'message' => 'Vente enregistrée avec succès!', 
+                'sale_id' => $sale->id
             ]);
 
-            foreach ($saleItems as $item) {
-                $sale->items()->create($item);
-            }
-
-            DB::commit();
-
-            return response()->json(['success' => true, 'message' => 'Vente enregistrée avec succès!', 'sale_id' => $sale->id]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (\Throwable $e) {
+            Log::error('Shop Store Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
     }

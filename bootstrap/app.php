@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'pgaudit' => \App\Http\Middleware\SetPgAuditUser::class,
             'api_key' => \App\Http\Middleware\EnsureApiKey::class,
+            'license' => \App\Modules\Licensing\Middleware\CheckLicense::class,
+            'module' => \App\Modules\Licensing\Middleware\VerifyModuleAccess::class,
         ]);
     })
 

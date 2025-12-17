@@ -18,4 +18,24 @@ class PartnerGroup extends Model
     {
         return $this->hasMany(\App\Models\Activity\Reservation::class, 'partner_group_id', 'group_id');
     }
+
+    public function badges()
+    {
+        return $this->hasMany(\App\Models\Member\AccessBadge::class, 'partner_group_id', 'group_id');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(\App\Models\Finance\Subscription::class, 'partner_group_id', 'group_id');
+    }
+
+    public function slots()
+    {
+        return $this->hasMany(\App\Models\Member\PartnerGroupSlot::class, 'partner_group_id', 'group_id');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(\App\Models\Member\PartnerGroupAttendance::class, 'partner_group_id', 'group_id');
+    }
 }
