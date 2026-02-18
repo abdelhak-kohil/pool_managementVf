@@ -4807,8 +4807,8 @@ INSERT INTO pool_schema.permissions VALUES (34, 'finance.view_stats');
 -- Data for Name: plans; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
 --
 
-INSERT INTO pool_schema.plans VALUES (2, 'natation 2 fois par semaine', NULL, 4000.00, 'monthly_weekly', 2, 1, true);
-INSERT INTO pool_schema.plans VALUES (3, 'natation 1 fois par semaine', NULL, 3500.00, 'monthly_weekly', 1, 1, true);
+INSERT INTO pool_schema.plans VALUES (2, 'Natation - 2 Séances / Semaine', NULL, 4000.00, 'monthly_weekly', 2, 1, true);
+INSERT INTO pool_schema.plans VALUES (3, 'Natation - 1 Séance / Semaine', NULL, 3500.00, 'monthly_weekly', 1, 1, true);
 INSERT INTO pool_schema.plans VALUES (5, 'per visit', NULL, 800.00, 'per_visit', NULL, NULL, true);
 
 
