@@ -1,0 +1,4159 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict uIZTi1VRsbIrkR5oEpNLTbp4i67uLMM7WBuVBSldjdKr82F5f6zM1sQGDOeJy3V
+
+-- Dumped from database version 18.0
+-- Dumped by pg_dump version 18.0
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: pool_schema; Type: SCHEMA; Schema: -; Owner: pooladmin
+--
+
+CREATE SCHEMA pool_schema;
+
+
+ALTER SCHEMA pool_schema OWNER TO pooladmin;
+
+--
+-- Name: access_decision_enum; Type: TYPE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TYPE pool_schema.access_decision_enum AS ENUM (
+    'granted',
+    'denied'
+);
+
+
+ALTER TYPE pool_schema.access_decision_enum OWNER TO pooladmin;
+
+--
+-- Name: badge_status_enum; Type: TYPE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TYPE pool_schema.badge_status_enum AS ENUM (
+    'active',
+    'inactive',
+    'lost',
+    'revoked',
+    'blocked'
+);
+
+
+ALTER TYPE pool_schema.badge_status_enum OWNER TO pooladmin;
+
+--
+-- Name: facility_status_enum; Type: TYPE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TYPE pool_schema.facility_status_enum AS ENUM (
+    'operational',
+    'under_maintenance',
+    'closed'
+);
+
+
+ALTER TYPE pool_schema.facility_status_enum OWNER TO pooladmin;
+
+--
+-- Name: payment_method_enum; Type: TYPE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TYPE pool_schema.payment_method_enum AS ENUM (
+    'cash',
+    'card',
+    'Virement',
+    'transfer'
+);
+
+
+ALTER TYPE pool_schema.payment_method_enum OWNER TO pooladmin;
+
+--
+-- Name: plan_type_enum; Type: TYPE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TYPE pool_schema.plan_type_enum AS ENUM (
+    'monthly_weekly',
+    'per_visit'
+);
+
+
+ALTER TYPE pool_schema.plan_type_enum OWNER TO pooladmin;
+
+--
+-- Name: subscription_status_enum; Type: TYPE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TYPE pool_schema.subscription_status_enum AS ENUM (
+    'active',
+    'paused',
+    'expired',
+    'cancelled'
+);
+
+
+ALTER TYPE pool_schema.subscription_status_enum OWNER TO pooladmin;
+
+--
+-- Name: fn_audit_log_changes(); Type: FUNCTION; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE FUNCTION pool_schema.fn_audit_log_changes() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+    v_action TEXT;
+    v_old_data JSONB;
+    v_new_data JSONB;
+    v_record_id TEXT;
+BEGIN
+RAISE NOTICE 'Trigger executed at % with data: %', now(), NEW;
+
+    IF TG_OP = 'INSERT' THEN
+        v_action := 'INSERT';
+        v_old_data := NULL;
+        v_new_data := to_jsonb(NEW);
+        v_record_id := COALESCE(
+            (to_jsonb(NEW)->>'member_id'),
+            (to_jsonb(NEW)->>'subscription_id'),
+            (to_jsonb(NEW)->>'badge_id'),
+            (to_jsonb(NEW)->>'staff_id'),
+			(to_jsonb(NEW)->>'activity_id'),
+            (to_jsonb(NEW)->>'id')
+        );
+
+    ELSIF TG_OP = 'UPDATE' THEN
+        v_action := 'UPDATE';
+        v_old_data := to_jsonb(OLD);
+        v_new_data := to_jsonb(NEW);
+
+        -- Ignore updates with no actual change
+        v_old_data := v_old_data - 'updated_at';
+        v_new_data := v_new_data - 'updated_at';
+        IF v_old_data = v_new_data THEN
+            RETURN NEW;
+        END IF;
+
+        v_record_id := COALESCE(
+            (to_jsonb(NEW)->>'member_id'),
+            (to_jsonb(NEW)->>'subscription_id'),
+            (to_jsonb(NEW)->>'badge_id'),
+            (to_jsonb(NEW)->>'staff_id'),
+			(to_jsonb(NEW)->>'activity_id'),
+            (to_jsonb(NEW)->>'id')
+        );
+
+    ELSIF TG_OP = 'DELETE' THEN
+        v_action := 'DELETE';
+        v_old_data := to_jsonb(OLD);
+        v_new_data := NULL;
+        v_record_id := COALESCE(
+            (to_jsonb(OLD)->>'member_id'),
+            (to_jsonb(OLD)->>'subscription_id'),
+            (to_jsonb(OLD)->>'badge_id'),
+            (to_jsonb(OLD)->>'staff_id'),
+			(to_jsonb(OLD)->>'activity_id'),
+            (to_jsonb(OLD)->>'id')
+        );
+    END IF;
+
+    INSERT INTO pool_schema.audit_log (
+        table_name,
+        record_id,
+        action,
+        changed_by_staff_id,
+        change_timestamp,
+        old_data_jsonb,
+        new_data_jsonb
+    )
+    VALUES (
+        TG_TABLE_SCHEMA || '.' || TG_TABLE_NAME,
+        v_record_id,
+        v_action,
+        current_setting('app.current_staff_id', true)::BIGINT,
+        NOW(),
+        v_old_data,
+        v_new_data
+    );
+
+    RETURN NEW;
+	
+END;
+$$;
+
+
+ALTER FUNCTION pool_schema.fn_audit_log_changes() OWNER TO pooladmin;
+
+--
+-- Name: fn_cleanup_old_audit_logs(integer); Type: FUNCTION; Schema: pool_schema; Owner: postgres
+--
+
+CREATE FUNCTION pool_schema.fn_cleanup_old_audit_logs(retention_days integer DEFAULT 2) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+    v_cutoff TIMESTAMPTZ := NOW() - (retention_days || ' days')::INTERVAL;
+    v_deleted_count INTEGER;
+BEGIN
+    DELETE FROM pool_schema.audit_log
+    WHERE change_timestamp < v_cutoff
+    RETURNING 1 INTO v_deleted_count;
+
+    RAISE NOTICE '🧹 % old audit logs deleted (older than % days).', 
+        COALESCE(v_deleted_count, 0), retention_days;
+END;
+$$;
+
+
+ALTER FUNCTION pool_schema.fn_cleanup_old_audit_logs(retention_days integer) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: access_badges; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.access_badges (
+    badge_id bigint NOT NULL,
+    member_id bigint,
+    badge_uid character varying(255) NOT NULL,
+    status character varying(255) DEFAULT 'active'::character varying NOT NULL,
+    issued_at timestamp(0) without time zone,
+    expires_at timestamp(0) without time zone,
+    staff_id bigint,
+    partner_group_id integer
+);
+
+
+ALTER TABLE pool_schema.access_badges OWNER TO pooladmin;
+
+--
+-- Name: access_badges_badge_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.access_badges_badge_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.access_badges_badge_id_seq OWNER TO pooladmin;
+
+--
+-- Name: access_badges_badge_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.access_badges_badge_id_seq OWNED BY pool_schema.access_badges.badge_id;
+
+
+--
+-- Name: access_logs; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.access_logs (
+    log_id bigint NOT NULL,
+    badge_uid character varying(255),
+    member_id bigint,
+    access_time timestamp(0) without time zone NOT NULL,
+    access_decision character varying(255) NOT NULL,
+    denial_reason character varying(255),
+    activity_id bigint,
+    subscription_id bigint,
+    slot_id bigint,
+    staff_id bigint,
+    action_type character varying(255) DEFAULT 'entry'::character varying NOT NULL,
+    location character varying(255),
+    metadata jsonb
+);
+
+
+ALTER TABLE pool_schema.access_logs OWNER TO pooladmin;
+
+--
+-- Name: access_logs_log_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.access_logs_log_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.access_logs_log_id_seq OWNER TO pooladmin;
+
+--
+-- Name: access_logs_log_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.access_logs_log_id_seq OWNED BY pool_schema.access_logs.log_id;
+
+
+--
+-- Name: activities; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.activities (
+    activity_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description text,
+    access_type character varying(255),
+    color_code character varying(255),
+    is_active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE pool_schema.activities OWNER TO pooladmin;
+
+--
+-- Name: activities_activity_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.activities_activity_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.activities_activity_id_seq OWNER TO pooladmin;
+
+--
+-- Name: activities_activity_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.activities_activity_id_seq OWNED BY pool_schema.activities.activity_id;
+
+
+--
+-- Name: activity_plan_prices; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.activity_plan_prices (
+    id bigint NOT NULL,
+    activity_id bigint NOT NULL,
+    plan_id bigint NOT NULL,
+    price numeric(8,2) NOT NULL
+);
+
+
+ALTER TABLE pool_schema.activity_plan_prices OWNER TO pooladmin;
+
+--
+-- Name: activity_plan_prices_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.activity_plan_prices_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.activity_plan_prices_id_seq OWNER TO pooladmin;
+
+--
+-- Name: activity_plan_prices_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.activity_plan_prices_id_seq OWNED BY pool_schema.activity_plan_prices.id;
+
+
+--
+-- Name: audit_log; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.audit_log (
+    log_id bigint NOT NULL,
+    table_name character varying(255) NOT NULL,
+    record_id character varying(255),
+    action character varying(255) NOT NULL,
+    changed_by_staff_id bigint,
+    change_timestamp timestamp(0) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    old_data_jsonb jsonb,
+    new_data_jsonb jsonb
+);
+
+
+ALTER TABLE pool_schema.audit_log OWNER TO pooladmin;
+
+--
+-- Name: audit_log_log_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.audit_log_log_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.audit_log_log_id_seq OWNER TO pooladmin;
+
+--
+-- Name: audit_log_log_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.audit_log_log_id_seq OWNED BY pool_schema.audit_log.log_id;
+
+
+--
+-- Name: backup_jobs; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.backup_jobs (
+    id bigint NOT NULL,
+    backup_type character varying(255) NOT NULL,
+    file_name character varying(255) NOT NULL,
+    file_size character varying(255),
+    storage_location character varying(255) NOT NULL,
+    status character varying(255) DEFAULT 'pending'::character varying NOT NULL,
+    started_at timestamp(0) without time zone,
+    completed_at timestamp(0) without time zone,
+    error_message text,
+    triggered_by bigint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.backup_jobs OWNER TO pooladmin;
+
+--
+-- Name: backup_jobs_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.backup_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.backup_jobs_id_seq OWNER TO pooladmin;
+
+--
+-- Name: backup_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.backup_jobs_id_seq OWNED BY pool_schema.backup_jobs.id;
+
+
+--
+-- Name: backup_settings; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.backup_settings (
+    id bigint NOT NULL,
+    automatic_enabled boolean DEFAULT false NOT NULL,
+    scheduled_time time(0) without time zone DEFAULT '00:00:00'::time without time zone NOT NULL,
+    frequency character varying(255) DEFAULT 'daily'::character varying NOT NULL,
+    retention_days integer DEFAULT 30 NOT NULL,
+    storage_preference character varying(255) DEFAULT 'local'::character varying NOT NULL,
+    network_path character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.backup_settings OWNER TO pooladmin;
+
+--
+-- Name: backup_settings_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.backup_settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.backup_settings_id_seq OWNER TO pooladmin;
+
+--
+-- Name: backup_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.backup_settings_id_seq OWNED BY pool_schema.backup_settings.id;
+
+
+--
+-- Name: cache; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.cache (
+    key character varying(255) NOT NULL,
+    value text NOT NULL,
+    expiration integer NOT NULL
+);
+
+
+ALTER TABLE pool_schema.cache OWNER TO pooladmin;
+
+--
+-- Name: cache_locks; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.cache_locks (
+    key character varying(255) NOT NULL,
+    owner character varying(255) NOT NULL,
+    expiration integer NOT NULL
+);
+
+
+ALTER TABLE pool_schema.cache_locks OWNER TO pooladmin;
+
+--
+-- Name: categories; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.categories (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    type character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.categories OWNER TO pooladmin;
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.categories_id_seq OWNER TO pooladmin;
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.categories_id_seq OWNED BY pool_schema.categories.id;
+
+
+--
+-- Name: coach_time_slot; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.coach_time_slot (
+    id bigint NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.coach_time_slot OWNER TO pooladmin;
+
+--
+-- Name: coach_time_slot_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.coach_time_slot_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.coach_time_slot_id_seq OWNER TO pooladmin;
+
+--
+-- Name: coach_time_slot_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.coach_time_slot_id_seq OWNED BY pool_schema.coach_time_slot.id;
+
+
+--
+-- Name: expenses; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.expenses (
+    expense_id bigint NOT NULL,
+    title character varying(255) NOT NULL,
+    amount numeric(10,2) NOT NULL,
+    expense_date date NOT NULL,
+    category character varying(255) NOT NULL,
+    description text,
+    payment_method character varying(255) DEFAULT 'cash'::character varying NOT NULL,
+    reference character varying(255),
+    created_by bigint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.expenses OWNER TO pooladmin;
+
+--
+-- Name: expenses_expense_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.expenses_expense_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.expenses_expense_id_seq OWNER TO pooladmin;
+
+--
+-- Name: expenses_expense_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.expenses_expense_id_seq OWNED BY pool_schema.expenses.expense_id;
+
+
+--
+-- Name: facilities; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.facilities (
+    facility_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    capacity integer,
+    status character varying(255) DEFAULT 'active'::character varying NOT NULL,
+    type character varying(255),
+    volume_liters integer,
+    min_temperature numeric(4,1),
+    max_temperature numeric(4,1),
+    active boolean DEFAULT true NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.facilities OWNER TO pooladmin;
+
+--
+-- Name: facilities_facility_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.facilities_facility_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.facilities_facility_id_seq OWNER TO pooladmin;
+
+--
+-- Name: facilities_facility_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.facilities_facility_id_seq OWNED BY pool_schema.facilities.facility_id;
+
+
+--
+-- Name: failed_jobs; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.failed_jobs (
+    id bigint NOT NULL,
+    uuid character varying(255) NOT NULL,
+    connection text NOT NULL,
+    queue text NOT NULL,
+    payload text NOT NULL,
+    exception text NOT NULL,
+    failed_at timestamp(0) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE pool_schema.failed_jobs OWNER TO pooladmin;
+
+--
+-- Name: failed_jobs_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.failed_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.failed_jobs_id_seq OWNER TO pooladmin;
+
+--
+-- Name: failed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.failed_jobs_id_seq OWNED BY pool_schema.failed_jobs.id;
+
+
+--
+-- Name: job_batches; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.job_batches (
+    id character varying(255) NOT NULL,
+    name character varying(255) NOT NULL,
+    total_jobs integer NOT NULL,
+    pending_jobs integer NOT NULL,
+    failed_jobs integer NOT NULL,
+    failed_job_ids text NOT NULL,
+    options text,
+    cancelled_at integer,
+    created_at integer NOT NULL,
+    finished_at integer
+);
+
+
+ALTER TABLE pool_schema.job_batches OWNER TO pooladmin;
+
+--
+-- Name: jobs; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.jobs (
+    id bigint NOT NULL,
+    queue character varying(255) NOT NULL,
+    payload text NOT NULL,
+    attempts smallint NOT NULL,
+    reserved_at integer,
+    available_at integer NOT NULL,
+    created_at integer NOT NULL
+);
+
+
+ALTER TABLE pool_schema.jobs OWNER TO pooladmin;
+
+--
+-- Name: jobs_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.jobs_id_seq OWNER TO pooladmin;
+
+--
+-- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.jobs_id_seq OWNED BY pool_schema.jobs.id;
+
+
+--
+-- Name: licenses; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.licenses (
+    id uuid NOT NULL,
+    license_key text NOT NULL,
+    client_name character varying(255),
+    email character varying(255),
+    status character varying(255) DEFAULT 'active'::character varying NOT NULL,
+    activated_at timestamp(0) without time zone,
+    last_check_at timestamp(0) without time zone,
+    server_hash character varying(255),
+    metadata json,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    module character varying(255) DEFAULT 'global'::character varying NOT NULL,
+    CONSTRAINT licenses_status_check CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'suspended'::character varying, 'expired'::character varying])::text[])))
+);
+
+
+ALTER TABLE pool_schema.licenses OWNER TO pooladmin;
+
+--
+-- Name: members; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.members (
+    member_id bigint NOT NULL,
+    first_name character varying(255) NOT NULL,
+    last_name character varying(255) NOT NULL,
+    email character varying(255),
+    phone_number character varying(255),
+    date_of_birth date,
+    address character varying(255),
+    created_by bigint,
+    updated_by bigint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    photo_path character varying(255),
+    emergency_contact_name character varying(100),
+    emergency_contact_phone character varying(20),
+    notes text,
+    health_conditions text
+);
+
+
+ALTER TABLE pool_schema.members OWNER TO pooladmin;
+
+--
+-- Name: members_member_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.members_member_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.members_member_id_seq OWNER TO pooladmin;
+
+--
+-- Name: members_member_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.members_member_id_seq OWNED BY pool_schema.members.member_id;
+
+
+--
+-- Name: migrations; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.migrations (
+    id integer NOT NULL,
+    migration character varying(255) NOT NULL,
+    batch integer NOT NULL
+);
+
+
+ALTER TABLE pool_schema.migrations OWNER TO pooladmin;
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.migrations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.migrations_id_seq OWNER TO pooladmin;
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.migrations_id_seq OWNED BY pool_schema.migrations.id;
+
+
+--
+-- Name: partner_contracts; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.partner_contracts (
+    contract_id bigint NOT NULL,
+    partner_group_id integer NOT NULL,
+    activity_id integer,
+    plan_id integer,
+    contract_type character varying(255) DEFAULT 'discount'::character varying NOT NULL,
+    value numeric(10,2) NOT NULL,
+    start_date date,
+    end_date date,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    billing_frequency character varying(255) DEFAULT 'per_session'::character varying NOT NULL,
+    per_head_rate numeric(10,2),
+    min_attendees integer,
+    max_attendees integer,
+    notes text,
+    total_sessions integer,
+    remaining_sessions integer,
+    attendees_per_session integer,
+    payment_status character varying(255) DEFAULT 'pending'::character varying NOT NULL,
+    price numeric(12,2),
+    subscription_id bigint,
+    fixed_attendee_count integer DEFAULT 0 NOT NULL,
+    sessions_per_week integer,
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    CONSTRAINT partner_contracts_billing_frequency_check CHECK (((billing_frequency)::text = ANY ((ARRAY['per_session'::character varying, 'weekly'::character varying, 'monthly'::character varying, 'annually'::character varying])::text[]))),
+    CONSTRAINT partner_contracts_contract_type_check CHECK (((contract_type)::text = ANY (ARRAY['discount'::text, 'fixed_price'::text, 'flat_fee'::text, 'per_head'::text, 'fixed_package'::text, 'monthly_weekly'::text, 'per_session'::text]))),
+    CONSTRAINT partner_contracts_payment_status_check CHECK (((payment_status)::text = ANY ((ARRAY['pending'::character varying, 'paid'::character varying])::text[]))),
+    CONSTRAINT partner_contracts_status_check CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'pending_payment'::character varying, 'active'::character varying, 'suspended'::character varying, 'finished'::character varying])::text[])))
+);
+
+
+ALTER TABLE pool_schema.partner_contracts OWNER TO pooladmin;
+
+--
+-- Name: partner_contracts_contract_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.partner_contracts_contract_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.partner_contracts_contract_id_seq OWNER TO pooladmin;
+
+--
+-- Name: partner_contracts_contract_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.partner_contracts_contract_id_seq OWNED BY pool_schema.partner_contracts.contract_id;
+
+
+--
+-- Name: partner_group_attendance; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.partner_group_attendance (
+    attendance_id bigint NOT NULL,
+    partner_group_id integer NOT NULL,
+    badge_id integer,
+    slot_id integer,
+    staff_id integer NOT NULL,
+    attendee_count integer NOT NULL,
+    access_time timestamp(0) without time zone NOT NULL,
+    access_decision character varying(255) NOT NULL,
+    denial_reason character varying(255),
+    contract_id bigint
+);
+
+
+ALTER TABLE pool_schema.partner_group_attendance OWNER TO pooladmin;
+
+--
+-- Name: partner_group_attendance_attendance_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.partner_group_attendance_attendance_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.partner_group_attendance_attendance_id_seq OWNER TO pooladmin;
+
+--
+-- Name: partner_group_attendance_attendance_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.partner_group_attendance_attendance_id_seq OWNED BY pool_schema.partner_group_attendance.attendance_id;
+
+
+--
+-- Name: partner_group_slots; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.partner_group_slots (
+    id bigint NOT NULL,
+    partner_group_id integer NOT NULL,
+    slot_id integer NOT NULL,
+    max_capacity integer NOT NULL,
+    contract_id bigint
+);
+
+
+ALTER TABLE pool_schema.partner_group_slots OWNER TO pooladmin;
+
+--
+-- Name: partner_group_slots_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.partner_group_slots_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.partner_group_slots_id_seq OWNER TO pooladmin;
+
+--
+-- Name: partner_group_slots_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.partner_group_slots_id_seq OWNED BY pool_schema.partner_group_slots.id;
+
+
+--
+-- Name: partner_groups; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.partner_groups (
+    group_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    contact_name character varying(255),
+    contact_phone character varying(255),
+    email character varying(255),
+    notes text,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    partner_type character varying(255),
+    legal_entity_name character varying(255),
+    contract_reference_code character varying(255),
+    status character varying(255) DEFAULT 'draft'::character varying NOT NULL,
+    CONSTRAINT partner_groups_status_check CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'active'::character varying, 'suspended'::character varying])::text[])))
+);
+
+
+ALTER TABLE pool_schema.partner_groups OWNER TO pooladmin;
+
+--
+-- Name: partner_groups_group_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.partner_groups_group_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.partner_groups_group_id_seq OWNER TO pooladmin;
+
+--
+-- Name: partner_groups_group_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.partner_groups_group_id_seq OWNED BY pool_schema.partner_groups.group_id;
+
+
+--
+-- Name: password_reset_tokens; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.password_reset_tokens (
+    email character varying(255) NOT NULL,
+    token character varying(255) NOT NULL,
+    created_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.password_reset_tokens OWNER TO pooladmin;
+
+--
+-- Name: payments; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.payments (
+    payment_id bigint NOT NULL,
+    subscription_id bigint NOT NULL,
+    amount numeric(8,2) NOT NULL,
+    payment_date timestamp(0) without time zone NOT NULL,
+    payment_method character varying(255),
+    received_by_staff_id bigint,
+    notes text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.payments OWNER TO pooladmin;
+
+--
+-- Name: payments_payment_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.payments_payment_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.payments_payment_id_seq OWNER TO pooladmin;
+
+--
+-- Name: payments_payment_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.payments_payment_id_seq OWNED BY pool_schema.payments.payment_id;
+
+
+--
+-- Name: permissions; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.permissions (
+    permission_id bigint NOT NULL,
+    permission_name character varying(255) NOT NULL
+);
+
+
+ALTER TABLE pool_schema.permissions OWNER TO pooladmin;
+
+--
+-- Name: permissions_permission_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.permissions_permission_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.permissions_permission_id_seq OWNER TO pooladmin;
+
+--
+-- Name: permissions_permission_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.permissions_permission_id_seq OWNED BY pool_schema.permissions.permission_id;
+
+
+--
+-- Name: plans; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.plans (
+    plan_id bigint NOT NULL,
+    plan_name character varying(255) NOT NULL,
+    description text,
+    plan_type character varying(255),
+    visits_per_week integer,
+    duration_months integer,
+    is_active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE pool_schema.plans OWNER TO pooladmin;
+
+--
+-- Name: plans_plan_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.plans_plan_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.plans_plan_id_seq OWNER TO pooladmin;
+
+--
+-- Name: plans_plan_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.plans_plan_id_seq OWNED BY pool_schema.plans.plan_id;
+
+
+--
+-- Name: pool_chemical_stock; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_chemical_stock (
+    chemical_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    type character varying(255) NOT NULL,
+    quantity_available numeric(8,2) DEFAULT '0'::numeric NOT NULL,
+    unit character varying(255) NOT NULL,
+    minimum_threshold numeric(8,2) DEFAULT '10'::numeric NOT NULL,
+    last_updated timestamp(0) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.pool_chemical_stock OWNER TO pooladmin;
+
+--
+-- Name: pool_chemical_stock_chemical_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_chemical_stock_chemical_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_chemical_stock_chemical_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_chemical_stock_chemical_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_chemical_stock_chemical_id_seq OWNED BY pool_schema.pool_chemical_stock.chemical_id;
+
+
+--
+-- Name: pool_chemical_usage; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_chemical_usage (
+    usage_id bigint NOT NULL,
+    chemical_id bigint NOT NULL,
+    technician_id bigint NOT NULL,
+    quantity_used numeric(8,2) NOT NULL,
+    usage_date timestamp(0) without time zone NOT NULL,
+    purpose character varying(255),
+    related_test_id bigint,
+    comments text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.pool_chemical_usage OWNER TO pooladmin;
+
+--
+-- Name: pool_chemical_usage_usage_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_chemical_usage_usage_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_chemical_usage_usage_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_chemical_usage_usage_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_chemical_usage_usage_id_seq OWNED BY pool_schema.pool_chemical_usage.usage_id;
+
+
+--
+-- Name: pool_daily_tasks; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_daily_tasks (
+    task_id bigint NOT NULL,
+    technician_id bigint NOT NULL,
+    pool_id bigint NOT NULL,
+    task_date date NOT NULL,
+    pump_status character varying(255),
+    pressure_reading numeric(5,2),
+    skimmer_cleaned boolean DEFAULT false NOT NULL,
+    vacuum_done boolean DEFAULT false NOT NULL,
+    drains_checked boolean DEFAULT false NOT NULL,
+    lighting_checked boolean DEFAULT false NOT NULL,
+    anomalies_comment text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    debris_removed boolean DEFAULT false NOT NULL,
+    drain_covers_inspected boolean DEFAULT false NOT NULL,
+    clarity_test_passed boolean DEFAULT false NOT NULL,
+    custom_data json,
+    template_id bigint
+);
+
+
+ALTER TABLE pool_schema.pool_daily_tasks OWNER TO pooladmin;
+
+--
+-- Name: pool_daily_tasks_task_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_daily_tasks_task_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_daily_tasks_task_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_daily_tasks_task_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_daily_tasks_task_id_seq OWNED BY pool_schema.pool_daily_tasks.task_id;
+
+
+--
+-- Name: pool_equipment; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_equipment (
+    equipment_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    type character varying(255) NOT NULL,
+    serial_number character varying(255),
+    location character varying(255),
+    install_date date,
+    status character varying(255) DEFAULT 'operational'::character varying NOT NULL,
+    last_maintenance_date date,
+    next_due_date date,
+    notes text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.pool_equipment OWNER TO pooladmin;
+
+--
+-- Name: pool_equipment_equipment_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_equipment_equipment_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_equipment_equipment_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_equipment_equipment_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_equipment_equipment_id_seq OWNED BY pool_schema.pool_equipment.equipment_id;
+
+
+--
+-- Name: pool_equipment_maintenance; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_equipment_maintenance (
+    maintenance_id bigint NOT NULL,
+    equipment_id bigint NOT NULL,
+    technician_id bigint NOT NULL,
+    task_type character varying(255) NOT NULL,
+    status character varying(255) DEFAULT 'scheduled'::character varying NOT NULL,
+    scheduled_date date NOT NULL,
+    completed_date date,
+    description text,
+    used_parts text,
+    working_hours_spent numeric(4,1),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.pool_equipment_maintenance OWNER TO pooladmin;
+
+--
+-- Name: pool_equipment_maintenance_maintenance_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_equipment_maintenance_maintenance_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_equipment_maintenance_maintenance_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_equipment_maintenance_maintenance_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_equipment_maintenance_maintenance_id_seq OWNED BY pool_schema.pool_equipment_maintenance.maintenance_id;
+
+
+--
+-- Name: pool_incidents; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_incidents (
+    incident_id bigint NOT NULL,
+    title character varying(255) NOT NULL,
+    description text NOT NULL,
+    severity character varying(255) NOT NULL,
+    equipment_id bigint,
+    pool_id bigint,
+    created_by bigint NOT NULL,
+    assigned_to bigint,
+    status character varying(255) DEFAULT 'open'::character varying NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.pool_incidents OWNER TO pooladmin;
+
+--
+-- Name: pool_incidents_incident_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_incidents_incident_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_incidents_incident_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_incidents_incident_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_incidents_incident_id_seq OWNED BY pool_schema.pool_incidents.incident_id;
+
+
+--
+-- Name: pool_monthly_tasks; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_monthly_tasks (
+    monthly_task_id bigint NOT NULL,
+    facility_id bigint NOT NULL,
+    technician_id bigint NOT NULL,
+    water_replacement_partial boolean DEFAULT false NOT NULL,
+    full_system_inspection boolean DEFAULT false NOT NULL,
+    chemical_dosing_calibration boolean DEFAULT false NOT NULL,
+    notes text,
+    completed_at timestamp(0) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    custom_data json,
+    template_id bigint
+);
+
+
+ALTER TABLE pool_schema.pool_monthly_tasks OWNER TO pooladmin;
+
+--
+-- Name: pool_monthly_tasks_monthly_task_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_monthly_tasks_monthly_task_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_monthly_tasks_monthly_task_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_monthly_tasks_monthly_task_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_monthly_tasks_monthly_task_id_seq OWNED BY pool_schema.pool_monthly_tasks.monthly_task_id;
+
+
+--
+-- Name: pool_water_tests; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_water_tests (
+    id bigint NOT NULL,
+    test_date timestamp(0) without time zone NOT NULL,
+    technician_id bigint NOT NULL,
+    pool_id bigint NOT NULL,
+    ph numeric(4,2),
+    chlorine_free numeric(4,2),
+    chlorine_total numeric(4,2),
+    bromine numeric(4,2),
+    alkalinity integer,
+    hardness integer,
+    salinity integer,
+    turbidity numeric(5,2),
+    temperature numeric(4,1),
+    orp integer,
+    comments text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.pool_water_tests OWNER TO pooladmin;
+
+--
+-- Name: pool_water_tests_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_water_tests_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_water_tests_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_water_tests_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_water_tests_id_seq OWNED BY pool_schema.pool_water_tests.id;
+
+
+--
+-- Name: pool_weekly_tasks; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.pool_weekly_tasks (
+    id bigint NOT NULL,
+    technician_id bigint NOT NULL,
+    pool_id bigint NOT NULL,
+    week_number integer NOT NULL,
+    year integer NOT NULL,
+    backwash_done boolean DEFAULT false NOT NULL,
+    filter_cleaned boolean DEFAULT false NOT NULL,
+    brushing_done boolean DEFAULT false NOT NULL,
+    heater_checked boolean DEFAULT false NOT NULL,
+    chemical_doser_checked boolean DEFAULT false NOT NULL,
+    general_inspection_comment text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    fittings_retightened boolean DEFAULT false NOT NULL,
+    heater_tested boolean DEFAULT false NOT NULL,
+    custom_data json,
+    template_id bigint
+);
+
+
+ALTER TABLE pool_schema.pool_weekly_tasks OWNER TO pooladmin;
+
+--
+-- Name: pool_weekly_tasks_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.pool_weekly_tasks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.pool_weekly_tasks_id_seq OWNER TO pooladmin;
+
+--
+-- Name: pool_weekly_tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.pool_weekly_tasks_id_seq OWNED BY pool_schema.pool_weekly_tasks.id;
+
+
+--
+-- Name: product_images; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.product_images (
+    id bigint NOT NULL,
+    product_id bigint NOT NULL,
+    image_path character varying(255) NOT NULL,
+    is_primary boolean DEFAULT false NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.product_images OWNER TO pooladmin;
+
+--
+-- Name: product_images_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.product_images_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.product_images_id_seq OWNER TO pooladmin;
+
+--
+-- Name: product_images_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.product_images_id_seq OWNED BY pool_schema.product_images.id;
+
+
+--
+-- Name: products; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.products (
+    id bigint NOT NULL,
+    category_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description text,
+    price numeric(8,2) NOT NULL,
+    purchase_price numeric(8,2) DEFAULT '0'::numeric NOT NULL,
+    stock_quantity integer DEFAULT 0 NOT NULL,
+    alert_threshold integer DEFAULT 0 NOT NULL,
+    image_path character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.products OWNER TO pooladmin;
+
+--
+-- Name: products_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.products_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.products_id_seq OWNER TO pooladmin;
+
+--
+-- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.products_id_seq OWNED BY pool_schema.products.id;
+
+
+--
+-- Name: reservations; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.reservations (
+    reservation_id bigint NOT NULL,
+    slot_id bigint NOT NULL,
+    member_id bigint,
+    partner_group_id bigint,
+    reservation_type character varying(255) DEFAULT 'individual'::character varying NOT NULL,
+    reserved_at timestamp(0) without time zone NOT NULL,
+    status character varying(255) DEFAULT 'confirmed'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.reservations OWNER TO pooladmin;
+
+--
+-- Name: reservations_reservation_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.reservations_reservation_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.reservations_reservation_id_seq OWNER TO pooladmin;
+
+--
+-- Name: reservations_reservation_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.reservations_reservation_id_seq OWNED BY pool_schema.reservations.reservation_id;
+
+
+--
+-- Name: rfid_devices; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.rfid_devices (
+    id integer NOT NULL,
+    device_id character varying(255) NOT NULL,
+    name character varying(255),
+    ip_address character varying(255),
+    version character varying(255),
+    status character varying(255) DEFAULT 'offline'::character varying,
+    last_heartbeat timestamp without time zone,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+);
+
+
+ALTER TABLE pool_schema.rfid_devices OWNER TO pooladmin;
+
+--
+-- Name: rfid_devices_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.rfid_devices_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.rfid_devices_id_seq OWNER TO pooladmin;
+
+--
+-- Name: rfid_devices_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.rfid_devices_id_seq OWNED BY pool_schema.rfid_devices.id;
+
+
+--
+-- Name: role_permissions; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.role_permissions (
+    id bigint NOT NULL,
+    role_id bigint NOT NULL,
+    permission_id bigint NOT NULL
+);
+
+
+ALTER TABLE pool_schema.role_permissions OWNER TO pooladmin;
+
+--
+-- Name: role_permissions_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.role_permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.role_permissions_id_seq OWNER TO pooladmin;
+
+--
+-- Name: role_permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.role_permissions_id_seq OWNED BY pool_schema.role_permissions.id;
+
+
+--
+-- Name: roles; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.roles (
+    role_id bigint NOT NULL,
+    role_name character varying(255) NOT NULL
+);
+
+
+ALTER TABLE pool_schema.roles OWNER TO pooladmin;
+
+--
+-- Name: roles_role_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.roles_role_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.roles_role_id_seq OWNER TO pooladmin;
+
+--
+-- Name: roles_role_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.roles_role_id_seq OWNED BY pool_schema.roles.role_id;
+
+
+--
+-- Name: sale_items; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.sale_items (
+    id bigint NOT NULL,
+    sale_id bigint NOT NULL,
+    product_id bigint NOT NULL,
+    quantity integer NOT NULL,
+    unit_price numeric(8,2) NOT NULL,
+    subtotal numeric(8,2) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.sale_items OWNER TO pooladmin;
+
+--
+-- Name: sale_items_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.sale_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.sale_items_id_seq OWNER TO pooladmin;
+
+--
+-- Name: sale_items_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.sale_items_id_seq OWNED BY pool_schema.sale_items.id;
+
+
+--
+-- Name: sales; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.sales (
+    id bigint NOT NULL,
+    staff_id bigint NOT NULL,
+    member_id bigint,
+    total_amount numeric(8,2) NOT NULL,
+    payment_method character varying(255) NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.sales OWNER TO pooladmin;
+
+--
+-- Name: sales_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.sales_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.sales_id_seq OWNER TO pooladmin;
+
+--
+-- Name: sales_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.sales_id_seq OWNED BY pool_schema.sales.id;
+
+
+--
+-- Name: sessions; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.sessions (
+    id character varying(255) NOT NULL,
+    user_id bigint,
+    ip_address character varying(45),
+    user_agent text,
+    payload text NOT NULL,
+    last_activity integer NOT NULL
+);
+
+
+ALTER TABLE pool_schema.sessions OWNER TO pooladmin;
+
+--
+-- Name: settings; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.settings (
+    id bigint NOT NULL,
+    key character varying(255) NOT NULL,
+    value text,
+    description character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.settings OWNER TO pooladmin;
+
+--
+-- Name: settings_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.settings_id_seq OWNER TO pooladmin;
+
+--
+-- Name: settings_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.settings_id_seq OWNED BY pool_schema.settings.id;
+
+
+--
+-- Name: staff; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.staff (
+    staff_id bigint NOT NULL,
+    first_name character varying(255) NOT NULL,
+    last_name character varying(255) NOT NULL,
+    username character varying(255) NOT NULL,
+    password_hash character varying(255) NOT NULL,
+    role_id bigint,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    phone_number character varying(255),
+    email character varying(255),
+    specialty character varying(255),
+    hiring_date date,
+    salary_type character varying(255) DEFAULT 'per_hour'::character varying NOT NULL,
+    hourly_rate numeric(10,2) DEFAULT '0'::numeric NOT NULL,
+    notes text
+);
+
+
+ALTER TABLE pool_schema.staff OWNER TO pooladmin;
+
+--
+-- Name: staff_attendance; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.staff_attendance (
+    attendance_id bigint NOT NULL,
+    staff_id bigint NOT NULL,
+    check_in timestamp(0) without time zone NOT NULL,
+    check_out timestamp(0) without time zone,
+    date date NOT NULL,
+    status character varying(255) DEFAULT 'present'::character varying NOT NULL,
+    delay_minutes integer DEFAULT 0 NOT NULL,
+    working_hours numeric(5,2) DEFAULT '0'::numeric NOT NULL,
+    check_in_method character varying(255) DEFAULT 'manual'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    overtime_hours numeric(5,2) DEFAULT '0'::numeric NOT NULL,
+    night_hours numeric(5,2) DEFAULT '0'::numeric NOT NULL,
+    break_minutes integer DEFAULT 0 NOT NULL,
+    validation_status character varying(255) DEFAULT 'pending'::character varying NOT NULL,
+    validation_date timestamp(0) without time zone,
+    validated_by bigint,
+    justification text,
+    correction_reason text,
+    admin_comments text,
+    CONSTRAINT staff_attendance_validation_status_check CHECK (((validation_status)::text = ANY ((ARRAY['pending'::character varying, 'validated'::character varying, 'rejected'::character varying, 'corrected'::character varying])::text[])))
+);
+
+
+ALTER TABLE pool_schema.staff_attendance OWNER TO pooladmin;
+
+--
+-- Name: staff_attendance_attendance_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.staff_attendance_attendance_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.staff_attendance_attendance_id_seq OWNER TO pooladmin;
+
+--
+-- Name: staff_attendance_attendance_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.staff_attendance_attendance_id_seq OWNED BY pool_schema.staff_attendance.attendance_id;
+
+
+--
+-- Name: staff_leaves; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.staff_leaves (
+    id bigint NOT NULL,
+    staff_id integer NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    type character varying(255) NOT NULL,
+    status character varying(255) DEFAULT 'pending'::character varying NOT NULL,
+    reason text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.staff_leaves OWNER TO pooladmin;
+
+--
+-- Name: staff_leaves_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.staff_leaves_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.staff_leaves_id_seq OWNER TO pooladmin;
+
+--
+-- Name: staff_leaves_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.staff_leaves_id_seq OWNED BY pool_schema.staff_leaves.id;
+
+
+--
+-- Name: staff_schedules; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.staff_schedules (
+    id bigint NOT NULL,
+    staff_id integer NOT NULL,
+    date date NOT NULL,
+    start_time time(0) without time zone NOT NULL,
+    end_time time(0) without time zone NOT NULL,
+    type character varying(255) DEFAULT 'work'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.staff_schedules OWNER TO pooladmin;
+
+--
+-- Name: staff_schedules_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.staff_schedules_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.staff_schedules_id_seq OWNER TO pooladmin;
+
+--
+-- Name: staff_schedules_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.staff_schedules_id_seq OWNED BY pool_schema.staff_schedules.id;
+
+
+--
+-- Name: staff_staff_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.staff_staff_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.staff_staff_id_seq OWNER TO pooladmin;
+
+--
+-- Name: staff_staff_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.staff_staff_id_seq OWNED BY pool_schema.staff.staff_id;
+
+
+--
+-- Name: subscription_allowed_days; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.subscription_allowed_days (
+    id bigint NOT NULL,
+    subscription_id bigint NOT NULL,
+    weekday_id bigint NOT NULL
+);
+
+
+ALTER TABLE pool_schema.subscription_allowed_days OWNER TO pooladmin;
+
+--
+-- Name: subscription_allowed_days_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.subscription_allowed_days_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.subscription_allowed_days_id_seq OWNER TO pooladmin;
+
+--
+-- Name: subscription_allowed_days_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.subscription_allowed_days_id_seq OWNED BY pool_schema.subscription_allowed_days.id;
+
+
+--
+-- Name: subscription_slots; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.subscription_slots (
+    subscription_slot_id bigint NOT NULL,
+    subscription_id bigint NOT NULL,
+    slot_id bigint NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE pool_schema.subscription_slots OWNER TO pooladmin;
+
+--
+-- Name: subscription_slots_subscription_slot_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.subscription_slots_subscription_slot_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.subscription_slots_subscription_slot_id_seq OWNER TO pooladmin;
+
+--
+-- Name: subscription_slots_subscription_slot_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.subscription_slots_subscription_slot_id_seq OWNED BY pool_schema.subscription_slots.subscription_slot_id;
+
+
+--
+-- Name: subscriptions; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.subscriptions (
+    subscription_id bigint NOT NULL,
+    member_id bigint,
+    plan_id bigint NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    status character varying(255) DEFAULT 'active'::character varying NOT NULL,
+    paused_at timestamp(0) without time zone,
+    resumes_at date,
+    visits_per_week integer,
+    deactivated_by bigint,
+    created_by bigint,
+    updated_by bigint,
+    activity_id bigint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    allowed_days jsonb,
+    partner_group_id integer
+);
+
+
+ALTER TABLE pool_schema.subscriptions OWNER TO pooladmin;
+
+--
+-- Name: subscriptions_subscription_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.subscriptions_subscription_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.subscriptions_subscription_id_seq OWNER TO pooladmin;
+
+--
+-- Name: subscriptions_subscription_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.subscriptions_subscription_id_seq OWNED BY pool_schema.subscriptions.subscription_id;
+
+
+--
+-- Name: task_templates; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.task_templates (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    type character varying(255) NOT NULL,
+    items json NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    CONSTRAINT task_templates_type_check CHECK (((type)::text = ANY ((ARRAY['daily'::character varying, 'weekly'::character varying, 'monthly'::character varying])::text[])))
+);
+
+
+ALTER TABLE pool_schema.task_templates OWNER TO pooladmin;
+
+--
+-- Name: task_templates_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.task_templates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.task_templates_id_seq OWNER TO pooladmin;
+
+--
+-- Name: task_templates_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.task_templates_id_seq OWNED BY pool_schema.task_templates.id;
+
+
+--
+-- Name: time_slots; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.time_slots (
+    slot_id bigint NOT NULL,
+    weekday_id bigint NOT NULL,
+    start_time time(0) without time zone NOT NULL,
+    end_time time(0) without time zone NOT NULL,
+    activity_id bigint,
+    assigned_group character varying(255),
+    is_blocked boolean DEFAULT false NOT NULL,
+    notes text,
+    created_by bigint,
+    capacity integer,
+    coach_id bigint,
+    assistant_coach_id bigint
+);
+
+
+ALTER TABLE pool_schema.time_slots OWNER TO pooladmin;
+
+--
+-- Name: time_slots_slot_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.time_slots_slot_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.time_slots_slot_id_seq OWNER TO pooladmin;
+
+--
+-- Name: time_slots_slot_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.time_slots_slot_id_seq OWNED BY pool_schema.time_slots.slot_id;
+
+
+--
+-- Name: users; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.users (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    email_verified_at timestamp(0) without time zone,
+    password character varying(255) NOT NULL,
+    remember_token character varying(100),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    role_id bigint
+);
+
+
+ALTER TABLE pool_schema.users OWNER TO pooladmin;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.users_id_seq OWNER TO pooladmin;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.users_id_seq OWNED BY pool_schema.users.id;
+
+
+--
+-- Name: weekdays; Type: TABLE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TABLE pool_schema.weekdays (
+    weekday_id bigint NOT NULL,
+    day_name character varying(255) NOT NULL
+);
+
+
+ALTER TABLE pool_schema.weekdays OWNER TO pooladmin;
+
+--
+-- Name: weekdays_weekday_id_seq; Type: SEQUENCE; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE SEQUENCE pool_schema.weekdays_weekday_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE pool_schema.weekdays_weekday_id_seq OWNER TO pooladmin;
+
+--
+-- Name: weekdays_weekday_id_seq; Type: SEQUENCE OWNED BY; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER SEQUENCE pool_schema.weekdays_weekday_id_seq OWNED BY pool_schema.weekdays.weekday_id;
+
+
+--
+-- Name: categories; Type: TABLE; Schema: public; Owner: pooladmin
+--
+
+CREATE TABLE public.categories (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    type character varying(255) DEFAULT 'product'::character varying NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE public.categories OWNER TO pooladmin;
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: pooladmin
+--
+
+CREATE SEQUENCE public.categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.categories_id_seq OWNER TO pooladmin;
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pooladmin
+--
+
+ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
+
+
+--
+-- Name: products; Type: TABLE; Schema: public; Owner: pooladmin
+--
+
+CREATE TABLE public.products (
+    id bigint NOT NULL,
+    category_id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description text,
+    price numeric(8,2) DEFAULT 0 NOT NULL,
+    stock_quantity integer DEFAULT 0 NOT NULL,
+    alert_threshold integer DEFAULT 5 NOT NULL,
+    image_path character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE public.products OWNER TO pooladmin;
+
+--
+-- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: pooladmin
+--
+
+CREATE SEQUENCE public.products_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.products_id_seq OWNER TO pooladmin;
+
+--
+-- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pooladmin
+--
+
+ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
+
+
+--
+-- Name: sales; Type: TABLE; Schema: public; Owner: pooladmin
+--
+
+CREATE TABLE public.sales (
+    id bigint NOT NULL,
+    staff_id bigint NOT NULL,
+    member_id bigint,
+    total_amount numeric(10,2) NOT NULL,
+    payment_method character varying(255) DEFAULT 'cash'::character varying NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE public.sales OWNER TO pooladmin;
+
+--
+-- Name: sales_id_seq; Type: SEQUENCE; Schema: public; Owner: pooladmin
+--
+
+CREATE SEQUENCE public.sales_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.sales_id_seq OWNER TO pooladmin;
+
+--
+-- Name: sales_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: pooladmin
+--
+
+ALTER SEQUENCE public.sales_id_seq OWNED BY public.sales.id;
+
+
+--
+-- Name: access_badges badge_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_badges ALTER COLUMN badge_id SET DEFAULT nextval('pool_schema.access_badges_badge_id_seq'::regclass);
+
+
+--
+-- Name: access_logs log_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_logs ALTER COLUMN log_id SET DEFAULT nextval('pool_schema.access_logs_log_id_seq'::regclass);
+
+
+--
+-- Name: activities activity_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.activities ALTER COLUMN activity_id SET DEFAULT nextval('pool_schema.activities_activity_id_seq'::regclass);
+
+
+--
+-- Name: activity_plan_prices id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.activity_plan_prices ALTER COLUMN id SET DEFAULT nextval('pool_schema.activity_plan_prices_id_seq'::regclass);
+
+
+--
+-- Name: audit_log log_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.audit_log ALTER COLUMN log_id SET DEFAULT nextval('pool_schema.audit_log_log_id_seq'::regclass);
+
+
+--
+-- Name: backup_jobs id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.backup_jobs ALTER COLUMN id SET DEFAULT nextval('pool_schema.backup_jobs_id_seq'::regclass);
+
+
+--
+-- Name: backup_settings id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.backup_settings ALTER COLUMN id SET DEFAULT nextval('pool_schema.backup_settings_id_seq'::regclass);
+
+
+--
+-- Name: categories id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.categories ALTER COLUMN id SET DEFAULT nextval('pool_schema.categories_id_seq'::regclass);
+
+
+--
+-- Name: coach_time_slot id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.coach_time_slot ALTER COLUMN id SET DEFAULT nextval('pool_schema.coach_time_slot_id_seq'::regclass);
+
+
+--
+-- Name: expenses expense_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.expenses ALTER COLUMN expense_id SET DEFAULT nextval('pool_schema.expenses_expense_id_seq'::regclass);
+
+
+--
+-- Name: facilities facility_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.facilities ALTER COLUMN facility_id SET DEFAULT nextval('pool_schema.facilities_facility_id_seq'::regclass);
+
+
+--
+-- Name: failed_jobs id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.failed_jobs ALTER COLUMN id SET DEFAULT nextval('pool_schema.failed_jobs_id_seq'::regclass);
+
+
+--
+-- Name: jobs id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.jobs ALTER COLUMN id SET DEFAULT nextval('pool_schema.jobs_id_seq'::regclass);
+
+
+--
+-- Name: members member_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.members ALTER COLUMN member_id SET DEFAULT nextval('pool_schema.members_member_id_seq'::regclass);
+
+
+--
+-- Name: migrations id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.migrations ALTER COLUMN id SET DEFAULT nextval('pool_schema.migrations_id_seq'::regclass);
+
+
+--
+-- Name: partner_contracts contract_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_contracts ALTER COLUMN contract_id SET DEFAULT nextval('pool_schema.partner_contracts_contract_id_seq'::regclass);
+
+
+--
+-- Name: partner_group_attendance attendance_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance ALTER COLUMN attendance_id SET DEFAULT nextval('pool_schema.partner_group_attendance_attendance_id_seq'::regclass);
+
+
+--
+-- Name: partner_group_slots id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_slots ALTER COLUMN id SET DEFAULT nextval('pool_schema.partner_group_slots_id_seq'::regclass);
+
+
+--
+-- Name: partner_groups group_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_groups ALTER COLUMN group_id SET DEFAULT nextval('pool_schema.partner_groups_group_id_seq'::regclass);
+
+
+--
+-- Name: payments payment_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.payments ALTER COLUMN payment_id SET DEFAULT nextval('pool_schema.payments_payment_id_seq'::regclass);
+
+
+--
+-- Name: permissions permission_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.permissions ALTER COLUMN permission_id SET DEFAULT nextval('pool_schema.permissions_permission_id_seq'::regclass);
+
+
+--
+-- Name: plans plan_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.plans ALTER COLUMN plan_id SET DEFAULT nextval('pool_schema.plans_plan_id_seq'::regclass);
+
+
+--
+-- Name: pool_chemical_stock chemical_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_stock ALTER COLUMN chemical_id SET DEFAULT nextval('pool_schema.pool_chemical_stock_chemical_id_seq'::regclass);
+
+
+--
+-- Name: pool_chemical_usage usage_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_usage ALTER COLUMN usage_id SET DEFAULT nextval('pool_schema.pool_chemical_usage_usage_id_seq'::regclass);
+
+
+--
+-- Name: pool_daily_tasks task_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_daily_tasks ALTER COLUMN task_id SET DEFAULT nextval('pool_schema.pool_daily_tasks_task_id_seq'::regclass);
+
+
+--
+-- Name: pool_equipment equipment_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_equipment ALTER COLUMN equipment_id SET DEFAULT nextval('pool_schema.pool_equipment_equipment_id_seq'::regclass);
+
+
+--
+-- Name: pool_equipment_maintenance maintenance_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_equipment_maintenance ALTER COLUMN maintenance_id SET DEFAULT nextval('pool_schema.pool_equipment_maintenance_maintenance_id_seq'::regclass);
+
+
+--
+-- Name: pool_incidents incident_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_incidents ALTER COLUMN incident_id SET DEFAULT nextval('pool_schema.pool_incidents_incident_id_seq'::regclass);
+
+
+--
+-- Name: pool_monthly_tasks monthly_task_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_monthly_tasks ALTER COLUMN monthly_task_id SET DEFAULT nextval('pool_schema.pool_monthly_tasks_monthly_task_id_seq'::regclass);
+
+
+--
+-- Name: pool_water_tests id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_water_tests ALTER COLUMN id SET DEFAULT nextval('pool_schema.pool_water_tests_id_seq'::regclass);
+
+
+--
+-- Name: pool_weekly_tasks id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_weekly_tasks ALTER COLUMN id SET DEFAULT nextval('pool_schema.pool_weekly_tasks_id_seq'::regclass);
+
+
+--
+-- Name: product_images id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.product_images ALTER COLUMN id SET DEFAULT nextval('pool_schema.product_images_id_seq'::regclass);
+
+
+--
+-- Name: products id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.products ALTER COLUMN id SET DEFAULT nextval('pool_schema.products_id_seq'::regclass);
+
+
+--
+-- Name: reservations reservation_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.reservations ALTER COLUMN reservation_id SET DEFAULT nextval('pool_schema.reservations_reservation_id_seq'::regclass);
+
+
+--
+-- Name: rfid_devices id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.rfid_devices ALTER COLUMN id SET DEFAULT nextval('pool_schema.rfid_devices_id_seq'::regclass);
+
+
+--
+-- Name: role_permissions id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.role_permissions ALTER COLUMN id SET DEFAULT nextval('pool_schema.role_permissions_id_seq'::regclass);
+
+
+--
+-- Name: roles role_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.roles ALTER COLUMN role_id SET DEFAULT nextval('pool_schema.roles_role_id_seq'::regclass);
+
+
+--
+-- Name: sale_items id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sale_items ALTER COLUMN id SET DEFAULT nextval('pool_schema.sale_items_id_seq'::regclass);
+
+
+--
+-- Name: sales id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sales ALTER COLUMN id SET DEFAULT nextval('pool_schema.sales_id_seq'::regclass);
+
+
+--
+-- Name: settings id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.settings ALTER COLUMN id SET DEFAULT nextval('pool_schema.settings_id_seq'::regclass);
+
+
+--
+-- Name: staff staff_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff ALTER COLUMN staff_id SET DEFAULT nextval('pool_schema.staff_staff_id_seq'::regclass);
+
+
+--
+-- Name: staff_attendance attendance_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_attendance ALTER COLUMN attendance_id SET DEFAULT nextval('pool_schema.staff_attendance_attendance_id_seq'::regclass);
+
+
+--
+-- Name: staff_leaves id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_leaves ALTER COLUMN id SET DEFAULT nextval('pool_schema.staff_leaves_id_seq'::regclass);
+
+
+--
+-- Name: staff_schedules id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_schedules ALTER COLUMN id SET DEFAULT nextval('pool_schema.staff_schedules_id_seq'::regclass);
+
+
+--
+-- Name: subscription_allowed_days id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_allowed_days ALTER COLUMN id SET DEFAULT nextval('pool_schema.subscription_allowed_days_id_seq'::regclass);
+
+
+--
+-- Name: subscription_slots subscription_slot_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_slots ALTER COLUMN subscription_slot_id SET DEFAULT nextval('pool_schema.subscription_slots_subscription_slot_id_seq'::regclass);
+
+
+--
+-- Name: subscriptions subscription_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions ALTER COLUMN subscription_id SET DEFAULT nextval('pool_schema.subscriptions_subscription_id_seq'::regclass);
+
+
+--
+-- Name: task_templates id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.task_templates ALTER COLUMN id SET DEFAULT nextval('pool_schema.task_templates_id_seq'::regclass);
+
+
+--
+-- Name: time_slots slot_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots ALTER COLUMN slot_id SET DEFAULT nextval('pool_schema.time_slots_slot_id_seq'::regclass);
+
+
+--
+-- Name: users id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.users ALTER COLUMN id SET DEFAULT nextval('pool_schema.users_id_seq'::regclass);
+
+
+--
+-- Name: weekdays weekday_id; Type: DEFAULT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.weekdays ALTER COLUMN weekday_id SET DEFAULT nextval('pool_schema.weekdays_weekday_id_seq'::regclass);
+
+
+--
+-- Name: categories id; Type: DEFAULT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
+
+
+--
+-- Name: products id; Type: DEFAULT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.products_id_seq'::regclass);
+
+
+--
+-- Name: sales id; Type: DEFAULT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.sales ALTER COLUMN id SET DEFAULT nextval('public.sales_id_seq'::regclass);
+
+
+--
+-- Name: access_badges access_badges_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_badges
+    ADD CONSTRAINT access_badges_pkey PRIMARY KEY (badge_id);
+
+
+--
+-- Name: access_logs access_logs_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_logs
+    ADD CONSTRAINT access_logs_pkey PRIMARY KEY (log_id);
+
+
+--
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (activity_id);
+
+
+--
+-- Name: activity_plan_prices activity_plan_prices_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.activity_plan_prices
+    ADD CONSTRAINT activity_plan_prices_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: audit_log audit_log_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.audit_log
+    ADD CONSTRAINT audit_log_pkey PRIMARY KEY (log_id);
+
+
+--
+-- Name: backup_jobs backup_jobs_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.backup_jobs
+    ADD CONSTRAINT backup_jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: backup_settings backup_settings_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.backup_settings
+    ADD CONSTRAINT backup_settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cache_locks cache_locks_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.cache_locks
+    ADD CONSTRAINT cache_locks_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: cache cache_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.cache
+    ADD CONSTRAINT cache_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.categories
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: coach_time_slot coach_time_slot_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.coach_time_slot
+    ADD CONSTRAINT coach_time_slot_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: expenses expenses_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.expenses
+    ADD CONSTRAINT expenses_pkey PRIMARY KEY (expense_id);
+
+
+--
+-- Name: facilities facilities_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.facilities
+    ADD CONSTRAINT facilities_pkey PRIMARY KEY (facility_id);
+
+
+--
+-- Name: failed_jobs failed_jobs_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.failed_jobs
+    ADD CONSTRAINT failed_jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: failed_jobs failed_jobs_uuid_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.failed_jobs
+    ADD CONSTRAINT failed_jobs_uuid_unique UNIQUE (uuid);
+
+
+--
+-- Name: job_batches job_batches_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.job_batches
+    ADD CONSTRAINT job_batches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: jobs jobs_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.jobs
+    ADD CONSTRAINT jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: licenses licenses_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.licenses
+    ADD CONSTRAINT licenses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: members members_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.members
+    ADD CONSTRAINT members_pkey PRIMARY KEY (member_id);
+
+
+--
+-- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.migrations
+    ADD CONSTRAINT migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: partner_contracts partner_contracts_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_contracts
+    ADD CONSTRAINT partner_contracts_pkey PRIMARY KEY (contract_id);
+
+
+--
+-- Name: partner_group_attendance partner_group_attendance_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance
+    ADD CONSTRAINT partner_group_attendance_pkey PRIMARY KEY (attendance_id);
+
+
+--
+-- Name: partner_group_slots partner_group_slots_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_slots
+    ADD CONSTRAINT partner_group_slots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: partner_groups partner_groups_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_groups
+    ADD CONSTRAINT partner_groups_pkey PRIMARY KEY (group_id);
+
+
+--
+-- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.password_reset_tokens
+    ADD CONSTRAINT password_reset_tokens_pkey PRIMARY KEY (email);
+
+
+--
+-- Name: payments payments_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.payments
+    ADD CONSTRAINT payments_pkey PRIMARY KEY (payment_id);
+
+
+--
+-- Name: permissions permissions_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.permissions
+    ADD CONSTRAINT permissions_pkey PRIMARY KEY (permission_id);
+
+
+--
+-- Name: plans plans_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.plans
+    ADD CONSTRAINT plans_pkey PRIMARY KEY (plan_id);
+
+
+--
+-- Name: pool_chemical_stock pool_chemical_stock_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_stock
+    ADD CONSTRAINT pool_chemical_stock_pkey PRIMARY KEY (chemical_id);
+
+
+--
+-- Name: pool_chemical_usage pool_chemical_usage_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_usage
+    ADD CONSTRAINT pool_chemical_usage_pkey PRIMARY KEY (usage_id);
+
+
+--
+-- Name: pool_daily_tasks pool_daily_tasks_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_daily_tasks
+    ADD CONSTRAINT pool_daily_tasks_pkey PRIMARY KEY (task_id);
+
+
+--
+-- Name: pool_equipment_maintenance pool_equipment_maintenance_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_equipment_maintenance
+    ADD CONSTRAINT pool_equipment_maintenance_pkey PRIMARY KEY (maintenance_id);
+
+
+--
+-- Name: pool_equipment pool_equipment_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_equipment
+    ADD CONSTRAINT pool_equipment_pkey PRIMARY KEY (equipment_id);
+
+
+--
+-- Name: pool_incidents pool_incidents_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_incidents
+    ADD CONSTRAINT pool_incidents_pkey PRIMARY KEY (incident_id);
+
+
+--
+-- Name: pool_monthly_tasks pool_monthly_tasks_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_monthly_tasks
+    ADD CONSTRAINT pool_monthly_tasks_pkey PRIMARY KEY (monthly_task_id);
+
+
+--
+-- Name: access_badges pool_schema_access_badges_badge_uid_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_badges
+    ADD CONSTRAINT pool_schema_access_badges_badge_uid_unique UNIQUE (badge_uid);
+
+
+--
+-- Name: permissions pool_schema_permissions_permission_name_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.permissions
+    ADD CONSTRAINT pool_schema_permissions_permission_name_unique UNIQUE (permission_name);
+
+
+--
+-- Name: roles pool_schema_roles_role_name_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.roles
+    ADD CONSTRAINT pool_schema_roles_role_name_unique UNIQUE (role_name);
+
+
+--
+-- Name: settings pool_schema_settings_key_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.settings
+    ADD CONSTRAINT pool_schema_settings_key_unique UNIQUE (key);
+
+
+--
+-- Name: staff pool_schema_staff_username_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff
+    ADD CONSTRAINT pool_schema_staff_username_unique UNIQUE (username);
+
+
+--
+-- Name: subscription_slots pool_schema_subscription_slots_subscription_id_slot_id_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_slots
+    ADD CONSTRAINT pool_schema_subscription_slots_subscription_id_slot_id_unique UNIQUE (subscription_id, slot_id);
+
+
+--
+-- Name: weekdays pool_schema_weekdays_day_name_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.weekdays
+    ADD CONSTRAINT pool_schema_weekdays_day_name_unique UNIQUE (day_name);
+
+
+--
+-- Name: pool_water_tests pool_water_tests_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_water_tests
+    ADD CONSTRAINT pool_water_tests_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pool_weekly_tasks pool_weekly_tasks_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_weekly_tasks
+    ADD CONSTRAINT pool_weekly_tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: product_images product_images_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.product_images
+    ADD CONSTRAINT product_images_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reservations reservations_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.reservations
+    ADD CONSTRAINT reservations_pkey PRIMARY KEY (reservation_id);
+
+
+--
+-- Name: rfid_devices rfid_devices_device_id_key; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.rfid_devices
+    ADD CONSTRAINT rfid_devices_device_id_key UNIQUE (device_id);
+
+
+--
+-- Name: rfid_devices rfid_devices_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.rfid_devices
+    ADD CONSTRAINT rfid_devices_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: role_permissions role_permissions_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.role_permissions
+    ADD CONSTRAINT role_permissions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (role_id);
+
+
+--
+-- Name: sale_items sale_items_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sale_items
+    ADD CONSTRAINT sale_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sales sales_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sales
+    ADD CONSTRAINT sales_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: settings settings_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.settings
+    ADD CONSTRAINT settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: staff_attendance staff_attendance_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_attendance
+    ADD CONSTRAINT staff_attendance_pkey PRIMARY KEY (attendance_id);
+
+
+--
+-- Name: staff_leaves staff_leaves_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_leaves
+    ADD CONSTRAINT staff_leaves_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: staff staff_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff
+    ADD CONSTRAINT staff_pkey PRIMARY KEY (staff_id);
+
+
+--
+-- Name: staff_schedules staff_schedules_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_schedules
+    ADD CONSTRAINT staff_schedules_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subscription_allowed_days subscription_allowed_days_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_allowed_days
+    ADD CONSTRAINT subscription_allowed_days_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subscription_slots subscription_slots_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_slots
+    ADD CONSTRAINT subscription_slots_pkey PRIMARY KEY (subscription_slot_id);
+
+
+--
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (subscription_id);
+
+
+--
+-- Name: task_templates task_templates_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.task_templates
+    ADD CONSTRAINT task_templates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: time_slots time_slots_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots
+    ADD CONSTRAINT time_slots_pkey PRIMARY KEY (slot_id);
+
+
+--
+-- Name: users users_email_unique; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.users
+    ADD CONSTRAINT users_email_unique UNIQUE (email);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: weekdays weekdays_pkey; Type: CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.weekdays
+    ADD CONSTRAINT weekdays_pkey PRIMARY KEY (weekday_id);
+
+
+--
+-- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sales sales_pkey; Type: CONSTRAINT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.sales
+    ADD CONSTRAINT sales_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: jobs_queue_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX jobs_queue_index ON pool_schema.jobs USING btree (queue);
+
+
+--
+-- Name: licenses_module_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX licenses_module_index ON pool_schema.licenses USING btree (module);
+
+
+--
+-- Name: licenses_status_module_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX licenses_status_module_index ON pool_schema.licenses USING btree (status, module);
+
+
+--
+-- Name: pool_schema_access_badges_partner_group_id_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX pool_schema_access_badges_partner_group_id_index ON pool_schema.access_badges USING btree (partner_group_id);
+
+
+--
+-- Name: pool_schema_partner_contracts_partner_group_id_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX pool_schema_partner_contracts_partner_group_id_index ON pool_schema.partner_contracts USING btree (partner_group_id);
+
+
+--
+-- Name: pool_schema_subscriptions_partner_group_id_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX pool_schema_subscriptions_partner_group_id_index ON pool_schema.subscriptions USING btree (partner_group_id);
+
+
+--
+-- Name: sessions_last_activity_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX sessions_last_activity_index ON pool_schema.sessions USING btree (last_activity);
+
+
+--
+-- Name: sessions_user_id_index; Type: INDEX; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE INDEX sessions_user_id_index ON pool_schema.sessions USING btree (user_id);
+
+
+--
+-- Name: staff fn_audit_log_staff; Type: TRIGGER; Schema: pool_schema; Owner: pooladmin
+--
+
+CREATE TRIGGER fn_audit_log_staff AFTER INSERT OR DELETE OR UPDATE ON pool_schema.staff FOR EACH ROW EXECUTE FUNCTION pool_schema.fn_audit_log_changes();
+
+
+--
+-- Name: access_badges pool_schema_access_badges_member_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_badges
+    ADD CONSTRAINT pool_schema_access_badges_member_id_foreign FOREIGN KEY (member_id) REFERENCES pool_schema.members(member_id) ON DELETE CASCADE;
+
+
+--
+-- Name: access_badges pool_schema_access_badges_partner_group_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_badges
+    ADD CONSTRAINT pool_schema_access_badges_partner_group_id_foreign FOREIGN KEY (partner_group_id) REFERENCES pool_schema.partner_groups(group_id) ON DELETE CASCADE;
+
+
+--
+-- Name: access_badges pool_schema_access_badges_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_badges
+    ADD CONSTRAINT pool_schema_access_badges_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE CASCADE;
+
+
+--
+-- Name: access_logs pool_schema_access_logs_member_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_logs
+    ADD CONSTRAINT pool_schema_access_logs_member_id_foreign FOREIGN KEY (member_id) REFERENCES pool_schema.members(member_id) ON DELETE CASCADE;
+
+
+--
+-- Name: access_logs pool_schema_access_logs_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.access_logs
+    ADD CONSTRAINT pool_schema_access_logs_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE CASCADE;
+
+
+--
+-- Name: activity_plan_prices pool_schema_activity_plan_prices_activity_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.activity_plan_prices
+    ADD CONSTRAINT pool_schema_activity_plan_prices_activity_id_foreign FOREIGN KEY (activity_id) REFERENCES pool_schema.activities(activity_id) ON DELETE CASCADE;
+
+
+--
+-- Name: activity_plan_prices pool_schema_activity_plan_prices_plan_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.activity_plan_prices
+    ADD CONSTRAINT pool_schema_activity_plan_prices_plan_id_foreign FOREIGN KEY (plan_id) REFERENCES pool_schema.plans(plan_id) ON DELETE CASCADE;
+
+
+--
+-- Name: audit_log pool_schema_audit_log_changed_by_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.audit_log
+    ADD CONSTRAINT pool_schema_audit_log_changed_by_staff_id_foreign FOREIGN KEY (changed_by_staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: backup_jobs pool_schema_backup_jobs_triggered_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.backup_jobs
+    ADD CONSTRAINT pool_schema_backup_jobs_triggered_by_foreign FOREIGN KEY (triggered_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: expenses pool_schema_expenses_created_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.expenses
+    ADD CONSTRAINT pool_schema_expenses_created_by_foreign FOREIGN KEY (created_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: members pool_schema_members_created_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.members
+    ADD CONSTRAINT pool_schema_members_created_by_foreign FOREIGN KEY (created_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: members pool_schema_members_updated_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.members
+    ADD CONSTRAINT pool_schema_members_updated_by_foreign FOREIGN KEY (updated_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: partner_contracts pool_schema_partner_contracts_activity_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_contracts
+    ADD CONSTRAINT pool_schema_partner_contracts_activity_id_foreign FOREIGN KEY (activity_id) REFERENCES pool_schema.activities(activity_id) ON DELETE CASCADE;
+
+
+--
+-- Name: partner_contracts pool_schema_partner_contracts_partner_group_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_contracts
+    ADD CONSTRAINT pool_schema_partner_contracts_partner_group_id_foreign FOREIGN KEY (partner_group_id) REFERENCES pool_schema.partner_groups(group_id) ON DELETE CASCADE;
+
+
+--
+-- Name: partner_contracts pool_schema_partner_contracts_plan_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_contracts
+    ADD CONSTRAINT pool_schema_partner_contracts_plan_id_foreign FOREIGN KEY (plan_id) REFERENCES pool_schema.plans(plan_id) ON DELETE CASCADE;
+
+
+--
+-- Name: partner_contracts pool_schema_partner_contracts_subscription_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_contracts
+    ADD CONSTRAINT pool_schema_partner_contracts_subscription_id_foreign FOREIGN KEY (subscription_id) REFERENCES pool_schema.subscriptions(subscription_id) ON DELETE CASCADE;
+
+
+--
+-- Name: partner_group_attendance pool_schema_partner_group_attendance_badge_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance
+    ADD CONSTRAINT pool_schema_partner_group_attendance_badge_id_foreign FOREIGN KEY (badge_id) REFERENCES pool_schema.access_badges(badge_id);
+
+
+--
+-- Name: partner_group_attendance pool_schema_partner_group_attendance_contract_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance
+    ADD CONSTRAINT pool_schema_partner_group_attendance_contract_id_foreign FOREIGN KEY (contract_id) REFERENCES pool_schema.partner_contracts(contract_id) ON DELETE SET NULL;
+
+
+--
+-- Name: partner_group_attendance pool_schema_partner_group_attendance_partner_group_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance
+    ADD CONSTRAINT pool_schema_partner_group_attendance_partner_group_id_foreign FOREIGN KEY (partner_group_id) REFERENCES pool_schema.partner_groups(group_id);
+
+
+--
+-- Name: partner_group_attendance pool_schema_partner_group_attendance_slot_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance
+    ADD CONSTRAINT pool_schema_partner_group_attendance_slot_id_foreign FOREIGN KEY (slot_id) REFERENCES pool_schema.time_slots(slot_id);
+
+
+--
+-- Name: partner_group_attendance pool_schema_partner_group_attendance_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_attendance
+    ADD CONSTRAINT pool_schema_partner_group_attendance_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: partner_group_slots pool_schema_partner_group_slots_contract_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_slots
+    ADD CONSTRAINT pool_schema_partner_group_slots_contract_id_foreign FOREIGN KEY (contract_id) REFERENCES pool_schema.partner_contracts(contract_id) ON DELETE CASCADE;
+
+
+--
+-- Name: partner_group_slots pool_schema_partner_group_slots_partner_group_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_slots
+    ADD CONSTRAINT pool_schema_partner_group_slots_partner_group_id_foreign FOREIGN KEY (partner_group_id) REFERENCES pool_schema.partner_groups(group_id) ON DELETE CASCADE;
+
+
+--
+-- Name: partner_group_slots pool_schema_partner_group_slots_slot_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.partner_group_slots
+    ADD CONSTRAINT pool_schema_partner_group_slots_slot_id_foreign FOREIGN KEY (slot_id) REFERENCES pool_schema.time_slots(slot_id) ON DELETE CASCADE;
+
+
+--
+-- Name: payments pool_schema_payments_received_by_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.payments
+    ADD CONSTRAINT pool_schema_payments_received_by_staff_id_foreign FOREIGN KEY (received_by_staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: payments pool_schema_payments_subscription_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.payments
+    ADD CONSTRAINT pool_schema_payments_subscription_id_foreign FOREIGN KEY (subscription_id) REFERENCES pool_schema.subscriptions(subscription_id) ON DELETE CASCADE;
+
+
+--
+-- Name: pool_chemical_usage pool_schema_pool_chemical_usage_chemical_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_usage
+    ADD CONSTRAINT pool_schema_pool_chemical_usage_chemical_id_foreign FOREIGN KEY (chemical_id) REFERENCES pool_schema.pool_chemical_stock(chemical_id);
+
+
+--
+-- Name: pool_chemical_usage pool_schema_pool_chemical_usage_related_test_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_usage
+    ADD CONSTRAINT pool_schema_pool_chemical_usage_related_test_id_foreign FOREIGN KEY (related_test_id) REFERENCES pool_schema.pool_water_tests(id) ON DELETE SET NULL;
+
+
+--
+-- Name: pool_chemical_usage pool_schema_pool_chemical_usage_technician_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_chemical_usage
+    ADD CONSTRAINT pool_schema_pool_chemical_usage_technician_id_foreign FOREIGN KEY (technician_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_daily_tasks pool_schema_pool_daily_tasks_pool_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_daily_tasks
+    ADD CONSTRAINT pool_schema_pool_daily_tasks_pool_id_foreign FOREIGN KEY (pool_id) REFERENCES pool_schema.facilities(facility_id);
+
+
+--
+-- Name: pool_daily_tasks pool_schema_pool_daily_tasks_technician_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_daily_tasks
+    ADD CONSTRAINT pool_schema_pool_daily_tasks_technician_id_foreign FOREIGN KEY (technician_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_daily_tasks pool_schema_pool_daily_tasks_template_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_daily_tasks
+    ADD CONSTRAINT pool_schema_pool_daily_tasks_template_id_foreign FOREIGN KEY (template_id) REFERENCES pool_schema.task_templates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: pool_equipment_maintenance pool_schema_pool_equipment_maintenance_equipment_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_equipment_maintenance
+    ADD CONSTRAINT pool_schema_pool_equipment_maintenance_equipment_id_foreign FOREIGN KEY (equipment_id) REFERENCES pool_schema.pool_equipment(equipment_id);
+
+
+--
+-- Name: pool_equipment_maintenance pool_schema_pool_equipment_maintenance_technician_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_equipment_maintenance
+    ADD CONSTRAINT pool_schema_pool_equipment_maintenance_technician_id_foreign FOREIGN KEY (technician_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_incidents pool_schema_pool_incidents_assigned_to_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_incidents
+    ADD CONSTRAINT pool_schema_pool_incidents_assigned_to_foreign FOREIGN KEY (assigned_to) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_incidents pool_schema_pool_incidents_created_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_incidents
+    ADD CONSTRAINT pool_schema_pool_incidents_created_by_foreign FOREIGN KEY (created_by) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_incidents pool_schema_pool_incidents_equipment_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_incidents
+    ADD CONSTRAINT pool_schema_pool_incidents_equipment_id_foreign FOREIGN KEY (equipment_id) REFERENCES pool_schema.pool_equipment(equipment_id);
+
+
+--
+-- Name: pool_incidents pool_schema_pool_incidents_pool_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_incidents
+    ADD CONSTRAINT pool_schema_pool_incidents_pool_id_foreign FOREIGN KEY (pool_id) REFERENCES pool_schema.facilities(facility_id);
+
+
+--
+-- Name: pool_monthly_tasks pool_schema_pool_monthly_tasks_facility_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_monthly_tasks
+    ADD CONSTRAINT pool_schema_pool_monthly_tasks_facility_id_foreign FOREIGN KEY (facility_id) REFERENCES pool_schema.facilities(facility_id) ON DELETE CASCADE;
+
+
+--
+-- Name: pool_monthly_tasks pool_schema_pool_monthly_tasks_technician_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_monthly_tasks
+    ADD CONSTRAINT pool_schema_pool_monthly_tasks_technician_id_foreign FOREIGN KEY (technician_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_monthly_tasks pool_schema_pool_monthly_tasks_template_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_monthly_tasks
+    ADD CONSTRAINT pool_schema_pool_monthly_tasks_template_id_foreign FOREIGN KEY (template_id) REFERENCES pool_schema.task_templates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: pool_water_tests pool_schema_pool_water_tests_pool_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_water_tests
+    ADD CONSTRAINT pool_schema_pool_water_tests_pool_id_foreign FOREIGN KEY (pool_id) REFERENCES pool_schema.facilities(facility_id);
+
+
+--
+-- Name: pool_water_tests pool_schema_pool_water_tests_technician_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_water_tests
+    ADD CONSTRAINT pool_schema_pool_water_tests_technician_id_foreign FOREIGN KEY (technician_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_weekly_tasks pool_schema_pool_weekly_tasks_pool_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_weekly_tasks
+    ADD CONSTRAINT pool_schema_pool_weekly_tasks_pool_id_foreign FOREIGN KEY (pool_id) REFERENCES pool_schema.facilities(facility_id);
+
+
+--
+-- Name: pool_weekly_tasks pool_schema_pool_weekly_tasks_technician_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_weekly_tasks
+    ADD CONSTRAINT pool_schema_pool_weekly_tasks_technician_id_foreign FOREIGN KEY (technician_id) REFERENCES pool_schema.staff(staff_id);
+
+
+--
+-- Name: pool_weekly_tasks pool_schema_pool_weekly_tasks_template_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.pool_weekly_tasks
+    ADD CONSTRAINT pool_schema_pool_weekly_tasks_template_id_foreign FOREIGN KEY (template_id) REFERENCES pool_schema.task_templates(id) ON DELETE SET NULL;
+
+
+--
+-- Name: products pool_schema_products_category_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.products
+    ADD CONSTRAINT pool_schema_products_category_id_foreign FOREIGN KEY (category_id) REFERENCES pool_schema.categories(id) ON DELETE CASCADE;
+
+
+--
+-- Name: reservations pool_schema_reservations_member_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.reservations
+    ADD CONSTRAINT pool_schema_reservations_member_id_foreign FOREIGN KEY (member_id) REFERENCES pool_schema.members(member_id) ON DELETE CASCADE;
+
+
+--
+-- Name: reservations pool_schema_reservations_partner_group_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.reservations
+    ADD CONSTRAINT pool_schema_reservations_partner_group_id_foreign FOREIGN KEY (partner_group_id) REFERENCES pool_schema.partner_groups(group_id) ON DELETE CASCADE;
+
+
+--
+-- Name: reservations pool_schema_reservations_slot_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.reservations
+    ADD CONSTRAINT pool_schema_reservations_slot_id_foreign FOREIGN KEY (slot_id) REFERENCES pool_schema.time_slots(slot_id) ON DELETE CASCADE;
+
+
+--
+-- Name: role_permissions pool_schema_role_permissions_permission_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.role_permissions
+    ADD CONSTRAINT pool_schema_role_permissions_permission_id_foreign FOREIGN KEY (permission_id) REFERENCES pool_schema.permissions(permission_id) ON DELETE CASCADE;
+
+
+--
+-- Name: role_permissions pool_schema_role_permissions_role_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.role_permissions
+    ADD CONSTRAINT pool_schema_role_permissions_role_id_foreign FOREIGN KEY (role_id) REFERENCES pool_schema.roles(role_id) ON DELETE CASCADE;
+
+
+--
+-- Name: sale_items pool_schema_sale_items_product_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sale_items
+    ADD CONSTRAINT pool_schema_sale_items_product_id_foreign FOREIGN KEY (product_id) REFERENCES pool_schema.products(id) ON DELETE CASCADE;
+
+
+--
+-- Name: sale_items pool_schema_sale_items_sale_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sale_items
+    ADD CONSTRAINT pool_schema_sale_items_sale_id_foreign FOREIGN KEY (sale_id) REFERENCES pool_schema.sales(id) ON DELETE CASCADE;
+
+
+--
+-- Name: sales pool_schema_sales_member_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sales
+    ADD CONSTRAINT pool_schema_sales_member_id_foreign FOREIGN KEY (member_id) REFERENCES pool_schema.members(member_id) ON DELETE SET NULL;
+
+
+--
+-- Name: sales pool_schema_sales_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.sales
+    ADD CONSTRAINT pool_schema_sales_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE CASCADE;
+
+
+--
+-- Name: staff_attendance pool_schema_staff_attendance_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_attendance
+    ADD CONSTRAINT pool_schema_staff_attendance_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE CASCADE;
+
+
+--
+-- Name: staff_attendance pool_schema_staff_attendance_validated_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_attendance
+    ADD CONSTRAINT pool_schema_staff_attendance_validated_by_foreign FOREIGN KEY (validated_by) REFERENCES pool_schema.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: staff_leaves pool_schema_staff_leaves_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_leaves
+    ADD CONSTRAINT pool_schema_staff_leaves_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE CASCADE;
+
+
+--
+-- Name: staff pool_schema_staff_role_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff
+    ADD CONSTRAINT pool_schema_staff_role_id_foreign FOREIGN KEY (role_id) REFERENCES pool_schema.roles(role_id) ON DELETE SET NULL;
+
+
+--
+-- Name: staff_schedules pool_schema_staff_schedules_staff_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.staff_schedules
+    ADD CONSTRAINT pool_schema_staff_schedules_staff_id_foreign FOREIGN KEY (staff_id) REFERENCES pool_schema.staff(staff_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscription_allowed_days pool_schema_subscription_allowed_days_subscription_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_allowed_days
+    ADD CONSTRAINT pool_schema_subscription_allowed_days_subscription_id_foreign FOREIGN KEY (subscription_id) REFERENCES pool_schema.subscriptions(subscription_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscription_allowed_days pool_schema_subscription_allowed_days_weekday_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_allowed_days
+    ADD CONSTRAINT pool_schema_subscription_allowed_days_weekday_id_foreign FOREIGN KEY (weekday_id) REFERENCES pool_schema.weekdays(weekday_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscription_slots pool_schema_subscription_slots_slot_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_slots
+    ADD CONSTRAINT pool_schema_subscription_slots_slot_id_foreign FOREIGN KEY (slot_id) REFERENCES pool_schema.time_slots(slot_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscription_slots pool_schema_subscription_slots_subscription_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscription_slots
+    ADD CONSTRAINT pool_schema_subscription_slots_subscription_id_foreign FOREIGN KEY (subscription_id) REFERENCES pool_schema.subscriptions(subscription_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_activity_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_activity_id_foreign FOREIGN KEY (activity_id) REFERENCES pool_schema.activities(activity_id) ON DELETE SET NULL;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_created_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_created_by_foreign FOREIGN KEY (created_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_deactivated_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_deactivated_by_foreign FOREIGN KEY (deactivated_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_member_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_member_id_foreign FOREIGN KEY (member_id) REFERENCES pool_schema.members(member_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_partner_group_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_partner_group_id_foreign FOREIGN KEY (partner_group_id) REFERENCES pool_schema.partner_groups(group_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_plan_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_plan_id_foreign FOREIGN KEY (plan_id) REFERENCES pool_schema.plans(plan_id) ON DELETE CASCADE;
+
+
+--
+-- Name: subscriptions pool_schema_subscriptions_updated_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.subscriptions
+    ADD CONSTRAINT pool_schema_subscriptions_updated_by_foreign FOREIGN KEY (updated_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: time_slots pool_schema_time_slots_activity_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots
+    ADD CONSTRAINT pool_schema_time_slots_activity_id_foreign FOREIGN KEY (activity_id) REFERENCES pool_schema.activities(activity_id) ON DELETE SET NULL;
+
+
+--
+-- Name: time_slots pool_schema_time_slots_assistant_coach_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots
+    ADD CONSTRAINT pool_schema_time_slots_assistant_coach_id_foreign FOREIGN KEY (assistant_coach_id) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: time_slots pool_schema_time_slots_coach_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots
+    ADD CONSTRAINT pool_schema_time_slots_coach_id_foreign FOREIGN KEY (coach_id) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: time_slots pool_schema_time_slots_created_by_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots
+    ADD CONSTRAINT pool_schema_time_slots_created_by_foreign FOREIGN KEY (created_by) REFERENCES pool_schema.staff(staff_id) ON DELETE SET NULL;
+
+
+--
+-- Name: time_slots pool_schema_time_slots_weekday_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.time_slots
+    ADD CONSTRAINT pool_schema_time_slots_weekday_id_foreign FOREIGN KEY (weekday_id) REFERENCES pool_schema.weekdays(weekday_id) ON DELETE CASCADE;
+
+
+--
+-- Name: product_images product_images_product_id_foreign; Type: FK CONSTRAINT; Schema: pool_schema; Owner: pooladmin
+--
+
+ALTER TABLE ONLY pool_schema.product_images
+    ADD CONSTRAINT product_images_product_id_foreign FOREIGN KEY (product_id) REFERENCES pool_schema.products(id) ON DELETE CASCADE;
+
+
+--
+-- Name: products products_category_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: pooladmin
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_category_id_foreign FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE CASCADE;
+
+
+--
+-- Name: SCHEMA pool_schema; Type: ACL; Schema: -; Owner: pooladmin
+--
+
+REVOKE ALL ON SCHEMA pool_schema FROM pooladmin;
+GRANT ALL ON SCHEMA pool_schema TO pooladmin WITH GRANT OPTION;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict uIZTi1VRsbIrkR5oEpNLTbp4i67uLMM7WBuVBSldjdKr82F5f6zM1sQGDOeJy3V
+
