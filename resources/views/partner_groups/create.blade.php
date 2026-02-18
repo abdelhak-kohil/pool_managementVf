@@ -100,14 +100,51 @@
                     </div>
                 </div>
 
+                <!-- Partner Specifics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100 mt-4">
+                    <!-- Partner Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Type de Partenaire <span class="text-red-500">*</span></label>
+                        <select name="partner_type" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="school" {{ old('partner_type') == 'school' ? 'selected' : '' }}>École / Établissement Scolare</option>
+                            <option value="club" {{ old('partner_type') == 'club' ? 'selected' : '' }}>Club Sportif / Association</option>
+                            <option value="enterprise" {{ old('partner_type') == 'enterprise' ? 'selected' : '' }}>Entreprise / CE</option>
+                            <option value="other" {{ old('partner_type') == 'other' ? 'selected' : '' }}>Autre</option>
+                        </select>
+                    </div>
+
+                    <!-- Legal Entity -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dénomination Sociale (Juridique)</label>
+                        <input type="text" name="legal_entity_name" value="{{ old('legal_entity_name') }}" 
+                               class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                               placeholder="Ex: SARL Sports Plus">
+                    </div>
+
+                    <!-- Reference Code -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Code de Référence Contrat</label>
+                        <input type="text" name="contract_reference_code" value="{{ old('contract_reference_code') }}" 
+                               class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5" 
+                               placeholder="REF-2024-001">
+                    </div>
+                </div>
+
                 <!-- Footer Actions -->
-                <div class="mt-8 flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
-                    <a href="{{ route('partner-groups.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Annuler
-                    </a>
-                    <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                        Créer le groupe
-                    </button>
+                <div class="mt-8 flex items-center justify-between gap-3 pt-6 border-t border-gray-100">
+                    <p class="text-sm text-gray-500">
+                        <span class="font-semibold text-blue-600">Étape 1/6</span> : Identification du groupe.
+                        <br>La création du contrat et l'assignation des badges se feront à l'étape suivante.
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('partner-groups.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Annuler
+                        </a>
+                        <button type="submit" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            Suivant : Badges & Contrat
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

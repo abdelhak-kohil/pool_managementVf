@@ -26,16 +26,33 @@ class PartnerGroupController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:150|unique:partner_groups,name',
+        // 1. Validate Group Data
+        $validated = $request->validate([
+            'name' => 'required|string|max:150|unique:\App\Models\Member\PartnerGroup,name',
             'contact_name' => 'nullable|string|max:100',
             'contact_phone' => 'nullable|string|max:30',
             'email' => 'nullable|email|max:100',
             'notes' => 'nullable|string'
         ]);
 
-        PartnerGroup::create($data);
-        return redirect()->route('partner-groups.index')->with('success', 'Groupe partenaire ajouté.');
+        try {
+            DB::transaction(function () use ($validated) {
+                // 2. Create Group
+                $group = PartnerGroup::create([
+                    'name' => $validated['name'],
+                    'contact_name' => $validated['contact_name'],
+                    'contact_phone' => $validated['contact_phone'],
+                    'email' => $validated['email'],
+                    'notes' => $validated['notes'],
+                ]);
+            });
+
+            return redirect()->route('partner-groups.index')->with('success', 'Groupe partenaire ajouté.');
+
+        } catch (\Throwable $e) {
+            Log::error('Error creating partner group: ' . $e->getMessage());
+            return back()->with('error', 'Erreur: ' . $e->getMessage())->withInput();
+        }
     }
 
     public function edit(PartnerGroup $partnerGroup)
@@ -145,7 +162,6 @@ class PartnerGroupController extends Controller
             'max_capacity' => 'required|integer|min:1'
         ]);
 
-        // Check if already exists
         $exists = \App\Models\Member\PartnerGroupSlot::where('partner_group_id', $partnerGroup->group_id)
             ->where('slot_id', $request->slot_id)
             ->exists();
@@ -175,19 +191,10 @@ class PartnerGroupController extends Controller
 
     public function attendance(Request $request, PartnerGroup $partnerGroup)
     {
-        $query = $partnerGroup->attendances()
-            ->with(['badge', 'slot.weekday', 'staff'])
-            ->orderBy('access_time', 'desc');
-
-        if ($request->filled('date')) {
-            $query->whereDate('access_time', $request->date);
-        }
-
-        $logs = $query->paginate(20);
-
-        return view('partner_groups.attendance', compact('partnerGroup', 'logs'));
+        // Removed as part of rollback
+        abort(404);
     }
-
+    
     public function toggleBadgeStatus(Request $request, PartnerGroup $partnerGroup, \App\Models\Member\AccessBadge $badge)
     {
         if ($badge->partner_group_id !== $partnerGroup->group_id) {
@@ -200,53 +207,5 @@ class PartnerGroupController extends Controller
         $message = $newStatus === 'active' ? 'Badge activé.' : 'Badge révoqué.';
         return back()->with('success', $message);
     }
-
-    public function storeSubscription(Request $request, PartnerGroup $partnerGroup)
-    {
-        $validated = $request->validate([
-            'plan_id' => 'required|exists:plans,plan_id',
-            'activity_id' => 'required|exists:activities,activity_id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|string|in:cash,card,transfer,check',
-            'notes' => 'nullable|string'
-        ]);
-
-        try {
-            DB::transaction(function () use ($validated, $partnerGroup) {
-                // 1. Create Subscription
-                $subscriptionId = DB::table('pool_schema.subscriptions')->insertGetId([
-                    'partner_group_id' => $partnerGroup->group_id,
-                    'member_id' => null,
-                    'plan_id' => $validated['plan_id'],
-                    'activity_id' => $validated['activity_id'],
-                    'start_date' => $validated['start_date'],
-                    'end_date' => $validated['end_date'],
-                    'status' => 'active',
-                    'visits_per_week' => null, 
-                    'created_by' => Auth::id(),
-                    'updated_by' => Auth::id(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ], 'subscription_id');
-
-                // 2. Create Payment
-                DB::table('pool_schema.payments')->insert([
-                    'subscription_id' => $subscriptionId,
-                    'amount' => $validated['amount'],
-                    'payment_method' => $validated['payment_method'],
-                    'payment_date' => now(),
-                    'received_by_staff_id' => Auth::user()->staff_id ?? null,
-                    'notes' => $validated['notes'] ?? 'Paiement initial groupe',
-                ]);
-            });
-
-            return back()->with('success', 'Abonnement et paiement créés avec succès.');
-
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Error creating group subscription: ' . $e->getMessage());
-            return back()->with('error', 'Erreur lors de la création de l\'abonnement: ' . $e->getMessage());
-        }
-    }
 }
+

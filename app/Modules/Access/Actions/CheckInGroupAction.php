@@ -11,6 +11,13 @@ use Carbon\Carbon;
 
 class CheckInGroupAction
 {
+    protected $pricingCalculator;
+
+    public function __construct(\App\Services\Pricing\PricingCalculator $pricingCalculator)
+    {
+        $this->pricingCalculator = $pricingCalculator;
+    }
+
     public function execute(AccessBadge $badge, Staff $staff, int $attendeeCount): AccessResult
     {
         $group = $badge->partnerGroup;
@@ -25,17 +32,21 @@ class CheckInGroupAction
              return AccessResult::denied('Ce badge est inactif ou révoqué.', $group->name, 'Groupe');
         }
 
-        // 2. Check Subscription
+        // 2. Check Subscription & Linked Contract
+        // Strict Mode: Check-in MUST valid against an ACTIVE Subscription
         $activeSubscription = $group->subscriptions()
+            ->with('contract') // Eager load linked contract
             ->where('status', 'active')
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
-            ->exists();
+            ->first();
 
         if (!$activeSubscription) {
              $this->logAttendance($group, $badge, $staff, $attendeeCount, 'denied', 'Abonnement inactif');
              return AccessResult::denied('Abonnement groupe inactif ou expiré.', $group->name, 'Groupe');
         }
+
+        $linkedContract = $activeSubscription->contract; // The contract created with this subscription
 
         // 3. Find Current Slot
         // We look for a PartnerGroupSlot that matches current time/day
@@ -51,7 +62,7 @@ class CheckInGroupAction
                       ->where('start_time', '<=', $currentTime)
                       ->where('end_time', '>=', $currentTime);
             })
-            ->with('slot')
+            ->with('slot.activity')
             ->first();
 
         if (!$matchedSlot) {
@@ -78,11 +89,40 @@ class CheckInGroupAction
              return AccessResult::denied("Capacité dépassée. Déjà entrés: {$alreadyAttendedCount}, Restants: {$remaining}. Demandés: {$attendeeCount}.", $group->name, 'Groupe');
         }
 
-        // 4. Success
-        $this->logAttendance($group, $badge, $staff, $attendeeCount, 'granted', null, $matchedSlot->slot_id);
+        // 5. Contract Validation (if Pack)
+        if ($linkedContract && $linkedContract->contract_type === 'fixed_package') {
+            if ($linkedContract->remaining_sessions < 1) {
+                $this->logAttendance($group, $badge, $staff, $attendeeCount, 'denied', 'Forfait épuisé', null, $linkedContract->contract_id);
+                return AccessResult::denied('Forfait prépayé épuisé (0 séances restantes).', $group->name, 'Groupe');
+            }
+        }
+        
+        // 6. Success & Decrement
+        $this->logAttendance($group, $badge, $staff, $attendeeCount, 'granted', null, $matchedSlot->slot_id, $linkedContract->contract_id ?? null);
+
+        if ($linkedContract && $linkedContract->contract_type === 'fixed_package') {
+            $linkedContract->decrement('remaining_sessions');
+        }
+
+        // Message Construction
+        $priceMsg = "Inclus";
+        if ($linkedContract) {
+            if ($linkedContract->contract_type === 'fixed_package') {
+                 $remainingDisplay = $linkedContract->remaining_sessions; // DB updated by decrement
+                 $priceMsg = "Forfait Prépayé ({$remainingDisplay} restants)";
+            } elseif ($linkedContract->contract_type === 'discount' || $linkedContract->contract_type === 'per_head') {
+                 // Calculate estimated cost for awareness, even if post-paid
+                 // Use calculator just for display value?
+                $priceInfo = $this->pricingCalculator->calculateSessionPrice($group, $matchedSlot->slot->activity, $attendeeCount);
+                $priceMsg = number_format($priceInfo['final_price'], 2) . " DZD";
+            } else {
+                // Flat fee, etc.
+                $priceMsg = "Inclus (Abonnement)";
+            }
+        }
 
         return AccessResult::granted(
-            'Accès autorisé.',
+            "Accès autorisé. {$priceMsg}",
             $group->name,
             'Groupe',
             null, // photo
@@ -94,7 +134,7 @@ class CheckInGroupAction
         );
     }
 
-    private function logAttendance(PartnerGroup $group, AccessBadge $badge, Staff $staff, int $count, string $decision, ?string $reason = null, ?int $slotId = null)
+    private function logAttendance(PartnerGroup $group, AccessBadge $badge, Staff $staff, int $count, string $decision, ?string $reason = null, ?int $slotId = null, ?int $contractId = null)
     {
         PartnerGroupAttendance::create([
             'partner_group_id' => $group->group_id,
@@ -104,11 +144,12 @@ class CheckInGroupAction
             'attendee_count' => $count,
             'access_time' => now(),
             'access_decision' => $decision,
-            'denial_reason' => $reason
+            'denial_reason' => $reason,
+            'contract_id' => $contractId // Log the contract used
         ]);
 
-        // Broadcast Final Result for UI
-        \App\Events\BadgeScanned::dispatch([
+        // Broadcast Final Result for UI (omitted for brevity, same as before)
+         \App\Events\BadgeScanned::dispatch([
             'badge_uid' => $badge->badge_uid,
             'decision' => $decision,
             'reason' => $reason ?? 'Accès Groupe Autorisé',
@@ -116,7 +157,7 @@ class CheckInGroupAction
                 'name' => $group->name,
                 'type' => 'Groupe',
                 'photo' => null,
-                'remaining_sessions' => null // Capacity logic could go here
+                'remaining_sessions' => null 
             ],
             'remaining_sessions' => null
         ]);

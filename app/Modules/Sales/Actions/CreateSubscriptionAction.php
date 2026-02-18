@@ -10,6 +10,13 @@ use Exception;
 
 class CreateSubscriptionAction
 {
+    protected $pricingCalculator;
+
+    public function __construct(\App\Services\Pricing\PricingCalculator $pricingCalculator)
+    {
+        $this->pricingCalculator = $pricingCalculator;
+    }
+
     public function execute(SubscriptionData $data): int
     {
         return DB::transaction(function () use ($data) {
@@ -41,6 +48,7 @@ class CreateSubscriptionAction
             // 6. Insert Subscription
             $subscriptionId = DB::table('pool_schema.subscriptions')->insertGetId([
                 'member_id'       => $data->member_id,
+                'partner_group_id'=> $data->partner_group_id,
                 'plan_id'         => $data->plan_id,
                 'activity_id'     => $data->activity_id,
                 'start_date'      => $data->start_date,
@@ -152,6 +160,30 @@ class CreateSubscriptionAction
 
     private function validatePrice(SubscriptionData $data): void
     {
+        // 1. Partner Group Pricing Validation
+        if ($data->partner_group_id) {
+            $group = \App\Models\Member\PartnerGroup::find($data->partner_group_id);
+            $plan = \App\Models\Finance\Plan::find($data->plan_id);
+            $activity = \App\Models\Activity\Activity::find($data->activity_id);
+
+            // Should exist due to previous checks implicitly, but safe to check
+            if ($group && $plan && $activity) {
+                $calc = $this->pricingCalculator->calculate($group, $activity, $plan);
+                $maxPrice = (float) $calc['final_price'];
+                
+                // Allow a small error margin for float comparison or just exact
+                // Checking if tried to pay MORE than calculated (overpayment check)
+                if ($data->amount > $maxPrice) {
+                     // We format to 2 decimals to be readable
+                     throw ValidationException::withMessages([
+                         'amount' => 'Le montant dépasse le tarif partenaire calculé (' . number_format($maxPrice, 2) . ' DZD).'
+                     ]);
+                }
+            }
+            return;
+        }
+
+        // 2. Standard Member Pricing Validation
         $activityPlan = DB::table('pool_schema.activity_plan_prices')
             ->where('plan_id', $data->plan_id)
             ->where('activity_id', $data->activity_id)
@@ -168,6 +200,10 @@ class CreateSubscriptionAction
 
     private function checkOverlap(SubscriptionData $data): void
     {
+        if (!$data->member_id) {
+            return; // Skip overlap check for groups (for now or permanently if groups allow stacking)
+        }
+
         $overlapExists = DB::table('pool_schema.subscriptions as s')
             ->join('pool_schema.plans as p', 's.plan_id', '=', 'p.plan_id')
             ->where('s.member_id', $data->member_id)

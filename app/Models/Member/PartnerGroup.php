@@ -11,7 +11,9 @@ class PartnerGroup extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name', 'contact_name', 'contact_phone', 'email', 'notes'
+        'name', 'partner_type', 'legal_entity_name', 'contact_name', 
+        'contact_phone', 'email', 'contract_reference_code', 
+        'status', 'notes'
     ];
 
     public function reservations()
@@ -34,8 +36,8 @@ class PartnerGroup extends Model
         return $this->hasMany(\App\Models\Member\PartnerGroupSlot::class, 'partner_group_id', 'group_id');
     }
 
-    public function attendances()
-    {
-        return $this->hasMany(\App\Models\Member\PartnerGroupAttendance::class, 'partner_group_id', 'group_id');
-    }
+
+
+
+
 }

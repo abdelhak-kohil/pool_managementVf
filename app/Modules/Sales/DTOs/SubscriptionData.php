@@ -8,7 +8,7 @@ use Carbon\Carbon;
 class SubscriptionData
 {
     public function __construct(
-        public int $member_id,
+        public ?int $member_id,
         public int $plan_id,
         public int $activity_id,
         public Carbon $start_date,
@@ -19,12 +19,13 @@ class SubscriptionData
         public string $payment_method,
         public ?string $notes = null,
         public ?int $staff_id = null,
+        public ?int $partner_group_id = null,
     ) {}
 
     public static function fromRequest(Request $request, ?int $staffId): self
     {
         return new self(
-            member_id: (int) $request->input('member_id'),
+            member_id: $request->input('member_id') ? (int) $request->input('member_id') : null,
             plan_id: (int) $request->input('plan_id'),
             activity_id: (int) $request->input('activity_id'),
             start_date: Carbon::parse($request->input('start_date')),
@@ -35,6 +36,7 @@ class SubscriptionData
             payment_method: (string) $request->input('payment_method'),
             notes: $request->input('notes'),
             staff_id: $staffId,
+            partner_group_id: $request->input('partner_group_id') ? (int) $request->input('partner_group_id') : null,
         );
     }
 }

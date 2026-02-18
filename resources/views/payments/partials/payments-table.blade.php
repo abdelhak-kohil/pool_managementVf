@@ -17,7 +17,15 @@
       <tr class="hover:bg-blue-50 transition">
         <td class="py-3 px-4 text-gray-500 font-mono text-sm">{{ $loop->iteration }}</td>
         <td class="py-3 px-4 font-medium">
-          {{ $p->subscription->member->first_name }} {{ $p->subscription->member->last_name }}
+          @if ($p->subscription->member)
+              {{ $p->subscription->member->first_name }} {{ $p->subscription->member->last_name }}
+          @elseif ($p->subscription->partnerGroup)
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  🏢 {{ $p->subscription->partnerGroup->name }}
+              </span>
+          @else
+              <span class="text-gray-400 italic">Inconnu</span>
+          @endif
         </td>
         <td class="py-3 px-4 text-green-600 font-bold">
           {{ number_format($p->amount, 2) }} DZD

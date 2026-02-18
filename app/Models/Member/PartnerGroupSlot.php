@@ -11,6 +11,7 @@ class PartnerGroupSlot extends Model
 
     protected $fillable = [
         'partner_group_id',
+        'contract_id',
         'slot_id',
         'max_capacity'
     ];
@@ -18,6 +19,11 @@ class PartnerGroupSlot extends Model
     public function partnerGroup()
     {
         return $this->belongsTo(PartnerGroup::class, 'partner_group_id', 'group_id');
+    }
+
+    public function contract()
+    {
+        return $this->belongsTo(\App\Models\Finance\PricingContract::class, 'contract_id', 'contract_id');
     }
 
     public function slot()

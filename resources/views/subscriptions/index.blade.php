@@ -30,8 +30,8 @@
 >
 
   <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">📋 Liste des Abonnements</h2>
-    <a href="{{ route('subscriptions.create') }}"
+    <h2 class="text-2xl font-semibold text-gray-800">📋 {{ $pageTitle ?? 'Liste des Abonnements' }}</h2>
+    <a href="{{ isset($type) && $type === 'members' ? route('subscriptions.members.create') : (isset($type) && $type === 'groups' ? route('subscriptions.groups.create') : route('subscriptions.create')) }}"
        class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition">
        ➕ Nouvel abonnement
     </a>
@@ -241,8 +241,20 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 const query = this.value;
-                const url = `{{ route('subscriptions.index') }}?search=${encodeURIComponent(query)}`;
-                fetchSubscriptions(url);
+                const type = '{{ $type ?? "all" }}';
+                const url = `{{ route('subscriptions.index') }}?search=${encodeURIComponent(query)}&type=${type}`;
+                // Note: The route helper above points to 'subscriptions.index' which might strictly go to /subscriptions.
+                // But we are in a specific page context (members/groups).
+                // Actually, fetchSubscriptions should probably use window.location.pathname or valid route.
+                // Let's use the current URL path but add search param.
+                
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('search', query);
+                // Type is implicitly handled by the route if we hit the same endpoint, 
+                // BUT the controller uses route method name or just separate routes.
+                // If we use window.location, we hit the correct endpoint (e.g. /subscriptions/members).
+                
+                fetchSubscriptions(currentUrl.toString());
             }, 300); // 300ms debounce
         });
 
@@ -252,6 +264,7 @@
             if (link) {
                 e.preventDefault();
                 const url = link.getAttribute('href');
+                // Ensure type/search params are preserved is handled by Laravel's withQueryString() in controller
                 fetchSubscriptions(url);
             }
         });

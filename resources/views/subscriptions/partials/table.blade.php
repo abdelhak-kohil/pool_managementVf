@@ -1,10 +1,18 @@
 <table id="subscriptionsTable" class="min-w-full text-left text-gray-800">
   <thead class="bg-gray-50 border-b">
     <tr>
-      <th class="py-3 px-4 font-medium">#</th>
-      <th class="py-3 px-4 font-medium">Membre</th>
-      <th class="py-3 px-4 font-medium">Activité</th>
-      <th class="py-3 px-4 font-medium">Période</th>
+          <th class="py-3 px-4 text-left font-medium text-gray-500 uppercase tracking-wider">#</th>
+          <th class="py-3 px-4 text-left font-medium text-gray-500 uppercase tracking-wider">
+              @if(isset($type) && $type === 'groups')
+                  Groupe Partenaire
+              @elseif(isset($type) && $type === 'members')
+                  Membre
+              @else
+                  Membre / Groupe
+              @endif
+          </th>
+          <th class="py-3 px-4 text-left font-medium text-gray-500 uppercase tracking-wider">Activité</th>
+          <th class="py-3 px-4 text-left font-medium text-gray-500 uppercase tracking-wider">Période</th>
       <th class="py-3 px-4 font-medium">Visites / semaine</th>
       <th class="py-3 px-4 font-medium">Statut</th>
       <th class="py-3 px-4 font-medium text-right">Actions</th>
@@ -141,8 +149,13 @@
               👁 Voir
             </button>
 
-            <a href="{{ route('subscriptions.edit', $sub->subscription_id) }}"
-               class="text-yellow-600 hover:text-yellow-800 font-medium">✏️ Modifier</a>
+            @if($sub->partner_group_id)
+                <a href="{{ route('subscriptions.groups.edit', $sub->subscription_id) }}"
+                   class="text-yellow-600 hover:text-yellow-800 font-medium">✏️ Modifier</a>
+            @else
+                <a href="{{ route('subscriptions.members.edit', $sub->subscription_id) }}"
+                   class="text-yellow-600 hover:text-yellow-800 font-medium">✏️ Modifier</a>
+            @endif
 
             @if (Auth::user()->role->role_name === 'admin')
             <form id="delete-form-{{ $sub->subscription_id }}" 

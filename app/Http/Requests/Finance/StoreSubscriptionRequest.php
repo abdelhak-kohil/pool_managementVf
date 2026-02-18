@@ -15,7 +15,8 @@ class StoreSubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'member_id'    => 'required|exists:members,member_id',
+            'member_id'        => 'required_without:partner_group_id|nullable|exists:members,member_id',
+            'partner_group_id' => 'required_without:member_id|nullable|exists:partner_groups,group_id',
             'activity_id'  => 'required|exists:activities,activity_id',
             'plan_id'      => 'required|exists:plans,plan_id',
             'start_date'   => 'required|date',

@@ -22,10 +22,6 @@
             <h2 class="text-3xl font-bold text-gray-900 tracking-tight">{{ $partnerGroup->name }}</h2>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('partner-groups.attendance', $partnerGroup->group_id) }}" class="inline-flex items-center px-4 py-2 border border-blue-200 shadow-sm text-sm font-medium rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
-                <svg class="w-5 h-5 mr-2 -ml-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Historique
-            </a>
             <a href="{{ route('partner-groups.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition-colors">
                 Retour
             </a>
@@ -106,117 +102,7 @@
                 </div>
             </div>
 
-            <!-- Subscription & Payment -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200" x-data="{ showSubForm: {{ $partnerGroup->subscriptions->where('status', 'active')->isEmpty() ? 'true' : 'false' }} }">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">Abonnement & Paiement</h3>
-                    <button @click="showSubForm = !showSubForm" type="button" class="text-sm font-medium hover:text-blue-800 transition-colors" :class="showSubForm ? 'text-red-600' : 'text-blue-600'">
-                        <span x-show="!showSubForm">+ Nouvel Abonnement</span>
-                        <span x-show="showSubForm">Annuler</span>
-                    </button>
-                </div>
-                <div class="p-6">
-                    <!-- Current Active Subscription -->
-                    @php 
-                        $activeSub = $partnerGroup->subscriptions->where('status', 'active')->first(); 
-                    @endphp
 
-                    @if($activeSub)
-                        <div class="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500 text-white uppercase tracking-wide">Actif</span>
-                                        <h4 class="text-lg font-bold text-gray-900">{{ $activeSub->plan->plan_name ?? 'Plan Inconnu' }}</h4>
-                                    </div>
-                                    <p class="text-sm text-blue-800">
-                                        Du <strong>{{ $activeSub->start_date->format('d/m/Y') }}</strong> 
-                                        au <strong>{{ $activeSub->end_date->format('d/m/Y') }}</strong>
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-xs text-blue-600 uppercase tracking-wide font-semibold">Validité</p>
-                                    <p class="text-2xl font-bold text-blue-900">
-                                        {{ $activeSub->end_date->diffInDays(now()) < 0 ? 'Expiré' : $activeSub->end_date->diffInDays(now()) . ' jours' }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="mb-6 p-4 rounded-xl bg-gray-50 border border-gray-100 text-center text-gray-500 text-sm">
-                            Aucun abonnement actif pour ce groupe.
-                        </div>
-                    @endif
-
-                    <!-- New Subscription Form -->
-                    <div x-show="showSubForm" x-transition class="border-t border-gray-100 pt-6">
-                        <form action="{{ route('partner-groups.subscription.store', $partnerGroup->group_id) }}" method="POST">
-                            @csrf
-                            <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Création d'un nouvel abonnement</h4>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Plan Tarifaire</label>
-                                    <select name="plan_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2">
-                                        @foreach($plans as $plan)
-                                            <option value="{{ $plan->plan_id }}">{{ $plan->plan_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Activité</label>
-                                    <select name="activity_id" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2">
-                                        @foreach($activities as $activity)
-                                            <option value="{{ $activity->activity_id }}">{{ $activity->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
-                                    <input type="date" name="start_date" value="{{ date('Y-m-d') }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
-                                    <input type="date" name="end_date" value="{{ date('Y-m-d', strtotime('+1 year')) }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2">
-                                </div>
-
-                                <div class="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                                    <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Paiement Initial</h5>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Montant Payé (DA)</label>
-                                            <input type="number" name="amount" min="0" step="0.01" value="0.00" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2 font-mono font-bold">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Mode de Paiement</label>
-                                            <select name="payment_method" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2">
-                                                <option value="cash">Espèces</option>
-                                                <option value="card">Carte Bancaire</option>
-                                                <option value="check">Chèque</option>
-                                                <option value="transfer">Virement</option>
-                                            </select>
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Notes (Optionnel)</label>
-                                            <input type="text" name="notes" placeholder="Réf. virement, n° chèque..." class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-6 flex justify-end">
-                                <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-sm text-sm font-bold flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    Valider Abonnement & Paiement
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slots Management -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200" x-data="{ activeDay: 'Lundi' }">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>

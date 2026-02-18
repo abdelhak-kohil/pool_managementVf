@@ -20,6 +20,7 @@ use App\Http\Controllers\Activity\ReservationController;
 
 use App\Http\Controllers\Finance\ActivityPlanPriceController;
 use App\Http\Controllers\Finance\FinanceController;
+use App\Http\Controllers\Finance\PricingController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ExpenseController;
 use App\Http\Controllers\Finance\SubscriptionController;
@@ -79,7 +80,7 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
         Route::post('badge/update/{member}', [ReceptionController::class, 'updateBadge'])->name('reception.badge.update');
         Route::post('checkin/{member}', [ReceptionController::class, 'checkIn'])->name('reception.checkin');
         Route::post('checkin-badge', [ReceptionController::class, 'checkInByBadge'])->name('reception.checkin.badge');
-        Route::post('checkin-group', [\App\Http\Controllers\Api\RfidController::class, 'checkInGroup'])->name('reception.checkin.group');
+        Route::post('checkin-group', [ReceptionController::class, 'confirmPartnerCheckIn'])->name('reception.checkin.group');
 
         // AJAX
         Route::get('search', [ReceptionController::class, 'search'])->name('reception.search');
@@ -96,15 +97,34 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
 
     // Subscriptions (Protected by CRM License)
     Route::middleware(['module:crm'])->group(function() {
-        Route::middleware('permission:subscriptions.view')->get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-        Route::get('subscriptions/create', [SubscriptionController::class, 'create'])->name('subscriptions.create')->middleware('permission:subscriptions.create');
-        Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store')->middleware('permission:subscriptions.create');
-        Route::get('subscriptions/{subscription}/edit', [SubscriptionController::class, 'edit'])->name('subscriptions.edit')->middleware('permission:subscriptions.edit');
-        Route::put('subscriptions/{subscription}', [SubscriptionController::class, 'update'])->name('subscriptions.update')->middleware('permission:subscriptions.edit');
-        Route::delete('subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy')->middleware('permission:subscriptions.delete');
+        Route::get('subscriptions/members', [SubscriptionController::class, 'indexMembers'])->name('subscriptions.members')->middleware('permission:subscriptions.view');
+        Route::get('subscriptions/groups', [SubscriptionController::class, 'indexGroups'])->name('subscriptions.groups')->middleware('permission:subscriptions.view');
         
-        Route::post('subscriptions/{id}/deactivate', [SubscriptionController::class, 'deactivate'])->name('subscriptions.deactivate');
-        Route::get('member-subscriptions', [MemberSubscriptionController::class, 'index'])->name('members.subscriptions.index');
+    
+    // Pricing API
+    Route::get('/finance/calculate-price', [PricingController::class, 'calculate'])
+        ->name('finance.calculate-price');
+        
+    // Subscriptions Members
+    Route::get('subscriptions/members/create', [SubscriptionController::class, 'createMember'])->name('subscriptions.members.create')->middleware('permission:subscriptions.create');
+        Route::post('subscriptions/members', [SubscriptionController::class, 'storeMember'])->name('subscriptions.members.store')->middleware('permission:subscriptions.create');
+        Route::get('subscriptions/members/{subscription}/edit', [SubscriptionController::class, 'editMember'])->name('subscriptions.members.edit')->middleware('permission:subscriptions.edit');
+        Route::put('subscriptions/members/{subscription}', [SubscriptionController::class, 'updateMember'])->name('subscriptions.members.update')->middleware('permission:subscriptions.edit');
+        
+        // Partner Group Invoice Management (Global)
+    Route::get('/finance/partner-invoices', [\App\Http\Controllers\Finance\PartnerInvoiceController::class, 'index'])->name('admin.finance.partner_invoices.index');
+    Route::get('/finance/partner-invoices/{invoice}/pdf', [\App\Http\Controllers\Finance\PartnerInvoiceController::class, 'downloadPdf'])->name('admin.finance.partner_invoices.pdf');
+    
+    // Partner Group Invoice Management (Per Group)
+        Route::get('subscriptions/groups/create', [SubscriptionController::class, 'createGroup'])->name('subscriptions.groups.create')->middleware('permission:subscriptions.create');
+        Route::post('subscriptions/groups', [SubscriptionController::class, 'storeGroup'])->name('subscriptions.groups.store')->middleware('permission:subscriptions.create');
+        Route::get('subscriptions/groups/{subscription}/edit', [SubscriptionController::class, 'editGroup'])->name('subscriptions.groups.edit')->middleware('permission:subscriptions.edit');
+        Route::put('subscriptions/groups/{subscription}', [SubscriptionController::class, 'updateGroup'])->name('subscriptions.groups.update')->middleware('permission:subscriptions.edit');
+
+        Route::middleware('permission:subscriptions.view')->get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        // Keep generic resource for backward compatibility/utilities if needed, but exclude index/create/store/edit/update if fully replaced.
+        // Actually, let's keep it but put specific routes ABOVE it so they take precedence.
+        Route::resource('subscriptions', SubscriptionController::class);
 
         // Payment AJAX
         Route::post('subscriptions/{subscription}/payments/ajax', [PaymentController::class, 'storeAjax'])
@@ -224,7 +244,6 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
     // Partner Groups
     Route::resource('partner-groups', PartnerGroupController::class)->except(['destroy']);
     Route::prefix('partner-groups')->name('partner-groups.')->group(function() {
-        Route::get('/{partnerGroup}/attendance', [PartnerGroupController::class, 'attendance'])->name('attendance');
         Route::post('/{partnerGroup}/badges', [PartnerGroupController::class, 'addBadge'])->name('badges.add');
         Route::post('/{partnerGroup}/badges/{badge}/toggle', [PartnerGroupController::class, 'toggleBadgeStatus'])->name('badges.toggle');
         Route::delete('/{partnerGroup}/badges/{badge}', [PartnerGroupController::class, 'removeBadge'])->name('badges.remove');
@@ -234,6 +253,8 @@ Route::middleware(['auth', 'pgaudit'])->prefix('admin')->group(function () {
 
         Route::post('/{partnerGroup}/subscription', [PartnerGroupController::class, 'storeSubscription'])->name('subscription.store');
     });
+        
+
     Route::delete('partner-groups/{partner_group}', [PartnerGroupController::class, 'destroy'])->name('partner-groups.destroy')->middleware('role:admin');
 
 
@@ -344,6 +365,9 @@ Route::middleware(['auth', 'pgaudit', 'module:operations'])->prefix('pool')->nam
     
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Pool\PoolDashboardController::class, 'index'])->name('dashboard');
+
+    // Subscriptions
+
 
     // Facilities
     Route::resource('facilities', App\Http\Controllers\Pool\FacilityController::class);

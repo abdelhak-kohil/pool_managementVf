@@ -105,10 +105,15 @@
           </a>
           
           @if (in_array($role, ['admin', 'receptionniste']))
-          <a href="{{ route('subscriptions.index') }}" 
+          <a href="{{ route('subscriptions.members') }}" 
              class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
-             {{ request()->routeIs('subscriptions.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
-            🗓️ Abonnements
+             {{ request()->routeIs('subscriptions.members') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+            🗓️ Abonnements Membres
+          </a>
+          <a href="{{ route('subscriptions.groups') }}" 
+             class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition
+             {{ request()->routeIs('subscriptions.groups') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
+            🏢 Abonnements Groupes
           </a>
           @endif
 
@@ -209,6 +214,8 @@
              {{ request()->routeIs('activity-plan-prices.*') ? 'bg-blue-100 text-blue-700 font-semibold' : 'hover:bg-blue-50 hover:text-blue-700 text-gray-700' }}">
             🏷️ Tarifications
           </a>
+
+
         </div>
       </div>
 

@@ -235,6 +235,7 @@
                 profile: { name: '', photo: '', type: '' },
                 countInput: 1,
                 currentBadge: null,
+                currentGroupData: null, // Store full contract/slot data
                 resetTimer: null,
                 currentTime: '',
 
@@ -281,7 +282,7 @@
                 },
 
                 submitGroupCheck() {
-                    if (!this.currentBadge) return;
+                    if (!this.currentBadge || !this.currentGroupData) return;
                     
                     fetch('{{ route('reception.checkin.group') }}', {
                         method: 'POST',
@@ -291,7 +292,9 @@
                         },
                         body: JSON.stringify({
                             badge_uid: this.currentBadge,
-                            attendees: this.countInput
+                            attendee_count: this.countInput, // Corrected param name
+                            contract_id: this.currentGroupData.contract.contract_id,
+                            slot_id: this.currentGroupData.current_slot.slot_id
                         })
                     })
                     .then(r => r.json())
@@ -306,6 +309,7 @@
                         }
                         this.countInput = 1;
                         this.currentBadge = null;
+                        this.currentGroupData = null;
                         this.autoReset();
                     })
                     .catch(e => {
@@ -325,6 +329,7 @@
                     if (data.action === 'request_count') {
                         this.state = 'group_checkin';
                         this.currentBadge = data.badge_uid;
+                        this.currentGroupData = data.data; // Store payload
                         this.profile = data.person;
                         this.countInput = 1;
                         // Don't auto-reset while typing

@@ -1,0 +1,396 @@
+@extends('layouts.app')
+@section('title', 'Nouvel Abonnement Groupe Partenaire')
+
+@section('content')
+
+@if (session('success'))
+    <div class="bg-green-50 text-green-700 p-4 rounded-lg mb-6 border border-green-200">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
+        <div class="font-bold mb-2">Veuillez corriger les erreurs suivantes :</div>
+        <ul class="list-disc list-inside">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<form action="{{ route('subscriptions.groups.store') }}" method="POST" class="space-y-8">
+  @csrf
+
+  <!-- 🔹 Informations du Groupe -->
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h2 class="text-xl font-semibold text-blue-700 mb-4 flex items-center gap-2">
+      🏢 Informations du Groupe Partenaire
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- 1. Partner Group Selection -->
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 font-medium mb-1">Groupe Partenaire</label>
+        <select name="partner_group_id" class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" required>
+            <option value="">-- Sélectionner un groupe --</option>
+            @foreach($partnerGroups as $group)
+                <option value="{{ $group->group_id }}">
+                    {{ $group->name }} ({{ $group->contact_name ?? 'Sans contact' }})
+                </option>
+            @endforeach
+        </select>
+      </div>
+
+      <!-- Divider -->
+      <div class="md:col-span-2 border-t border-gray-100 my-2"></div>
+
+      <!-- 2. Subscription Period -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Date de début</label>
+        <input type="date" name="start_date"
+               class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+               required>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Date de fin</label>
+        <input type="date" name="end_date"
+               class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+               required>
+      </div>
+
+      <!-- Divider -->
+      <div class="md:col-span-2 border-t border-gray-100 my-2"></div>
+
+      <!-- 3. Plan Configuration -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Activité</label>
+        <select name="activity_id" id="activitySelect"
+                class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" required>
+          <option value="">-- Sélectionner une activité --</option>
+          @foreach($activities as $a)
+            <option value="{{ $a->activity_id }}">{{ $a->name }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Plan</label>
+        <select name="plan_id" id="planSelect"
+                class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" required>
+          <option value="">-- Sélectionner un plan --</option>
+          @foreach($plans as $p)
+            <option value="{{ $p->plan_id }}" data-type="{{ $p->plan_type }}" data-visits="{{ $p->visits_per_week }}">
+              {{ $p->plan_name }}
+            </option>
+          @endforeach
+        </select>
+      </div>
+
+      <!-- Divider -->
+      <div class="md:col-span-2 border-t border-gray-100 my-2"></div>
+
+      <!-- 4. Financial & Status -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Prix (DZD)</label>
+        <input type="text" id="priceDisplay"
+               class="w-full border rounded-lg p-2 bg-gray-100 text-gray-700"
+               readonly placeholder="En attente de sélection">
+        <input type="hidden" name="price" id="priceValue">
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Statut</label>
+        <select name="status"
+                class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200">
+          @foreach($statuses as $status)
+            <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+          @endforeach
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🔹 Sélection des créneaux -->
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h2 class="text-xl font-semibold text-blue-700 mb-4 flex items-center gap-2">
+      🗓️ Créneaux disponibles pour cette activité
+    </h2>
+
+    <p class="text-gray-500 text-sm mb-3">Les créneaux affichés sont valides, non bloqués et non réservés.</p>
+
+    <div id="timeSlotsContainer" class="space-y-3 text-gray-700">
+      <p class="text-gray-500">Sélectionnez une activité et un plan...</p>
+    </div>
+
+    <p id="slotCountInfo" class="text-blue-600 font-medium mt-3 hidden"></p>
+  </div>
+
+  <!-- 🔹 Paiement -->
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h2 class="text-xl font-semibold text-blue-700 mb-4 flex items-center gap-2">💳 Paiement</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Montant payé (DZD)</label>
+        <input type="number" step="0.01" name="amount" id="amount"
+               class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" required>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Méthode de paiement</label>
+        <select name="payment_method"
+                class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200" required>
+          <option value="cash">Espèces</option>
+          <option value="card">Carte</option>
+          <option value="transfer">Virement</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 font-medium mb-1">Notes</label>
+        <textarea name="notes" rows="2"
+                  class="w-full border rounded-lg p-2 focus:ring focus:ring-blue-200"
+                  placeholder="Ex: acompte, réduction, etc."></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🔹 Actions -->
+  <div class="flex justify-end gap-4">
+    <a href="{{ route('subscriptions.groups') }}"
+       class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+      Annuler
+    </a>
+    <button type="submit"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+      Enregistrer
+    </button>
+  </div>
+</form>
+
+<!-- === Scripts === -->
+<script>
+let requiredSlots = 0;
+
+// Charger slots disponibles
+async function loadSlots() {
+  const activityId = document.getElementById('activitySelect').value;
+  const planSelect = document.getElementById('planSelect');
+  const planId = planSelect.value;
+  const planType = planSelect.options[planSelect.selectedIndex]?.dataset.type;
+  const planVisits = parseInt(planSelect.options[planSelect.selectedIndex]?.dataset.visits);
+
+  if (!activityId || !planId) return;
+
+  requiredSlots = planType === "monthly_weekly" ? planVisits : 1;
+
+  document.getElementById('slotCountInfo').classList.remove("hidden");
+  document.getElementById('slotCountInfo').innerHTML =
+      `🔔 Ce plan requiert <strong>${requiredSlots}</strong> créneau(x) par semaine.`;
+
+  const container = document.getElementById('timeSlotsContainer');
+  container.innerHTML = "<p class='text-gray-500'>Chargement...</p>";
+
+  const res = await fetch(`/finance/activity-plan-prices/get-by-activity/${activityId}?plan=${planId}`);
+  const data = await res.json();
+
+  let slots = data.slots || [];
+
+  if (slots.length === 0) {
+    container.innerHTML = "<p class='text-gray-500'>Aucun créneau disponible.</p>";
+    return;
+  }
+
+  // 🎨 Render Slots Grouped by Day
+  const grouped = slots.reduce((acc, slot) => {
+      if (!acc[slot.day_name]) acc[slot.day_name] = [];
+      acc[slot.day_name].push(slot);
+      return acc;
+  }, {});
+
+  let html = '';
+  for (const [day, daySlots] of Object.entries(grouped)) {
+      html += `
+      <div class="mb-6">
+          <h4 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span> ${day}
+          </h4>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              ${daySlots.map(slot => `
+              <label class="relative cursor-pointer border rounded-xl p-3 flex flex-col items-center justify-center transition-all duration-200 hover:shadow-md hover:border-blue-300 bg-white group select-none">
+                  <input type="checkbox" name="slot_ids[]" value="${slot.slot_id}" class="slot-checkbox hidden peer">
+                  
+                  <div class="absolute top-2 right-2 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity">
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  </div>
+
+                  <span class="text-lg font-bold text-gray-800 peer-checked:text-blue-700">
+                      ${slot.start_time.substring(0, 5)}
+                  </span>
+                  <span class="text-xs text-gray-500 peer-checked:text-blue-600">
+                      à ${slot.end_time.substring(0, 5)}
+                  </span>
+              </label>
+              `).join('')}
+          </div>
+      </div>`;
+  }
+  container.innerHTML = html;
+
+  document.querySelectorAll('.slot-checkbox').forEach(cb => {
+      const label = cb.closest('label');
+      const updateState = () => {
+          if (cb.checked) {
+              label.classList.add('bg-blue-50', 'border-blue-500', 'shadow-sm', 'ring-1', 'ring-blue-500');
+              label.classList.remove('bg-white', 'border-gray-200');
+          } else {
+              label.classList.remove('bg-blue-50', 'border-blue-500', 'shadow-sm', 'ring-1', 'ring-blue-500');
+              label.classList.add('bg-white', 'border-gray-200');
+          }
+      };
+      updateState();
+      cb.addEventListener('change', () => {
+          const checkedCount = document.querySelectorAll('.slot-checkbox:checked').length;
+          if (checkedCount > requiredSlots) {
+              cb.checked = false;
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Limite atteinte',
+                  text: `Vous devez choisir exactement ${requiredSlots} créneau(x).`,
+                  timer: 2000,
+                  showConfirmButton: false
+              });
+          }
+          updateState();
+      });
+  });
+}
+
+// Charger prix avec contrats partenaires
+async function loadPrice() {
+  const groupId = document.querySelector('select[name="partner_group_id"]').value;
+  const activityId = document.getElementById('activitySelect').value;
+  const planId = document.getElementById('planSelect').value;
+
+  if (!groupId || !activityId || !planId) return;
+
+  try {
+      const res = await fetch(`/finance/calculate-price?partner_group_id=${groupId}&activity_id=${activityId}&plan_id=${planId}`);
+      if (!res.ok) throw new Error('Erreur calcul prix');
+      
+      const data = await res.json();
+
+      if (data.final_price !== undefined) {
+        const price = parseFloat(data.final_price);
+        const original = parseFloat(data.original_price);
+        
+        document.getElementById('priceValue').value = price;
+        document.getElementById('amount').value = price;
+
+        const displayEl = document.getElementById('priceDisplay');
+        
+        if (data.applied_contract) {
+            let label = 'Contrat appliqué';
+            if (data.applied_contract.contract_type === 'discount') label = `Remise ${data.applied_contract.value}%`;
+            else if (data.applied_contract.contract_type === 'fixed_price') label = 'Prix Fixe';
+            
+            displayEl.value = `${price.toFixed(2)} DZD (${label})`;
+            displayEl.classList.add('bg-green-100', 'text-green-800', 'font-bold', 'border-green-500');
+            displayEl.classList.remove('bg-gray-100', 'text-gray-700');
+        } else {
+            displayEl.value = price.toFixed(2) + ' DZD';
+            displayEl.classList.remove('bg-green-100', 'text-green-800', 'font-bold', 'border-green-500');
+            displayEl.classList.add('bg-gray-100', 'text-gray-700');
+        }
+      }
+  } catch (err) {
+      console.error(err);
+  }
+}
+
+// 📅 Date Rules Enforcement
+const startDateInput = document.querySelector('input[name="start_date"]');
+const endDateInput = document.querySelector('input[name="end_date"]');
+const planSelect = document.getElementById('planSelect');
+
+function getAlgiersTodayStr() {
+    const now = new Date();
+    return new Intl.DateTimeFormat('en-CA', { 
+        timeZone: 'Africa/Algiers', 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+    }).format(now);
+}
+
+const todayStr = getAlgiersTodayStr();
+startDateInput.min = todayStr;
+
+function handlePlanChange() {
+  loadSlots();
+  loadPrice();
+}
+
+startDateInput.addEventListener('change', function() {
+  const dateVal = this.value;
+  if (!dateVal) return;
+
+  const dateObj = new Date(dateVal);
+  const day = dateObj.getDate();
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth();
+  const lastDay = new Date(year, month + 1, 0); 
+  const offset = lastDay.getTimezoneOffset();
+  const lastDayLocal = new Date(lastDay.getTime() - (offset * 60 * 1000));
+  const lastDayFormatted = lastDayLocal.toISOString().split('T')[0];
+  
+  const selectedOption = planSelect.options[planSelect.selectedIndex];
+  if (selectedOption?.dataset.type !== 'per_visit') {
+      endDateInput.value = lastDayFormatted;
+  }
+
+  const isFirstOfMonth = (day === 1);
+  Array.from(planSelect.options).forEach(opt => {
+    if (opt.dataset.type === 'monthly_weekly') {
+      if (!isFirstOfMonth) {
+        opt.disabled = true;
+        if (planSelect.value === opt.value) {
+          planSelect.value = "";
+          planSelect.dispatchEvent(new Event('change'));
+          Swal.fire({
+            icon: 'info',
+            title: 'Plan non disponible',
+            text: 'Les abonnements mensuels ne peuvent commencer que le 1er du mois.'
+          });
+        }
+      } else {
+        opt.disabled = false;
+      }
+    }
+  });
+});
+
+document.getElementById('activitySelect').addEventListener('change', () => {
+  loadSlots();
+  loadPrice();
+});
+
+document.querySelector('select[name="partner_group_id"]').addEventListener('change', loadPrice);
+
+planSelect.addEventListener('change', handlePlanChange);
+
+</script>
+@endsection

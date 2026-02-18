@@ -14,6 +14,7 @@ class Subscription extends Model
 
     protected $fillable = [
         'member_id',
+        'partner_group_id',
         'activity_id',
         'plan_id',
         'start_date',
@@ -103,14 +104,11 @@ public function activity()
     return $this->belongsTo(\App\Models\Activity\Activity::class, 'activity_id', 'activity_id');
 }
 
-public function subscriptionslots()
-{
-    return $this->hasMany(SubscriptionSlot::class, 'subscription_id', 'subscription_id');
+    public function subscriptionslots()
+    {
+        return $this->hasMany(SubscriptionSlot::class, 'subscription_id', 'subscription_id');
+    }
+
+    
 }
-
-
-}
-
-
-
 

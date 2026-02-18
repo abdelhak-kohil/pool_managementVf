@@ -145,6 +145,9 @@ public function search(Request $request)
     /**
      * Check-in by Badge UID (for NFC Scan).
      */
+    /**
+     * Check-in by Badge UID (for NFC Scan).
+     */
     public function checkInByBadge(Request $request, \App\Modules\Access\Actions\ScanBadgeAction $action)
     {
         $request->validate(['badge_uid' => 'required|string']);
@@ -153,21 +156,14 @@ public function search(Request $request)
 
         if ($result->isGranted) {
              return $this->formatSuccessResponse(
-                 $result->personName, // Split name logic handled? DTO has full name. formatSuccess splits it?
-                 '', // Last name empty if merged in DTO. formatSuccess expects First/Last. 
-                 // Wait, formatSuccess splits? No, it takes args.
-                 // Let's check formatSuccess signature.
+                 $result->personName, 
+                 '', 
                  $result->message, 
                  $result->planName, 
                  $result->photoUrl, 
                  $result->expiryDate
              );
         } else {
-             // For error response, formatErrorResponse expects Member object.
-             // We might not have a member object if badge lookup failed.
-             // We should adapt formatErrorResponse or create a generic error response.
-             // Existing code returned 403.
-             
              return response()->json([
                 'success' => false,
                 'message' => $result->message,
@@ -181,6 +177,11 @@ public function search(Request $request)
             ], 403);
         }
     }
+
+    /**
+     * Confirm Partner Group Check-In (Step 2 of Reception Flow)
+     */
+
 
     private function logAccess($memberId, $badgeUid, $decision, $reason = null, $activityId = null, $subscriptionId = null, $slotId = null, $staffId = null)
     {
