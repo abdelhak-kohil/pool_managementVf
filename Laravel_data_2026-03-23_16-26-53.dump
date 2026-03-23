@@ -1,0 +1,1415 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict mafR3yqkcg3lDclNz6ILCGHmaIjKY3LjQ0GeUtJWmvoH8RJBJY0SDYSgXOY1Dia
+
+-- Dumped from database version 18.0
+-- Dumped by pg_dump version 18.0
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Data for Name: roles; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.roles (role_id, role_name) FROM stdin;
+1	admin
+2	maintenance_manager
+3	pool_technician
+4	directeur
+5	financer
+7	coach
+6	receptionniste
+\.
+
+
+--
+-- Data for Name: staff; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.staff (staff_id, first_name, last_name, username, password_hash, role_id, is_active, created_at, updated_at, phone_number, email, specialty, hiring_date, salary_type, hourly_rate, notes) FROM stdin;
+1	Admin	User	admin	$2y$12$5aWdbDgwmJSMiqrH1qHIxuyyCiUmk6bHMdtf3Z4tN4raHNwS6W3dS	1	t	2025-12-07 11:28:24	\N	\N	\N	\N	\N	per_hour	0.00	\N
+2	coach ABDO	ka	coach abdo.ka198	$2y$12$Ul26Igw/SPxcNhOzVwYesutMjK.ExXrKsNH13uOJ3eC0D..8lZxNa	7	t	\N	\N	+213065847555	coach@example.com	Yoga	2025-12-08	per_hour	1500.00	\N
+3	coach hamza	gs	coach hamza.gs524	$2y$12$C.pJM7HgEppTTUbqrkTA7O2JOLUERt7YgIGJBTU9O6pH.r22ThyDC	7	t	\N	\N	+33 (0)6 98 40 01 68	coach1@example.com	Natation	2025-12-08	per_hour	1500.00	\N
+54	receptionist	Ka	userr	$2y$12$KJrYkIIupih.g1lb1Eo96.hzqWvSeIHo7Jnmjyp2pVGKSoQvMCUTm	6	t	2025-12-15 15:47:57	2025-12-15 15:47:57	+213065847555	testuser@example.com	\N	2025-12-15	monthly	40000.00	\N
+\.
+
+
+--
+-- Data for Name: members; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.members (member_id, first_name, last_name, email, phone_number, date_of_birth, address, created_by, updated_by, created_at, updated_at, photo_path, emergency_contact_name, emergency_contact_phone, notes, health_conditions) FROM stdin;
+1	ka	abdelhak	kohil-abdelhak10@mdn.dz	+213065847555	1994-11-18	38, place Barbier22612 Klein	1	1	\N	\N	members/photos/WtUus4uzh3bbQmUiXYqIDYn4NtUhfqj1q8jgILGv.jpg	abdo	+21354742147	ff	ff
+2	kar	karim	testuser@example.com	+21310003258	2025-12-02	38, place Barbier22612 Klein	1	1	\N	\N	\N	abdo	+21354742147	ff	ff
+5	user	use test	admin@eddxample.com	+33 (0)6 98 40 01 68	2025-12-05	38, place Barbier22612 Klein	1	1	\N	\N	\N	dd	+21354742147	dd	dd
+3	ba	amin	admin@itsm.local	0698171389	2025-12-18	bouira lakhdaria	1	1	\N	2025-12-20 16:54:04	members/photos/kqX3wEzDy9669ec7mM6m8moFyk6AtsVRRRVP9zhP.jpg	abdo	+21354742147	qq	qq
+\.
+
+
+--
+-- Data for Name: partner_groups; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.partner_groups (group_id, name, contact_name, contact_phone, email, notes, is_active, created_at, updated_at, partner_type, legal_entity_name, contract_reference_code, status) FROM stdin;
+1	École Les Poussins Bleus	Mme Nadia Khelifi	+213 550 223 441	nadia.khelifi@poussinsbleus.dz	Groupe scolaire maternelle et primaire, cours hebdomadaires de natation.	t	\N	\N	\N	\N	\N	draft
+2	Crèche Les Petits Génies	M. Karim Boudiaf	+213 552 441 992	karim.boudiaf@petitsgenies.dz	Crèche partenaire pour les séances d’initiation aquatique.	t	\N	\N	\N	\N	\N	draft
+3	Lycée Privé El Amel	Mme Samira Benali	+213 556 330 128	samira.benali@elamel-lycee.dz	Séances d’éducation physique deux fois par semaine.	t	\N	\N	\N	\N	\N	draft
+4	Entreprise HydroTech	M. Rachid Lounis	+213 661 210 874	rachid.lounis@hydrotech.com	Programme bien-être pour les employés (aquagym et natation libre).	t	\N	\N	\N	\N	\N	draft
+5	Association des Seniors Actifs	Mme Fatma Gherbi	+213 662 442 013	fatma.gherbi@seniorsactifs.org	Activités aquatiques adaptées pour les seniors.	t	\N	\N	\N	\N	\N	draft
+6	Club Nautique Les Dauphins	Coach Amine Tahar	+213 550 773 882	amine.tahar@dauphinsclub.dz	Partenaire pour les compétitions régionales et les entraînements.	t	\N	\N	\N	\N	\N	draft
+7	Centre Médical AquaSanté	Dr. Lynda Merabet	+213 661 998 442	lynda.merabet@aquasante.dz	Séances de rééducation aquatique supervisées.	t	\N	\N	\N	\N	\N	draft
+8	Université Polytech d’Alger	Pr. Mourad Zerrouki	+213 661 871 111	mourad.zerrouki@polytech-alger.edu.dz	Cours de natation pour les étudiants du département sport.	t	\N	\N	\N	\N	\N	draft
+9	École Française Internationale	Mme Claire Dubois	+213 550 445 781	claire.dubois@efi-dz.com	Séances scolaires encadrées tous les jeudis matins.	t	\N	\N	\N	\N	\N	draft
+10	Société GlobalTech	M. Ahmed Hamdani	+213 661 772 334	ahmed.hamdani@globaltech.dz	Offre de bien-être entreprise : aquagym et relaxation.	t	\N	\N	\N	\N	\N	draft
+11	Crèche Les Merveilles	Mme Rania Bouzid	+213 664 559 118	rania.bouzid@lesmerveilles.dz	Groupe partenaire pour l’initiation aquatique des enfants.	t	\N	\N	\N	\N	\N	draft
+12	Association Espoir	M. Khaled Aït Saïd	+213 550 119 412	khaled.aitsaid@espoir-dz.org	Sessions spéciales pour personnes à mobilité réduite.	t	\N	\N	\N	\N	\N	draft
+13	Académie de Natation AquaPro	Coach Hichem Ziani	+213 551 225 876	hichem.ziani@aquaproacademy.dz	Partenaire pour entraînement technique et compétitions.	t	\N	\N	\N	\N	\N	draft
+14	Entreprise Sonatra	Mme Lina Mahrez	+213 661 400 987	lina.mahrez@sonatra.com	Programme bien-être et santé pour le personnel.	t	\N	\N	\N	\N	\N	draft
+15	Collège Ibn Sina	M. Farid Zerguine	+213 662 227 555	farid.zerguine@ibnsina.edu.dz	Cours d’éducation physique aquatique tous les mercredis.	t	\N	\N	\N	\N	\N	draft
+22	Payment Group 6945858357437	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	draft
+23	Payment Group 694586bf5eeaa	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	draft
+24	test	test	+213 551 225 876	testuseeserr@example.com	serser	t	\N	\N	\N	\N	\N	draft
+29	Payment Group 694592b866fbc	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	draft
+30	dd	dd	+213 551 225 876	admddddin@gmail.com	dd	t	\N	\N	\N	\N	\N	draft
+\.
+
+
+--
+-- Data for Name: access_badges; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.access_badges (badge_id, member_id, badge_uid, status, issued_at, expires_at, staff_id, partner_group_id) FROM stdin;
+240	\N	TEST_BADGE_001	active	\N	\N	\N	\N
+102	2	BDG000002	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+101	1	BDG000001	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+103	3	BDG000003	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+104	5	BDG000004	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+110	\N	BDG000010	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+111	\N	BDG000011	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+112	\N	BDG000012	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+113	\N	BDG000013	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+114	\N	BDG000014	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+115	\N	BDG000015	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+116	\N	BDG000016	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+117	\N	BDG000017	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+118	\N	BDG000018	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+119	\N	BDG000019	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+120	\N	BDG000020	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+121	\N	BDG000021	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+122	\N	BDG000022	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+123	\N	BDG000023	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+124	\N	BDG000024	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+125	\N	BDG000025	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+126	\N	BDG000026	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+127	\N	BDG000027	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+128	\N	BDG000028	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+129	\N	BDG000029	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+130	\N	BDG000030	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+131	\N	BDG000031	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+132	\N	BDG000032	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+133	\N	BDG000033	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+134	\N	BDG000034	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+135	\N	BDG000035	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+136	\N	BDG000036	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+137	\N	BDG000037	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+138	\N	BDG000038	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+139	\N	BDG000039	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+140	\N	BDG000040	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+141	\N	BDG000041	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+142	\N	BDG000042	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+143	\N	BDG000043	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+144	\N	BDG000044	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+145	\N	BDG000045	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+146	\N	BDG000046	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+147	\N	BDG000047	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+148	\N	BDG000048	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+149	\N	BDG000049	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+150	\N	BDG000050	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+151	\N	BDG000051	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+152	\N	BDG000052	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+153	\N	BDG000053	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+154	\N	BDG000054	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+155	\N	BDG000055	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+156	\N	BDG000056	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+157	\N	BDG000057	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+158	\N	BDG000058	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+159	\N	BDG000059	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+160	\N	BDG000060	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+161	\N	BDG000061	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+162	\N	BDG000062	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+163	\N	BDG000063	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+164	\N	BDG000064	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+165	\N	BDG000065	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+166	\N	BDG000066	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+167	\N	BDG000067	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+168	\N	BDG000068	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+169	\N	BDG000069	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+170	\N	BDG000070	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+171	\N	BDG000071	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+172	\N	BDG000072	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+173	\N	BDG000073	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+174	\N	BDG000074	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+175	\N	BDG000075	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+176	\N	BDG000076	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+177	\N	BDG000077	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+178	\N	BDG000078	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+179	\N	BDG000079	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+180	\N	BDG000080	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+181	\N	BDG000081	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+182	\N	BDG000082	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+183	\N	BDG000083	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+184	\N	BDG000084	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+185	\N	BDG000085	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+186	\N	BDG000086	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+187	\N	BDG000087	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+188	\N	BDG000088	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+189	\N	BDG000089	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+190	\N	BDG000090	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+191	\N	BDG000091	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+192	\N	BDG000092	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+193	\N	BDG000093	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+194	\N	BDG000094	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+195	\N	BDG000095	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+196	\N	BDG000096	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+197	\N	BDG000097	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+198	\N	BDG000098	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+199	\N	BDG000099	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+200	\N	BDG000100	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	\N
+105	\N	BDG000005	active	2025-12-08 09:54:40	2026-12-07 13:03:56	2	\N
+106	\N	BDG000006	active	2025-12-08 11:42:55	2026-12-07 13:03:56	3	\N
+108	\N	BDG000008	active	2025-12-15 15:47:57	2026-12-07 13:03:56	54	\N
+109	\N	BDG000009	active	2025-12-07 13:03:56	2026-12-07 13:03:56	\N	13
+\.
+
+
+--
+-- Data for Name: access_logs; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.access_logs (log_id, badge_uid, member_id, access_time, access_decision, denial_reason, activity_id, subscription_id, slot_id, staff_id, action_type, location, metadata) FROM stdin;
+1	BDG000001	1	2025-12-07 13:05:55	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+2	BDG000001	1	2025-12-07 13:27:00	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+3	BDG000001	1	2025-12-07 13:27:11	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+4	BDG000001	1	2025-12-07 13:27:19	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+5	BDG000001	1	2025-12-07 13:29:12	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+6	BDG000001	1	2025-12-07 13:29:45	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+7	BDG000001	1	2025-12-07 13:35:39	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+8	BDG000001	1	2025-12-07 13:36:51	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+9	BDG000001	1	2025-12-07 13:37:39	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+10	BDG000001	1	2025-12-07 13:39:46	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+11	BDG000001	1	2025-12-07 13:40:03	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+12	BDG000001	1	2025-12-07 13:41:13	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+13	BDG000001	1	2025-12-07 13:44:23	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+14	BDG000001	1	2025-12-07 13:44:55	denied	Créneau non autorisé	1	1	8	\N	entry	\N	\N
+15	BDG000001	1	2025-12-07 13:48:40	denied	Activité réservée à la maintenance	\N	\N	\N	\N	entry	\N	\N
+16	BDG000001	1	2025-12-07 13:51:47	denied	Activité réservée à la maintenance	\N	\N	\N	\N	entry	\N	\N
+17	BDG000001	1	2025-12-07 13:53:14	denied	Activité réservée à la maintenance	\N	\N	\N	\N	entry	\N	\N
+18	BDG000001	1	2025-12-07 13:54:27	granted	\N	1	1	7	\N	entry	\N	\N
+19	BDG000001	1	2025-12-07 13:54:39	granted	\N	1	1	7	\N	entry	\N	\N
+20	BDG000001	1	2025-12-07 13:57:47	granted	\N	1	1	7	\N	entry	\N	\N
+21	BDG000002	2	2025-12-07 14:07:38	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+22	BDG000002	2	2025-12-07 14:18:30	granted	\N	1	2	7	\N	entry	\N	\N
+23	BDG000004	5	2025-12-07 16:06:08	granted	\N	1	5	7	\N	entry	\N	\N
+24	BDG000003	3	2025-12-07 16:06:13	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+25	BDG000002	2	2025-12-07 16:06:17	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+26	BDG000004	\N	2025-12-07 16:08:04	granted	Staff Check-in	\N	\N	7	1	entry	\N	\N
+27	BDG000004	\N	2025-12-07 16:10:04	granted	Staff Check-in	\N	\N	7	1	entry	\N	\N
+28	BDG000001	1	2025-12-08 14:49:43	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+29	BDG000002	2	2025-12-08 14:49:58	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+30	BDG000001	1	2025-12-08 14:54:05	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+31	BDG000002	2	2025-12-08 14:54:40	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+32	BDG000002	2	2025-12-08 14:55:58	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+33	BDG000001	1	2025-12-09 11:39:42	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+34	BDG000002	2	2025-12-09 11:39:46	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+35	BDG000003	3	2025-12-09 11:39:48	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+36	BDG000004	5	2025-12-09 11:39:52	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+37	BDG000001	1	2025-12-10 22:36:04	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+38	BDG000002	2	2025-12-10 22:36:12	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+39	BDG000001	1	2025-12-10 22:54:46	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+40	BDG000002	2	2025-12-10 23:03:06	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+41	BDG000002	2	2025-12-10 23:08:00	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+42	BDG000002	2	2025-12-10 23:08:12	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+43	BDG000001	1	2025-12-10 23:08:24	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+44	BDG000003	3	2025-12-10 23:08:39	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+45	BDG000002	2	2025-12-10 23:10:39	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+46	BDG000002	2	2025-12-10 23:11:37	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+47	BDG000003	3	2025-12-10 23:11:50	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+48	BDG000001	1	2025-12-10 23:12:07	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+49	BDG000001	1	2025-12-10 23:12:21	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+50	BDG000002	2	2025-12-10 23:14:15	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+51	BDG000002	2	2025-12-10 23:14:15	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+52	BDG000002	2	2025-12-10 23:16:27	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+53	BDG000002	2	2025-12-10 23:17:05	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+54	BDG000002	2	2025-12-10 23:17:26	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+55	BDG000002	2	2025-12-10 23:24:25	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+56	BDG000001	1	2025-12-10 23:24:40	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+57	BDG000004	5	2025-12-10 23:24:52	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+58	BDG000001	1	2025-12-10 23:25:10	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+59	BDG000001	1	2025-12-10 23:25:19	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+60	BDG000002	2	2025-12-10 23:34:28	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+61	BDG000002	2	2025-12-10 23:42:58	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+62	BDG000002	2	2025-12-10 23:43:26	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+63	BDG000002	2	2025-12-10 23:52:08	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+64	BDG000002	2	2025-12-11 00:09:43	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+65	BDG000002	2	2025-12-11 00:10:07	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+66	BDG000002	2	2025-12-11 00:11:46	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+67	BDG000002	2	2025-12-11 00:11:55	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+68	BDG000002	2	2025-12-11 00:14:16	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+69	BDG000002	2	2025-12-11 00:14:25	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+70	BDG000002	2	2025-12-11 00:14:53	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+71	BDG000004	5	2025-12-11 00:15:06	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+72	BDG000004	5	2025-12-11 00:17:03	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+73	BDG000001	1	2025-12-11 00:23:48	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+74	BDG000002	2	2025-12-11 00:24:20	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+75	BDG000002	2	2025-12-11 00:24:29	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+76	BDG000002	2	2025-12-11 00:24:38	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+77	BDG000001	1	2025-12-11 00:32:41	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+78	BDG000001	1	2025-12-11 00:37:29	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+79	BDG000001	1	2025-12-11 00:37:54	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+80	BDG000001	1	2025-12-11 00:38:19	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+81	BDG000001	1	2025-12-11 00:39:29	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+82	BDG000001	1	2025-12-11 00:41:13	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+83	BDG000001	1	2025-12-11 00:41:29	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+84	BDG000001	1	2025-12-11 00:42:52	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+85	BDG000001	1	2025-12-11 00:53:51	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+86	BDG000001	1	2025-12-11 00:54:14	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+87	BDG000001	1	2025-12-11 00:54:45	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+88	BDG000001	1	2025-12-11 00:57:23	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+89	BDG000004	5	2025-12-11 00:57:38	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+90	BDG000004	5	2025-12-11 00:57:47	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+91	BDG000003	3	2025-12-11 00:57:59	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+92	BDG000003	3	2025-12-11 01:01:23	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+93	BDG000003	3	2025-12-11 01:09:59	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+94	BDG000003	3	2025-12-11 01:10:16	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+95	BDG000003	3	2025-12-11 01:10:45	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+96	BDG000004	5	2025-12-11 01:10:55	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+97	BDG000003	3	2025-12-11 01:27:44	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+98	BDG000003	3	2025-12-11 01:28:11	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+99	BDG000003	3	2025-12-11 01:28:20	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+100	BDG000002	2	2025-12-11 01:30:54	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+101	BDG000002	2	2025-12-11 01:37:31	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+102	BDG000002	2	2025-12-11 01:37:53	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+103	BDG000002	2	2025-12-11 01:40:52	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+104	BDG000002	2	2025-12-11 01:41:04	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+105	BDG000002	2	2025-12-11 01:41:19	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+106	BDG000001	1	2025-12-11 01:41:40	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+107	BDG000001	1	2025-12-11 01:42:26	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+108	BDG000001	1	2025-12-11 01:43:20	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+109	BDG000001	1	2025-12-11 01:46:27	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+110	BDG000001	1	2025-12-11 01:48:36	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+111	BDG000001	1	2025-12-11 01:50:50	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+112	BDG000001	1	2025-12-11 01:51:10	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+113	BDG000001	1	2025-12-11 01:51:48	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+114	BDG000001	1	2025-12-11 01:51:58	denied	Abonnement inactif/expiré	\N	\N	\N	\N	entry	\N	\N
+126	BDG000003	3	2025-12-15 13:42:44	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+127	BDG000003	3	2025-12-15 13:43:11	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+128	BDG000003	3	2025-12-15 13:44:04	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+129	BDG000003	3	2025-12-15 13:44:36	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+130	BDG000001	1	2025-12-15 13:58:41	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+131	BDG000001	1	2025-12-15 13:59:15	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+132	BDG000001	1	2025-12-15 14:10:56	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+133	BDG000001	1	2025-12-15 14:11:08	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+134	BDG000001	1	2025-12-15 14:19:03	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+135	BDG000001	1	2025-12-15 14:19:13	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+136	BDG000001	1	2025-12-15 14:19:43	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+137	BDG000001	1	2025-12-15 14:33:01	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+138	BDG000001	1	2025-12-15 14:33:09	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+139	BDG000001	1	2025-12-15 15:12:39	granted	\N	3	6	8	\N	entry	\N	\N
+140	BDG000001	1	2025-12-15 16:06:03	denied	Limite de visites hebdomadaires atteinte	3	6	8	\N	entry	\N	\N
+141	BDG000001	1	2025-12-15 16:06:37	denied	Limite de visites hebdomadaires atteinte	3	6	8	\N	entry	\N	\N
+142	BDG000001	1	2025-12-15 16:06:55	denied	Limite de visites hebdomadaires atteinte	3	6	8	\N	entry	\N	\N
+143	BDG000001	1	2025-12-15 16:07:05	denied	Limite de visites hebdomadaires atteinte	3	6	8	\N	entry	\N	\N
+144	BDG000001	1	2025-12-15 16:37:51	denied	Limite de visites hebdomadaires atteinte	3	6	8	\N	entry	\N	\N
+145	BDG000002	2	2025-12-15 16:38:05	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+146	BDG000002	2	2025-12-15 16:38:08	denied	Aucun abonnement actif ou valide	\N	\N	\N	\N	entry	\N	\N
+147	BDG000001	1	2025-12-15 16:38:11	denied	Limite de visites hebdomadaires atteinte	3	6	8	\N	entry	\N	\N
+148	BDG000001	1	2025-12-16 15:42:43	denied	Jour non inclus dans l'abonnement	3	6	69	\N	entry	\N	\N
+149	BDG000001	1	2025-12-16 16:26:13	denied	Jour non inclus dans l'abonnement	3	6	69	\N	entry	\N	\N
+\.
+
+
+--
+-- Data for Name: activities; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.activities (activity_id, name, description, access_type, color_code, is_active) FROM stdin;
+1	Séance hommes	Session réservée aux hommes	men	#3b82f6	t
+2	Aquagym	Cours d’aquagym pour femmes	aquagym	#10b981	t
+3	Séance femmes	Séance réservée aux femmes	women	#ec4899	t
+4	Crèches / Écoles	Groupes scolaires ou crèches partenaires	group	#8b5cf6	t
+5	Séance privée	Séances privées / coachings	private	#f59e0b	t
+6	Entretien	Période de nettoyage (piscine fermée)	cleaning	#9ca3af	t
+8	Séance Enfant	\N	enfant	#F52754	t
+9	Vide	Créneau libre pour réservation	all	#141414	t
+\.
+
+
+--
+-- Data for Name: plans; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.plans (plan_id, plan_name, description, plan_type, visits_per_week, duration_months, is_active) FROM stdin;
+2	Natation - 2 Séances / Semaine	\N	monthly_weekly	2	1	t
+3	Natation - 1 Séance / Semaine	\N	monthly_weekly	1	1	t
+5	per visit	\N	per_visit	\N	\N	t
+58	Generic Plan	\N	\N	0	12	t
+\.
+
+
+--
+-- Data for Name: activity_plan_prices; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.activity_plan_prices (id, activity_id, plan_id, price) FROM stdin;
+61	2	3	3500.00
+62	2	2	4500.00
+63	2	5	800.00
+64	8	3	3500.00
+65	8	2	4500.00
+66	8	5	800.00
+67	3	3	3500.00
+68	3	2	4500.00
+69	3	5	800.00
+71	1	2	4500.00
+72	1	5	800.00
+73	5	5	1500.00
+70	1	3	3000.00
+\.
+
+
+--
+-- Data for Name: audit_log; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.audit_log (log_id, table_name, record_id, action, changed_by_staff_id, change_timestamp, old_data_jsonb, new_data_jsonb) FROM stdin;
+1	pool_schema.staff	2	UPDATE	1	2025-12-08 11:31:44	{"email": "coach@example.com", "notes": null, "role_id": 7, "staff_id": 2, "username": "coach abdo.ka198", "is_active": true, "last_name": "ka", "specialty": "Yoga", "created_at": null, "first_name": "coach ABDO", "hiring_date": "2025-12-08", "hourly_rate": 1500.00, "salary_type": "per_session", "phone_number": "+213065847555", "password_hash": "$2y$12$Ul26Igw/SPxcNhOzVwYesutMjK.ExXrKsNH13uOJ3eC0D..8lZxNa"}	{"email": "coach@example.com", "notes": null, "role_id": 7, "staff_id": 2, "username": "coach abdo.ka198", "is_active": true, "last_name": "ka", "specialty": "Yoga", "created_at": null, "first_name": "coach ABDO", "hiring_date": "2025-12-08", "hourly_rate": 1500.00, "salary_type": "per_hour", "phone_number": "+213065847555", "password_hash": "$2y$12$Ul26Igw/SPxcNhOzVwYesutMjK.ExXrKsNH13uOJ3eC0D..8lZxNa"}
+2	pool_schema.staff	3	INSERT	1	2025-12-08 11:42:55	\N	{"email": "coach1@example.com", "notes": null, "role_id": 7, "staff_id": 3, "username": "coach hamza.gs524", "is_active": true, "last_name": "gs", "specialty": "Natation", "created_at": null, "first_name": "coach hamza", "updated_at": null, "hiring_date": "2025-12-08", "hourly_rate": 1500.00, "salary_type": "per_hour", "phone_number": "+33 (0)6 98 40 01 68", "password_hash": "$2y$12$C.pJM7HgEppTTUbqrkTA7O2JOLUERt7YgIGJBTU9O6pH.r22ThyDC"}
+3	staff_attendance	1	VALIDATE	1	2025-12-10 12:31:41	{"date": "2025-12-09T23:00:00.000000Z", "notes": null, "status": "present", "check_in": "2025-12-10T09:49:37.000000Z", "staff_id": 2, "check_out": "2025-12-10T09:50:27.000000Z", "created_at": "2025-12-10T09:49:37.000000Z", "updated_at": "2025-12-10T09:50:27.000000Z", "night_hours": "0.00", "validated_by": null, "attendance_id": 1, "break_minutes": 0, "delay_minutes": 0, "justification": null, "working_hours": "0.01", "admin_comments": null, "overtime_hours": "0.00", "check_in_method": "rfid", "validation_date": null, "correction_reason": null, "validation_status": "pending"}	{"date": "2025-12-09T23:00:00.000000Z", "notes": null, "status": "present", "check_in": "2025-12-10T09:49:37.000000Z", "staff_id": 2, "check_out": "2025-12-10T09:50:27.000000Z", "created_at": "2025-12-10T09:49:37.000000Z", "updated_at": "2025-12-10T11:31:41.000000Z", "night_hours": "0.00", "validated_by": 1, "attendance_id": 1, "break_minutes": 0, "delay_minutes": 0, "justification": null, "working_hours": "0.01", "admin_comments": null, "overtime_hours": "0.00", "check_in_method": "rfid", "validation_date": "2025-12-10 12:31:41", "correction_reason": null, "validation_status": "validated"}
+4	staff_attendance	2	VALIDATE	1	2025-12-10 12:31:50	{"date": "2025-12-09T23:00:00.000000Z", "notes": null, "status": "present", "check_in": "2025-12-10T09:50:39.000000Z", "staff_id": 2, "check_out": "2025-12-10T09:51:49.000000Z", "created_at": "2025-12-10T09:50:39.000000Z", "updated_at": "2025-12-10T09:51:49.000000Z", "night_hours": "0.00", "validated_by": null, "attendance_id": 2, "break_minutes": 0, "delay_minutes": 0, "justification": null, "working_hours": "0.02", "admin_comments": null, "overtime_hours": "0.00", "check_in_method": "rfid", "validation_date": null, "correction_reason": null, "validation_status": "pending"}	{"date": "2025-12-09T23:00:00.000000Z", "notes": null, "status": "present", "check_in": "2025-12-10T09:50:39.000000Z", "staff_id": 2, "check_out": "2025-12-10T09:51:49.000000Z", "created_at": "2025-12-10T09:50:39.000000Z", "updated_at": "2025-12-10T11:31:50.000000Z", "night_hours": "0.00", "validated_by": 1, "attendance_id": 2, "break_minutes": 0, "delay_minutes": 0, "justification": null, "working_hours": "0.02", "admin_comments": null, "overtime_hours": "0.00", "check_in_method": "rfid", "validation_date": "2025-12-10 12:31:50", "correction_reason": null, "validation_status": "validated"}
+51	pool_schema.staff	53	INSERT	1	2025-12-15 15:20:42	\N	{"email": "testuser@example.com", "notes": null, "role_id": 6, "staff_id": 53, "username": "userr", "is_active": true, "last_name": "user R", "specialty": null, "created_at": "2025-12-15T15:20:41", "first_name": "receptionist", "updated_at": "2025-12-15T15:20:41", "hiring_date": "2025-12-15", "hourly_rate": 40000.00, "salary_type": "monthly", "phone_number": "+213065847555", "password_hash": "123456"}
+52	pool_schema.staff	53	DELETE	1	2025-12-15 15:37:33	{"email": "testuser@example.com", "notes": null, "role_id": 6, "staff_id": 53, "username": "userr", "is_active": true, "last_name": "user R", "specialty": null, "created_at": "2025-12-15T15:20:41", "first_name": "receptionist", "updated_at": "2025-12-15T15:20:41", "hiring_date": "2025-12-15", "hourly_rate": 40000.00, "salary_type": "monthly", "phone_number": "+213065847555", "password_hash": "123456"}	\N
+53	pool_schema.staff	54	INSERT	1	2025-12-15 15:47:57	\N	{"email": "testuser@example.com", "notes": null, "role_id": 6, "staff_id": 54, "username": "userr", "is_active": true, "last_name": "Ka", "specialty": null, "created_at": "2025-12-15T15:47:57", "first_name": "receptionist", "updated_at": "2025-12-15T15:47:57", "hiring_date": "2025-12-15", "hourly_rate": 40000.00, "salary_type": "monthly", "phone_number": "+213065847555", "password_hash": "$2y$12$KJrYkIIupih.g1lb1Eo96.hzqWvSeIHo7Jnmjyp2pVGKSoQvMCUTm"}
+\.
+
+
+--
+-- Data for Name: backup_jobs; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.backup_jobs (id, backup_type, file_name, file_size, storage_location, status, started_at, completed_at, error_message, triggered_by, created_at, updated_at) FROM stdin;
+1	full	Laravel_full_2025-12-10_10-09-44.dump	171.11K	local	success	2025-12-10 10:09:44	2025-12-10 10:09:46	\N	1	2025-12-10 10:09:44	2025-12-10 10:09:46
+2	schema	Laravel_schema_2025-12-10_10-09-59.dump	99.80K	local	success	2025-12-10 10:09:59	2025-12-10 10:09:59	\N	1	2025-12-10 10:09:59	2025-12-10 10:09:59
+3	full	Laravel_full_2025-12-10_12-36-20.dump	179.11K	local	success	2025-12-10 12:36:20	2025-12-10 12:36:21	\N	1	2025-12-10 12:36:20	2025-12-10 12:36:21
+4	schema	Laravel_schema_2025-12-10_12-36-31.dump	104.30K	local	success	2025-12-10 12:36:31	2025-12-10 12:36:32	\N	1	2025-12-10 12:36:31	2025-12-10 12:36:32
+5	full	Laravel_full_2025-12-10_12-56-35.dump	179.44K	local	success	2025-12-10 12:56:35	2025-12-10 12:56:36	\N	1	2025-12-10 12:56:35	2025-12-10 12:56:36
+6	full	Laravel_full_2025-12-11_02-00-35.dump	182.75K	local	success	2025-12-11 02:00:35	2025-12-11 02:00:36	\N	1	2025-12-11 02:00:35	2025-12-11 02:00:36
+7	full	Laravel_full_2025-12-15_12-51-14.dump	189.58K	local	success	2025-12-15 12:51:14	2025-12-15 12:51:16	\N	1	2025-12-15 12:51:14	2025-12-15 12:51:16
+8	schema	Laravel_schema_2025-12-15_12-51-46.dump	107.53K	local	success	2025-12-15 12:51:46	2025-12-15 12:51:47	\N	1	2025-12-15 12:51:46	2025-12-15 12:51:47
+9	data	Laravel_data_2025-12-15_12-51-53.dump	67.51K	local	success	2025-12-15 12:51:53	2025-12-15 12:51:54	\N	1	2025-12-15 12:51:53	2025-12-15 12:51:54
+10	full	Laravel_full_2025-12-20_13-17-44.dump	211.17K	local	success	2025-12-20 13:17:44	2025-12-20 13:17:47	\N	1	2025-12-20 13:17:44	2025-12-20 13:17:47
+11	schema	Laravel_schema_2025-12-20_13-17-52.dump	118.91K	local	success	2025-12-20 13:17:52	2025-12-20 13:17:53	\N	1	2025-12-20 13:17:52	2025-12-20 13:17:53
+12	data	Laravel_data_2025-12-20_13-17-58.dump	86.03K	local	success	2025-12-20 13:17:58	2025-12-20 13:17:59	\N	1	2025-12-20 13:17:58	2025-12-20 13:17:59
+13	full	Laravel_full_2026-01-22_12-01-18.dump	211.92K	local	success	2026-01-22 12:01:18	2026-01-22 12:01:20	\N	1	2026-01-22 12:01:18	2026-01-22 12:01:20
+14	schema	Laravel_schema_2026-01-22_12-01-26.dump	119.72K	local	success	2026-01-22 12:01:26	2026-01-22 12:01:27	\N	1	2026-01-22 12:01:26	2026-01-22 12:01:27
+15	data	Laravel_data_2026-01-22_12-01-33.dump	83.23K	local	success	2026-01-22 12:01:33	2026-01-22 12:01:33	\N	1	2026-01-22 12:01:33	2026-01-22 12:01:33
+16	full	Laravel_full_2026-02-18_11-17-13.dump	212.09K	local	success	2026-02-18 11:17:13	2026-02-18 11:17:16	\N	1	2026-02-18 11:17:13	2026-02-18 11:17:16
+17	schema	Laravel_schema_2026-02-18_11-30-02.dump	119.72K	local	success	2026-02-18 11:30:02	2026-02-18 11:30:03	\N	1	2026-02-18 11:30:02	2026-02-18 11:30:03
+18	data	Laravel_data_2026-03-23_16-26-53.dump	\N	local	running	2026-03-23 16:26:53	\N	\N	1	2026-03-23 16:26:53	2026-03-23 16:26:53
+\.
+
+
+--
+-- Data for Name: backup_settings; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.backup_settings (id, automatic_enabled, scheduled_time, frequency, retention_days, storage_preference, network_path, created_at, updated_at) FROM stdin;
+2	f	02:00:00	daily	30	network	\N	2025-12-15 12:57:11	2025-12-15 12:57:25
+\.
+
+
+--
+-- Data for Name: cache; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.cache (key, value, expiration) FROM stdin;
+laravel-cache-5c785c036466adea360111aa28563bfd556b5fba:timer	i:1765905544;	1765905544
+laravel-cache-5c785c036466adea360111aa28563bfd556b5fba	i:2;	1765905544
+\.
+
+
+--
+-- Data for Name: cache_locks; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.cache_locks (key, owner, expiration) FROM stdin;
+\.
+
+
+--
+-- Data for Name: categories; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.categories (id, name, type, created_at, updated_at) FROM stdin;
+1	zz	product	2025-12-07 15:06:53	2025-12-07 15:06:53
+\.
+
+
+--
+-- Data for Name: coach_time_slot; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.coach_time_slot (id, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: expenses; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.expenses (expense_id, title, amount, expense_date, category, description, payment_method, reference, created_by, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: facilities; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.facilities (facility_id, name, capacity, status, type, volume_liters, min_temperature, max_temperature, active, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: failed_jobs; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.failed_jobs (id, uuid, connection, queue, payload, exception, failed_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: job_batches; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.job_batches (id, name, total_jobs, pending_jobs, failed_jobs, failed_job_ids, options, cancelled_at, created_at, finished_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: jobs; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.jobs (id, queue, payload, attempts, reserved_at, available_at, created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: licenses; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.licenses (id, license_key, client_name, email, status, activated_at, last_check_at, server_hash, metadata, created_at, updated_at, module) FROM stdin;
+911e98cc-b574-4030-b5b5-4a76a3299617	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbVl4TXpkak1EbGpMV1k0T0dVdE5HTmlaaTA0Tnpoa0xXTTNOR1F3Tm1aa01HTTBaaUlzSW1Oc2FXVnVkQ0k2SWxSbGMzUWdRMnhwWlc1MElpd2laVzFoYVd3aU9pSmhkWFJ2UUhSbGMzUXVZMjl0SWl3aWFYTnpkV1ZrWDJGMElqb2lNakF5TlMweE1pMHhORlF4TmpveE16bzFOU3N3TVRvd01DSXNJbVY0Y0dseVpYTmZZWFFpT2lJeU1ESTJMVEV5TFRFMFZERTJPakV6T2pVMUt6QXhPakF3SWl3aWJXOWtkV3hsY3lJNmV5Sm1hVzVoYm1ObElqcDdJbVZ1WVdKc1pXUWlPblJ5ZFdVc0ltVjRjR2x5WlhOZllYUWlPaUl5TURJMkxURXlMVEUwVkRFMk9qRXpPalUxS3pBeE9qQXdJbjBzSW5Ob2IzQWlPbnNpWlc1aFlteGxaQ0k2ZEhKMVpTd2laWGh3YVhKbGMxOWhkQ0k2SWpJd01qWXRNVEl0TVRSVU1UWTZNVE02TlRVck1ERTZNREFpZlN3aVkzSnRJanA3SW1WdVlXSnNaV1FpT25SeWRXVXNJbVY0Y0dseVpYTmZZWFFpT201MWJHeDlMQ0p2Y0dWeVlYUnBiMjV6SWpwN0ltVnVZV0pzWldRaU9uUnlkV1VzSW1WNGNHbHlaWE5mWVhRaU9tNTFiR3g5ZlN3aWJHbHRhWFJ6SWpwN0luVnpaWEp6SWpveE1EQjlmUT09Iiwic2lnbmF0dXJlIjoiUDV3UTZOOWQ3b3ZQZ01BN01BNWNkODF2aEk0TFNoSlFZMHJGR2hmOVZlOUI4ZWlBazBTa3JQWnNEaXZ3b1MxeW5YRXVpRjBjQ3VPVVFwVVY1WGhzUzNrREtEWGx4cGVPWElxZWRGUjU5U01aTUwwelZRYTloalBwRHlYV2FxUTRuM2NnS2Z6ek92R2xEbThIWXZFMWs3NVU0SlY1S3cxWlJaZmptaTI0M3ZBV0NTMzZVNWJSXC9uejBJbXlkendtXC9pRTdtU3daK3VEZmpIa2RyWk00Ym9MSWZaTGxBQXozbDZMdm5kSytXNTNud0RPNWxHY3dOSVRVRkVvUWdOQjBKZk13RGhOMStadmNHU29xSEtPdnR2enNvK1wvU3BRa0pHcHp5RmxcL0FNcXNWbDhxdTJxSGxXZ2h0eEFabWw3Nk5UdTMyM2V5XC9jSXpnRGtOWjlKdEdDU2c9PSJ9	Test Client	auto@test.com	suspended	2025-12-14 16:13:55	2025-12-14 16:13:55	\N	{"id":"f137c09c-f88e-4cbf-878d-c74d06fd0c4f","client":"Test Client","email":"auto@test.com","issued_at":"2025-12-14T16:13:55+01:00","expires_at":"2026-12-14T16:13:55+01:00","modules":{"finance":{"enabled":true,"expires_at":"2026-12-14T16:13:55+01:00"},"shop":{"enabled":true,"expires_at":"2026-12-14T16:13:55+01:00"},"crm":{"enabled":true,"expires_at":null},"operations":{"enabled":true,"expires_at":null}},"limits":{"users":100}}	2025-12-14 16:13:55	2025-12-14 16:56:19	global
+8eceb552-6fb6-446f-8730-7a1a36bd7a94	eyJwYXlsb2FkIjoiZXlKcFpDSTZJalJrWmpWaVpqZG1MVGs0TXpFdE5EQm1ZaTA1TlRZM0xUSm1NV1l3WXpReFkyRm1PQ0lzSW0xdlpIVnNaU0k2SW1acGJtRnVZMlVpTENKamJHbGxiblFpT2lKTmVVTnNhV1Z1ZENJc0ltVnRZV2xzSWpvaVpXMWhhV3hBWlhoaGJYQnNaUzVqYjIwaUxDSnBjM04xWldSZllYUWlPaUl5TURJMUxURXlMVEUwVkRFNE9qSTNPalExS3pBeE9qQXdJaXdpWlhod2FYSmxjMTloZENJNklqSXdNall0TVRJdE1UUlVNVGc2TWpjNk5EVXJNREU2TURBaUxDSnRiMlIxYkdWeklqcDdJbVpwYm1GdVkyVWlPbnNpWlc1aFlteGxaQ0k2ZEhKMVpTd2laWGh3YVhKbGMxOWhkQ0k2SWpJd01qWXRNVEl0TVRSVU1UZzZNamM2TkRVck1ERTZNREFpZlgwc0lteHBiV2wwY3lJNmV5SjFjMlZ5Y3lJNk1UQXdmWDA9Iiwic2lnbmF0dXJlIjoiU3RCVFZpclR0ZHhaVGdHaTVTbmI2TURDbjBlSTJYWThJZFJVNnRBczdiaGpFNWNyWVJPUkwxalBwN0prTWlsV3dOUlJnaGI2YkV5WUhvdXNvU1RPTWprRmFCc0F6dWdadHB0bENSVEZCQlhwZCtmRkxmODN5ZndBZHZVVUdjMTlGOFdUd2tkSEZsbmxFVGw4QTJSdmRZbHlhcFJHQmNiUlR1NG9aTmtjdTE2K0d0U3lGRm9xUUVpRUhVMDFBcDhRK0ZKbkNkcitReTU1d2k5QnF2RVRuRXJyb2JWbERiWHJMUWtXUjJWeUNGYmZlZXJQWWdneXZxV0JIdmhYN3VoclVCdnhDaHQxYzU0VmZcLzFMRmhKY3JqODJUcVpQa3daS1hTamlZXC93M3h3SDlha2JGSWJZTnFwRUxZZmoyandmTTlhMzY2WkdFcTI4YWIxV2s5VE1NR0E9PSJ9	MyClient	email@example.com	suspended	2025-12-14 18:27:53	2025-12-14 18:27:53	\N	{"id":"4df5bf7f-9831-40fb-9567-2f1f0c41caf8","module":"finance","client":"MyClient","email":"email@example.com","issued_at":"2025-12-14T18:27:45+01:00","expires_at":"2026-12-14T18:27:45+01:00","modules":{"finance":{"enabled":true,"expires_at":"2026-12-14T18:27:45+01:00"}},"limits":{"users":100}}	2025-12-14 18:27:53	2025-12-15 09:55:14	finance
+43bb129b-6384-4459-bf2f-086c70a93fd9	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbU5sTUdNME5UUTFMV1ppTkdVdE5ETTROUzFpTURjeUxXTXhNemhoTURoaFpURmtaQ0lzSW0xdlpIVnNaU0k2SW1acGJtRnVZMlVpTENKamJHbGxiblFpT2lKTmVVTnNhV1Z1ZENJc0ltVnRZV2xzSWpvaVpXMWhhV3hBWlhoaGJYQnNaUzVqYjIwaUxDSnBjM04xWldSZllYUWlPaUl5TURJMUxURXlMVEUxVkRFd09qTXhPalU1S3pBeE9qQXdJaXdpWlhod2FYSmxjMTloZENJNklqSXdNall0TVRJdE1UVlVNVEE2TXpFNk5Ua3JNREU2TURBaUxDSnRiMlIxYkdWeklqcDdJbVpwYm1GdVkyVWlPbnNpWlc1aFlteGxaQ0k2ZEhKMVpTd2laWGh3YVhKbGMxOWhkQ0k2SWpJd01qWXRNVEl0TVRWVU1UQTZNekU2TlRrck1ERTZNREFpZlgwc0lteHBiV2wwY3lJNmV5SjFjMlZ5Y3lJNk1UQXdmWDA9Iiwic2lnbmF0dXJlIjoiQkZYbHphbTQ5OHdYTWgzTlMxZE9WZzBVWkpqaTJEUm82eW0rVnVGYndKR3R5WjV4XC9wM3FQVE9odSs2U2ZEZWUrajdDZ09ub1RvMmlKV09idEtKSm9aeExcL252S3lRTGlPQzExcG00TWhpbjNENGtPb1p2UlhzNXFmZFdKbnoyQlBTM0hWNUp1YmRqbVo3VzEwY0Vjd3EwTXVXZDdBdlwvRFF3Q0srYlBzeTJteWFQYWlqV044RGJXMEx1TkpPdjZGbm8yQzJWMmFtbnE4ZDZhaER2dFZEc0VBWHNVWmVlK05VU1RXNkR6MnZ6TDQza1kwY3lQSTVyc2d5ejB2aUt0TEY5bElZeWNuVVpFSWxcL2s4c1VQNWI4aTdTMWI2MlY3RmN5T1YrcitRMVdPSFVZS3JMRnNCYW9LOHI5SjJ4UTM2TXM3cSs2SkNPb3crUWxCYXdCMURaUT09In0=	MyClient	email@example.com	suspended	2025-12-15 10:32:09	2025-12-15 10:32:09	\N	{"id":"ce0c4545-fb4e-4385-b072-c138a08ae1dd","module":"finance","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T10:31:59+01:00","expires_at":"2026-12-15T10:31:59+01:00","modules":{"finance":{"enabled":true,"expires_at":"2026-12-15T10:31:59+01:00"}},"limits":{"users":100}}	2025-12-15 10:32:09	2025-12-15 11:18:37	finance
+1794e565-91ba-43d2-a759-855c6efa41bd	eyJwYXlsb2FkIjoiZXlKcFpDSTZJamc1WlRoaU1USm1MVEJsWm1VdE5HRTJOaTA1WmpKbExUQTBNRFV5TVRoa05qUTJOQ0lzSW0xdlpIVnNaU0k2SW1OeWJTSXNJbU5zYVdWdWRDSTZJazE1UTJ4cFpXNTBJaXdpWlcxaGFXd2lPaUpsYldGcGJFQmxlR0Z0Y0d4bExtTnZiU0lzSW1semMzVmxaRjloZENJNklqSXdNalV0TVRJdE1UVlVNVEU2TWpBNk1qRXJNREU2TURBaUxDSmxlSEJwY21WelgyRjBJam9pTWpBeU5pMHhNaTB4TlZReE1Ub3lNRG95TVNzd01Ub3dNQ0lzSW0xdlpIVnNaWE1pT25zaVkzSnRJanA3SW1WdVlXSnNaV1FpT25SeWRXVXNJbVY0Y0dseVpYTmZZWFFpT2lJeU1ESTJMVEV5TFRFMVZERXhPakl3T2pJeEt6QXhPakF3SW4xOUxDSnNhVzFwZEhNaU9uc2lkWE5sY25NaU9qRXdNSDE5Iiwic2lnbmF0dXJlIjoiRUEzemRVNU14Vktob1pFMXB2YlR5a3ViWDgrdnpmNVA1V2U0ajdHU2VWZkVxWkNEZG9PMDZpeUVFNzdzOEJndTBXZ0JcL055dFZFZjBsN2tUNmVJNWd3bExuZ3E4NVlpVEpzM1F3Mk5QazFsblBXeW5cL0RNenRlbURMelpPUWtKK3NOK2RxTDh6QTN0NTVDVFNwSTdhamJEQitmWldKQm4wTmdqTnVMK0F5dFZSeTRkOTJVdVZUak52MWtLYzFWaFRQNDV3OThuV3gweXZFVHFPNU9FTGhIMkRnbmpMSWk5SENZXC9zeitpdytNYllMcUJFclFSMG85VEk4MmptaGFnWVI0dGZoUGJpaWlNaEx0OHJVTnZWRzRWQVRoXC9cL2ZOd3VaZVwvdmFPOUVBUEV2eVBpMWxGVUptSkl5MDdvSjFkMDc5aGswdTF5SnZnZzN4Rzc3d0dobWV3PT0ifQ==	MyClient	email@example.com	suspended	2025-12-15 11:20:29	2025-12-15 11:20:29	\N	{"id":"89e8b12f-0efe-4a66-9f2e-0405218d6464","module":"crm","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T11:20:21+01:00","expires_at":"2026-12-15T11:20:21+01:00","modules":{"crm":{"enabled":true,"expires_at":"2026-12-15T11:20:21+01:00"}},"limits":{"users":100}}	2025-12-15 11:20:29	2025-12-15 11:39:03	crm
+8fbac9d1-a4b9-418f-a4c4-613b47ecbd2b	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbU5rTmpGa01Ea3lMV1k1TkdZdE5HTmlZeTA0T0dKakxURmpPRGcxT1Rrd05EQXhZeUlzSW0xdlpIVnNaU0k2SW1oeUlpd2lZMnhwWlc1MElqb2lUWGxEYkdsbGJuUWlMQ0psYldGcGJDSTZJbVZ0WVdsc1FHVjRZVzF3YkdVdVkyOXRJaXdpYVhOemRXVmtYMkYwSWpvaU1qQXlOUzB4TWkweE5WUXhNRG96TXpveE5Dc3dNVG93TUNJc0ltVjRjR2x5WlhOZllYUWlPaUl5TURJMkxURXlMVEUxVkRFd09qTXpPakUwS3pBeE9qQXdJaXdpYlc5a2RXeGxjeUk2ZXlKb2NpSTZleUpsYm1GaWJHVmtJanAwY25WbExDSmxlSEJwY21WelgyRjBJam9pTWpBeU5pMHhNaTB4TlZReE1Eb3pNem94TkNzd01Ub3dNQ0o5ZlN3aWJHbHRhWFJ6SWpwN0luVnpaWEp6SWpveE1EQjlmUT09Iiwic2lnbmF0dXJlIjoiUVpIQ3lvTHlvaHZBUU8yV2hrN1RBeWhkR1pJVlhCMGVRWE9zVG9VbklXZXpscExXS3hFazJwV0JBamRSYTFBVDZBVU9MWTB6eHhoYlZoRVE2QVRcLzRrQmR4UmdDY2szdE9hSUwwbVwvbUlMeTA3bndpNDdOdVFVeFpDTEtudmhyUExrbHA2em5MVjV1RFJ3Q2hVRmtMeWxFK0J6bnhFT1dmV3BaSVpDcWRZUTBZa2VDcnZ2ZGo3SEVTXC9BSGJoR0FSS0NIY2JId21ZQVl2QkdndlwvajBzaGtFaW5ndE1mVUJGSmlsV2NFQW9id0VsakxvY0ZjVWNEZVpwZTVrS2h2VlhVcXJ6YVg3d3VqYkx1UkFLUnZ1d3FsNkdUR09WRDVQN2EzekVZcys5ZEVUXC9IRmtLVEtqMzdXalUwb2t0MVBKdERVTVkzRjRNZEJ2QTBWa0JUQzVaeXc9PSJ9	MyClient	email@example.com	suspended	2025-12-15 11:19:14	2025-12-15 11:19:14	\N	{"id":"cd61d092-f94f-4cbc-88bc-1c885990401c","module":"hr","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T10:33:14+01:00","expires_at":"2026-12-15T10:33:14+01:00","modules":{"hr":{"enabled":true,"expires_at":"2026-12-15T10:33:14+01:00"}},"limits":{"users":100}}	2025-12-15 11:19:14	2025-12-15 11:39:19	hr
+4e68fb22-901b-4214-8843-a65b5be2794a	eyJwYXlsb2FkIjoiZXlKcFpDSTZJamc1WlRoaU1USm1MVEJsWm1VdE5HRTJOaTA1WmpKbExUQTBNRFV5TVRoa05qUTJOQ0lzSW0xdlpIVnNaU0k2SW1OeWJTSXNJbU5zYVdWdWRDSTZJazE1UTJ4cFpXNTBJaXdpWlcxaGFXd2lPaUpsYldGcGJFQmxlR0Z0Y0d4bExtTnZiU0lzSW1semMzVmxaRjloZENJNklqSXdNalV0TVRJdE1UVlVNVEU2TWpBNk1qRXJNREU2TURBaUxDSmxlSEJwY21WelgyRjBJam9pTWpBeU5pMHhNaTB4TlZReE1Ub3lNRG95TVNzd01Ub3dNQ0lzSW0xdlpIVnNaWE1pT25zaVkzSnRJanA3SW1WdVlXSnNaV1FpT25SeWRXVXNJbVY0Y0dseVpYTmZZWFFpT2lJeU1ESTJMVEV5TFRFMVZERXhPakl3T2pJeEt6QXhPakF3SW4xOUxDSnNhVzFwZEhNaU9uc2lkWE5sY25NaU9qRXdNSDE5Iiwic2lnbmF0dXJlIjoiRUEzemRVNU14Vktob1pFMXB2YlR5a3ViWDgrdnpmNVA1V2U0ajdHU2VWZkVxWkNEZG9PMDZpeUVFNzdzOEJndTBXZ0JcL055dFZFZjBsN2tUNmVJNWd3bExuZ3E4NVlpVEpzM1F3Mk5QazFsblBXeW5cL0RNenRlbURMelpPUWtKK3NOK2RxTDh6QTN0NTVDVFNwSTdhamJEQitmWldKQm4wTmdqTnVMK0F5dFZSeTRkOTJVdVZUak52MWtLYzFWaFRQNDV3OThuV3gweXZFVHFPNU9FTGhIMkRnbmpMSWk5SENZXC9zeitpdytNYllMcUJFclFSMG85VEk4MmptaGFnWVI0dGZoUGJpaWlNaEx0OHJVTnZWRzRWQVRoXC9cL2ZOd3VaZVwvdmFPOUVBUEV2eVBpMWxGVUptSkl5MDdvSjFkMDc5aGswdTF5SnZnZzN4Rzc3d0dobWV3PT0ifQ==	MyClient	email@example.com	suspended	2025-12-15 11:42:59	2025-12-15 11:42:59	\N	{"id":"89e8b12f-0efe-4a66-9f2e-0405218d6464","module":"crm","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T11:20:21+01:00","expires_at":"2026-12-15T11:20:21+01:00","modules":{"crm":{"enabled":true,"expires_at":"2026-12-15T11:20:21+01:00"}},"limits":{"users":100}}	2025-12-15 11:42:59	2025-12-15 12:59:31	crm
+81730c5a-e726-415f-a3f7-7845882ff560	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbU5sTUdNME5UUTFMV1ppTkdVdE5ETTROUzFpTURjeUxXTXhNemhoTURoaFpURmtaQ0lzSW0xdlpIVnNaU0k2SW1acGJtRnVZMlVpTENKamJHbGxiblFpT2lKTmVVTnNhV1Z1ZENJc0ltVnRZV2xzSWpvaVpXMWhhV3hBWlhoaGJYQnNaUzVqYjIwaUxDSnBjM04xWldSZllYUWlPaUl5TURJMUxURXlMVEUxVkRFd09qTXhPalU1S3pBeE9qQXdJaXdpWlhod2FYSmxjMTloZENJNklqSXdNall0TVRJdE1UVlVNVEE2TXpFNk5Ua3JNREU2TURBaUxDSnRiMlIxYkdWeklqcDdJbVpwYm1GdVkyVWlPbnNpWlc1aFlteGxaQ0k2ZEhKMVpTd2laWGh3YVhKbGMxOWhkQ0k2SWpJd01qWXRNVEl0TVRWVU1UQTZNekU2TlRrck1ERTZNREFpZlgwc0lteHBiV2wwY3lJNmV5SjFjMlZ5Y3lJNk1UQXdmWDA9Iiwic2lnbmF0dXJlIjoiQkZYbHphbTQ5OHdYTWgzTlMxZE9WZzBVWkpqaTJEUm82eW0rVnVGYndKR3R5WjV4XC9wM3FQVE9odSs2U2ZEZWUrajdDZ09ub1RvMmlKV09idEtKSm9aeExcL252S3lRTGlPQzExcG00TWhpbjNENGtPb1p2UlhzNXFmZFdKbnoyQlBTM0hWNUp1YmRqbVo3VzEwY0Vjd3EwTXVXZDdBdlwvRFF3Q0srYlBzeTJteWFQYWlqV044RGJXMEx1TkpPdjZGbm8yQzJWMmFtbnE4ZDZhaER2dFZEc0VBWHNVWmVlK05VU1RXNkR6MnZ6TDQza1kwY3lQSTVyc2d5ejB2aUt0TEY5bElZeWNuVVpFSWxcL2s4c1VQNWI4aTdTMWI2MlY3RmN5T1YrcitRMVdPSFVZS3JMRnNCYW9LOHI5SjJ4UTM2TXM3cSs2SkNPb3crUWxCYXdCMURaUT09In0=	MyClient	email@example.com	suspended	2025-12-15 11:19:37	2025-12-15 11:19:37	\N	{"id":"ce0c4545-fb4e-4385-b072-c138a08ae1dd","module":"finance","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T10:31:59+01:00","expires_at":"2026-12-15T10:31:59+01:00","modules":{"finance":{"enabled":true,"expires_at":"2026-12-15T10:31:59+01:00"}},"limits":{"users":100}}	2025-12-15 11:19:37	2025-12-15 12:32:25	finance
+96d497b2-e3bd-47a7-8449-c0db7e293978	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbVppTmpBNU5qVTVMVFV4WkdZdE5EZ3pZaTA1TURGaExXTm1OMk5pTVdZNE9UazJNU0lzSW0xdlpIVnNaU0k2SW1KaFkydDFjSE1pTENKamJHbGxiblFpT2lKTmVVTnNhV1Z1ZENJc0ltVnRZV2xzSWpvaVpXMWhhV3dpTENKcGMzTjFaV1JmWVhRaU9pSXlNREkxTFRFeUxURTFWREV5T2pVd09qSXlLekF4T2pBd0lpd2laWGh3YVhKbGMxOWhkQ0k2SWpJd01qWXRNVEl0TVRWVU1USTZOVEE2TWpJck1ERTZNREFpTENKdGIyUjFiR1Z6SWpwN0ltSmhZMnQxY0hNaU9uc2laVzVoWW14bFpDSTZkSEoxWlN3aVpYaHdhWEpsYzE5aGRDSTZJakl3TWpZdE1USXRNVFZVTVRJNk5UQTZNaklyTURFNk1EQWlmWDBzSW14cGJXbDBjeUk2ZXlKMWMyVnljeUk2TVRBd2ZYMD0iLCJzaWduYXR1cmUiOiJJTm5GWXFadDlnTURRUjRETno5SWx4V3lcL3F6ZVJJTm5sd0dIcFNcL1FJMmxUSm9xd2pKdHJ6d2tmR1JQXC94SkpQXC9CbEd3ZlBlTFFXZTlyQnZOWDNwTU1kOE41QWQwOUF4Njd4WGUxV2RoeTd3UnZXeTFUd3dUNG1kSE1JRGI3dFYyUVFIMkRsRitxU00xS0QxOFdyVW1kYmIwYXJWVnFueEliTWtyREg1R2xSZHJXV093N25saGhUeFVmOGxJWGZMekxVUlBrdk91clhaUWJuNFVBbDIyYkdlZGR2d2xKMXJCUkZhaHdWN0JsSG9OY1phZzFqekJcL0dhQ1wvY1prZlBXSVwvbXNIMWd6YTFQbVZUMjdZbWh5TFBuOXhIRjhlQmdRRGl4czhtVnR6QVYwRjJUWkNWcDFsNWpSVklKam05UFZ3OUt5NTBRYmhFSjd6Z3BZcWNcL0Y2dz09In0=	MyClient	email	active	2025-12-15 12:51:00	2025-12-15 12:51:00	\N	{"id":"fb609659-51df-483b-901a-cf7cb1f89961","module":"backups","client":"MyClient","email":"email","issued_at":"2025-12-15T12:50:22+01:00","expires_at":"2026-12-15T12:50:22+01:00","modules":{"backups":{"enabled":true,"expires_at":"2026-12-15T12:50:22+01:00"}},"limits":{"users":100}}	2025-12-15 12:51:00	2025-12-15 12:51:00	backups
+892f3ec1-99d4-4f59-a24b-d3cbe5c30028	eyJwYXlsb2FkIjoiZXlKcFpDSTZJakk0TWpCbE5qRmlMV05pTW1ZdE5ESmxaQzA1TkdOaUxUZzFZV0ZsWm1NMFpHTmxNQ0lzSW0xdlpIVnNaU0k2SW1OeWJTSXNJbU5zYVdWdWRDSTZJazE1UTJ4cFpXNTBJaXdpWlcxaGFXd2lPaUpsYldGcGJFQmxlR0Z0Y0d4bExtTnZiU0lzSW1semMzVmxaRjloZENJNklqSXdNalV0TVRJdE1UVlVNVE02TVRBNk5ETXJNREU2TURBaUxDSmxlSEJwY21WelgyRjBJam9pTWpBeU5pMHhNaTB4TlZReE16b3hNRG8wTXlzd01Ub3dNQ0lzSW0xdlpIVnNaWE1pT25zaVkzSnRJanA3SW1WdVlXSnNaV1FpT25SeWRXVXNJbVY0Y0dseVpYTmZZWFFpT2lJeU1ESTJMVEV5TFRFMVZERXpPakV3T2pRekt6QXhPakF3SW4xOUxDSnNhVzFwZEhNaU9uc2lkWE5sY25NaU9qRXdNSDE5Iiwic2lnbmF0dXJlIjoiV1BJSWRmcTNvK2d4WkxNZXhEK1VaSGFhVXRSamdnY1ppS0RnNDZhbTBZSzlrUmVQZmh0d3F0YWphODFHcWo1RlVFcFV6RkFRT1VONEtPMU8xNEtORzZYNis1R1BEeVh5T1wvWjN6OVBraE5pXC9FVkFWckNhSVU0YUozM3ZleTV1cVdkODBwcElxQUdIWlo5bEM4QWQ3b3ozNE94MWdDWmZYRmVTREZpSmJGM1did2ZkS1RNU2wrK21lXC80c2M0aE1GWm5VcXc2ZWZvTlNIbEhTT3E4RjVQQjdHY25hNXVsYkNjVnY4RlFOaE1lSUtibGVUdVcxN3VhbldaNit1c0NadlllMDdraklta0pWTmpEYTg1TEVaVzNJMHBtUk40eFZmczM3ZVpHZTA5anVPTlVtaDBCT05SK01qNWN1UUU5Z0pQZDM0Rm5LVjF5bXRkeERHZWlUU05RPT0ifQ==	MyClient	email@example.com	suspended	2025-12-15 13:11:01	2025-12-15 13:11:01	\N	{"id":"2820e61b-cb2f-42ed-94cb-85aaefc4dce0","module":"crm","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T13:10:43+01:00","expires_at":"2026-12-15T13:10:43+01:00","modules":{"crm":{"enabled":true,"expires_at":"2026-12-15T13:10:43+01:00"}},"limits":{"users":100}}	2025-12-15 13:11:01	2025-12-15 13:35:13	crm
+ab883769-e234-4ba3-b299-1473597b126f	eyJwYXlsb2FkIjoiZXlKcFpDSTZJakk0TWpCbE5qRmlMV05pTW1ZdE5ESmxaQzA1TkdOaUxUZzFZV0ZsWm1NMFpHTmxNQ0lzSW0xdlpIVnNaU0k2SW1OeWJTSXNJbU5zYVdWdWRDSTZJazE1UTJ4cFpXNTBJaXdpWlcxaGFXd2lPaUpsYldGcGJFQmxlR0Z0Y0d4bExtTnZiU0lzSW1semMzVmxaRjloZENJNklqSXdNalV0TVRJdE1UVlVNVE02TVRBNk5ETXJNREU2TURBaUxDSmxlSEJwY21WelgyRjBJam9pTWpBeU5pMHhNaTB4TlZReE16b3hNRG8wTXlzd01Ub3dNQ0lzSW0xdlpIVnNaWE1pT25zaVkzSnRJanA3SW1WdVlXSnNaV1FpT25SeWRXVXNJbVY0Y0dseVpYTmZZWFFpT2lJeU1ESTJMVEV5TFRFMVZERXpPakV3T2pRekt6QXhPakF3SW4xOUxDSnNhVzFwZEhNaU9uc2lkWE5sY25NaU9qRXdNSDE5Iiwic2lnbmF0dXJlIjoiV1BJSWRmcTNvK2d4WkxNZXhEK1VaSGFhVXRSamdnY1ppS0RnNDZhbTBZSzlrUmVQZmh0d3F0YWphODFHcWo1RlVFcFV6RkFRT1VONEtPMU8xNEtORzZYNis1R1BEeVh5T1wvWjN6OVBraE5pXC9FVkFWckNhSVU0YUozM3ZleTV1cVdkODBwcElxQUdIWlo5bEM4QWQ3b3ozNE94MWdDWmZYRmVTREZpSmJGM1did2ZkS1RNU2wrK21lXC80c2M0aE1GWm5VcXc2ZWZvTlNIbEhTT3E4RjVQQjdHY25hNXVsYkNjVnY4RlFOaE1lSUtibGVUdVcxN3VhbldaNit1c0NadlllMDdraklta0pWTmpEYTg1TEVaVzNJMHBtUk40eFZmczM3ZVpHZTA5anVPTlVtaDBCT05SK01qNWN1UUU5Z0pQZDM0Rm5LVjF5bXRkeERHZWlUU05RPT0ifQ==	MyClient	email@example.com	active	2025-12-15 13:35:37	2025-12-15 13:35:37	\N	{"id":"2820e61b-cb2f-42ed-94cb-85aaefc4dce0","module":"crm","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T13:10:43+01:00","expires_at":"2026-12-15T13:10:43+01:00","modules":{"crm":{"enabled":true,"expires_at":"2026-12-15T13:10:43+01:00"}},"limits":{"users":100}}	2025-12-15 13:35:37	2025-12-15 13:35:37	crm
+c5fff889-ddba-4b01-a3e8-6b866063e10f	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbU5rTmpGa01Ea3lMV1k1TkdZdE5HTmlZeTA0T0dKakxURmpPRGcxT1Rrd05EQXhZeUlzSW0xdlpIVnNaU0k2SW1oeUlpd2lZMnhwWlc1MElqb2lUWGxEYkdsbGJuUWlMQ0psYldGcGJDSTZJbVZ0WVdsc1FHVjRZVzF3YkdVdVkyOXRJaXdpYVhOemRXVmtYMkYwSWpvaU1qQXlOUzB4TWkweE5WUXhNRG96TXpveE5Dc3dNVG93TUNJc0ltVjRjR2x5WlhOZllYUWlPaUl5TURJMkxURXlMVEUxVkRFd09qTXpPakUwS3pBeE9qQXdJaXdpYlc5a2RXeGxjeUk2ZXlKb2NpSTZleUpsYm1GaWJHVmtJanAwY25WbExDSmxlSEJwY21WelgyRjBJam9pTWpBeU5pMHhNaTB4TlZReE1Eb3pNem94TkNzd01Ub3dNQ0o5ZlN3aWJHbHRhWFJ6SWpwN0luVnpaWEp6SWpveE1EQjlmUT09Iiwic2lnbmF0dXJlIjoiUVpIQ3lvTHlvaHZBUU8yV2hrN1RBeWhkR1pJVlhCMGVRWE9zVG9VbklXZXpscExXS3hFazJwV0JBamRSYTFBVDZBVU9MWTB6eHhoYlZoRVE2QVRcLzRrQmR4UmdDY2szdE9hSUwwbVwvbUlMeTA3bndpNDdOdVFVeFpDTEtudmhyUExrbHA2em5MVjV1RFJ3Q2hVRmtMeWxFK0J6bnhFT1dmV3BaSVpDcWRZUTBZa2VDcnZ2ZGo3SEVTXC9BSGJoR0FSS0NIY2JId21ZQVl2QkdndlwvajBzaGtFaW5ndE1mVUJGSmlsV2NFQW9id0VsakxvY0ZjVWNEZVpwZTVrS2h2VlhVcXJ6YVg3d3VqYkx1UkFLUnZ1d3FsNkdUR09WRDVQN2EzekVZcys5ZEVUXC9IRmtLVEtqMzdXalUwb2t0MVBKdERVTVkzRjRNZEJ2QTBWa0JUQzVaeXc9PSJ9	MyClient	email@example.com	active	2025-12-15 18:26:46	2025-12-15 18:26:46	\N	{"id":"cd61d092-f94f-4cbc-88bc-1c885990401c","module":"hr","client":"MyClient","email":"email@example.com","issued_at":"2025-12-15T10:33:14+01:00","expires_at":"2026-12-15T10:33:14+01:00","modules":{"hr":{"enabled":true,"expires_at":"2026-12-15T10:33:14+01:00"}},"limits":{"users":100}}	2025-12-15 18:26:47	2025-12-15 18:26:47	hr
+3ec82abd-242a-4849-a808-bb2bda5053b7	eyJwYXlsb2FkIjoiZXlKcFpDSTZJalEzTVRFM00yTmpMV1kwT1RRdE5EZ3lZUzA1T0daaExXWm1NbVpqWldWaVpUY3lZaUlzSW0xdlpIVnNaU0k2SW1acGJtRnVZMlVpTENKamJHbGxiblFpT2lKVGRHRnlkQ0JRYjJsdWRDSXNJbVZ0WVdsc0lqb2lZMjl1ZEdGamRFQnpkR0Z5ZEhCdmFXNTBMbVI2SWl3aWFYTnpkV1ZrWDJGMElqb2lNakF5TlMweE1pMHhObFF4Tnpvek1Ub3hPQ3N3TVRvd01DSXNJbVY0Y0dseVpYTmZZWFFpT2lJeU1ESTJMVEV5TFRFMlZERTNPak14T2pFNEt6QXhPakF3SWl3aWJXOWtkV3hsY3lJNmV5Sm1hVzVoYm1ObElqcDdJbVZ1WVdKc1pXUWlPblJ5ZFdVc0ltVjRjR2x5WlhOZllYUWlPaUl5TURJMkxURXlMVEUyVkRFM09qTXhPakU0S3pBeE9qQXdJbjE5TENKc2FXMXBkSE1pT25zaWRYTmxjbk1pT2pFd01IMTkiLCJzaWduYXR1cmUiOiJiaXZIOXF3MnBOc043Y2szS2dieVBRYmxZQ3E4VmZFbFwvbUpLVE85eEU0akZkMWc0ZSt2Z2hNZUlnTkM4WklvaEo3OExpS3pDbThEcFdWXC9CcXBQeDgxaHJBNGR2ZmZFeDVJcUE5TVBmNTdPUlZsSzEzUFQxRHdyS1BsSHRcL0xRdHJ6bXlIRnhEM0pCUCsyeG5qK2RYNEp5ZVFwbVFSc1pNZDZsR29UNlpxSGdteVRGSVh1YU4xTGJMdmNDM1d6U0ZKd0k1UVBGZWh6NWltM1dzSDkydXN4UmMxY1VuUkhteE1iOTJtQ2hiRnNTYk1MRGpZMmdRYjYzT29wRThjNWdWbG43aThUQTBMdElxbCtadmt2YnpWVFp4S2lBOUhFQ0ZsSWRKR1VnRmZERmhpSU42dXplRDgrR2FRV1hGb2p0Rnlva1pFM25FMUdCWjBPSWp6Z0pHbXc9PSJ9	Start Point	contact@startpoint.dz	suspended	2025-12-16 17:31:33	2025-12-16 17:31:33	\N	{"id":"471173cc-f494-482a-98fa-ff2fceebe72b","module":"finance","client":"Start Point","email":"contact@startpoint.dz","issued_at":"2025-12-16T17:31:18+01:00","expires_at":"2026-12-16T17:31:18+01:00","modules":{"finance":{"enabled":true,"expires_at":"2026-12-16T17:31:18+01:00"}},"limits":{"users":100}}	2025-12-16 17:31:33	2026-03-23 16:22:22	finance
+32413972-6ee6-4146-ac42-83f7958ab1f3	eyJwYXlsb2FkIjoiZXlKcFpDSTZJbU5pT1RGalpHTmpMV0ptT1RZdE5ESTVNeTFpWVdVeExXTTBOakprTXpRek1qTTJaQ0lzSW0xdlpIVnNaU0k2SW1acGJtRnVZMlVpTENKamJHbGxiblFpT2lKRGJHbGxiblFpTENKbGJXRnBiQ0k2SW1acGJtRnVZMlZBWlhoaGJYQnNaUzVqYjIwaUxDSnBjM04xWldSZllYUWlPaUl5TURJMkxUQXpMVEl6VkRFMk9qSXlPakE0S3pBeE9qQXdJaXdpWlhod2FYSmxjMTloZENJNklqSXdNamN0TURNdE1UaFVNVFk2TWpJNk1EZ3JNREU2TURBaUxDSnRiMlIxYkdWeklqcDdJbVpwYm1GdVkyVWlPbnNpWlc1aFlteGxaQ0k2ZEhKMVpTd2laWGh3YVhKbGMxOWhkQ0k2SWpJd01qY3RNRE10TVRoVU1UWTZNakk2TURnck1ERTZNREFpZlgwc0lteHBiV2wwY3lJNmV5SjFjMlZ5Y3lJNk1UQXdmWDA9Iiwic2lnbmF0dXJlIjoicUpBeHplSjNuWFBRUHgycmFYTEo0enIxVk13b2RJdktpSnhOcDFoNkx2VEdpbEN4ckV3OEFqK0pvN1EydysyWGhtcUxpUFwvWkdLRkNPMm5kWktHZEhaYjloM2tSWXMzQ0cydE1sUUFsdDIyR0UrYVcxZ1hudWExOFZpM2hTT1ZzVndtd0tENGJ2OGIxSzcrc3h2cE5iRWVvZlcybHlBc1BBQkV4b0l1cUNKTFVcL1BZaGhBWWJpM3Y4d3F2b2UxWElDUXFGTldiM0hNYVpJaGtLcWE5YzhVNXpLckpMNzRvS2lTVmVlTTd6UHhVM1VCTWpCdlwvM045bWQ4c3Zxa0hoajFIU1JLa25cLzR1SlBwSjVcL0drYUwxM1lUSnZyek15YncxREFZV3Z3Y0J0TVE2QnAxbTdsT2JzdHZTMGdsaFc0NW1pR3RRN0x4cGl1WHVPZGFUbFp3QlE9PSJ9	Client	finance@example.com	active	2026-03-23 16:22:22	2026-03-23 16:22:22	\N	{"id":"cb91cdcc-bf96-4293-bae1-c462d343236d","module":"finance","client":"Client","email":"finance@example.com","issued_at":"2026-03-23T16:22:08+01:00","expires_at":"2027-03-18T16:22:08+01:00","modules":{"finance":{"enabled":true,"expires_at":"2027-03-18T16:22:08+01:00"}},"limits":{"users":100}}	2026-03-23 16:22:22	2026-03-23 16:22:22	finance
+\.
+
+
+--
+-- Data for Name: migrations; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.migrations (id, migration, batch) FROM stdin;
+28	2025_12_08_110500_create_audit_log_table	1
+29	2025_12_10_000000_create_attendance_table	2
+30	2025_12_10_112447_add_details_to_staff_attendance_table	3
+32	2025_12_10_114217_create_settings_table	4
+33	2025_12_10_122017_add_validation_fields_to_staff_attendance_table	5
+34	2025_12_10_123640_enhance_access_logs_table	6
+35	2025_12_10_135605_update_rfid_schema_tables	7
+36	2025_01_01_000000_create_licenses_table	8
+37	2025_12_14_165729_add_module_column_to_licenses_table	9
+38	2025_12_15_180001_add_partner_group_columns	10
+39	2025_12_15_180002_create_partner_group_slots_table	11
+40	2025_12_15_180003_create_partner_group_attendance_table	12
+41	2025_12_16_173000_make_member_id_nullable_in_subscriptions	13
+42	2025_12_18_094758_create_partner_contracts_table	14
+43	2025_12_18_113000_enhance_partner_contracts_table	15
+44	2025_12_18_113100_create_partner_invoices_tables	16
+45	2025_12_18_120000_add_package_columns_to_contracts	17
+46	2025_12_19_160000_simplify_billing_model	18
+47	2025_12_19_170000_integrate_contracts	19
+48	2025_12_20_140000_update_schema_for_partner_workflow	20
+\.
+
+
+--
+-- Data for Name: subscriptions; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.subscriptions (subscription_id, member_id, plan_id, start_date, end_date, status, paused_at, resumes_at, visits_per_week, deactivated_by, created_by, updated_by, activity_id, created_at, updated_at, allowed_days, partner_group_id) FROM stdin;
+5	5	5	2025-12-07	2025-12-07	active	\N	\N	\N	\N	1	1	1	\N	2025-12-07 16:05:52	\N	\N
+6	1	3	2025-12-01	2025-12-31	active	\N	\N	1	\N	1	1	3	2025-12-08 15:25:14	2025-12-15 15:12:24	\N	\N
+\.
+
+
+--
+-- Data for Name: partner_contracts; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.partner_contracts (contract_id, partner_group_id, activity_id, plan_id, contract_type, value, start_date, end_date, is_active, created_at, updated_at, billing_frequency, per_head_rate, min_attendees, max_attendees, notes, total_sessions, remaining_sessions, attendees_per_session, payment_status, price, subscription_id, fixed_attendee_count, sessions_per_week, status) FROM stdin;
+21	13	\N	3	fixed_package	521.00	2025-12-20	2026-01-20	f	2025-12-20 13:46:31	2025-12-20 13:46:31	per_session	\N	\N	\N	\N	10	10	0	paid	0.00	\N	0	\N	draft
+\.
+
+
+--
+-- Data for Name: weekdays; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.weekdays (weekday_id, day_name) FROM stdin;
+1	Lundi
+2	Mardi
+3	Mercredi
+4	Jeudi
+5	Vendredi
+7	Dimanche
+6	Samedi
+\.
+
+
+--
+-- Data for Name: time_slots; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.time_slots (slot_id, weekday_id, start_time, end_time, activity_id, assigned_group, is_blocked, notes, created_by, capacity, coach_id, assistant_coach_id) FROM stdin;
+2	2	08:00:00	10:00:00	1	hommes	f	\N	\N	\N	\N	\N
+11	4	15:00:00	17:00:00	3	femmes	f	\N	\N	\N	\N	\N
+13	6	10:00:00	12:00:00	3	femmes	f	\N	\N	\N	\N	\N
+15	1	17:00:00	18:00:00	2	aquagym	f	\N	\N	\N	\N	\N
+17	7	08:00:00	12:00:00	4	ecoles	f	\N	\N	\N	\N	\N
+21	4	08:00:00	12:00:00	4	ecoles	f	\N	\N	\N	\N	\N
+23	4	12:00:00	13:00:00	5	private	f	\N	\N	\N	\N	\N
+28	4	13:00:00	14:00:00	6	maintenance	f	\N	\N	\N	\N	\N
+32	4	14:00:00	15:00:00	8	enfants	f	\N	\N	\N	\N	\N
+33	6	08:00:00	10:00:00	8	enfants	f	\N	\N	\N	\N	\N
+34	1	18:00:00	20:00:00	9	libre	f	\N	\N	\N	\N	\N
+19	2	10:00:00	12:30:00	4	ecoles	f	\N	\N	\N	\N	\N
+43	6	16:30:00	18:00:00	4	\N	f	\N	\N	\N	\N	\N
+30	6	18:00:00	20:00:00	6	maintenance	f	\N	\N	\N	\N	\N
+25	1	20:00:00	21:00:00	6	maintenance	f	\N	\N	\N	\N	\N
+29	5	18:30:00	19:30:00	6	maintenance	f	\N	\N	\N	\N	\N
+20	3	13:00:00	15:00:00	4	ecoles	f	\N	\N	\N	\N	\N
+31	7	18:00:00	19:00:00	6	maintenance	f	\N	\N	\N	\N	\N
+42	7	16:30:00	18:00:00	2	\N	f	\N	\N	\N	\N	\N
+27	3	08:00:00	11:00:00	6	maintenance	f	\N	\N	\N	\N	\N
+1	1	13:00:00	15:00:00	1	hommes	f	\N	\N	\N	\N	\N
+16	3	17:00:00	19:00:00	2	aquagym	f	\N	\N	\N	\N	\N
+22	1	10:30:00	13:00:00	5	private	f	\N	\N	\N	\N	\N
+7	7	13:30:00	16:30:00	1	hommes	f	\N	\N	\N	\N	\N
+4	4	17:00:00	19:00:00	1	hommes	f	\N	\N	\N	\N	\N
+44	4	19:00:00	20:00:00	5	\N	f	\N	\N	\N	\N	\N
+45	5	19:30:00	21:00:00	5	\N	f	\N	\N	\N	\N	\N
+5	5	08:00:00	10:00:00	1	hommes	f	\N	\N	\N	\N	\N
+14	5	10:00:00	12:00:00	3	femmes	f	\N	\N	\N	\N	\N
+26	2	19:00:00	21:00:00	6	maintenance	f	\N	\N	\N	\N	\N
+70	2	15:30:00	19:00:00	4	\N	f	\N	1	\N	\N	\N
+36	5	12:00:00	15:00:00	9	libre	f	\N	\N	\N	\N	\N
+6	6	12:00:00	14:00:00	1	hommes	f	\N	\N	\N	\N	\N
+38	2	12:30:00	14:00:00	8	\N	f	\N	\N	\N	\N	\N
+39	2	14:00:00	15:30:00	5	\N	f	\N	\N	\N	\N	\N
+24	6	14:00:00	15:00:00	5	private	f	\N	\N	\N	\N	\N
+40	6	15:00:00	16:30:00	8	\N	f	\N	\N	\N	\N	\N
+41	5	17:00:00	18:30:00	2	\N	f	\N	\N	\N	\N	\N
+46	6	20:00:00	21:00:00	9	\N	f	\N	\N	\N	\N	\N
+12	5	15:00:00	17:00:00	3	femmes	f	\N	\N	\N	2	\N
+37	7	12:00:00	13:30:00	1	homme	f	\N	\N	\N	2	\N
+8	1	15:00:00	17:00:00	3	femmes	f	\N	\N	\N	2	\N
+10	3	15:00:00	17:00:00	3	femmes	f	\N	\N	\N	3	\N
+18	1	08:00:00	10:30:00	4	ecoles	f	\N	\N	\N	3	\N
+3	3	11:00:00	13:00:00	1	hommes	f	\N	\N	\N	2	\N
+35	3	19:00:00	21:00:00	9	libre	f	\N	\N	\N	\N	\N
+\.
+
+
+--
+-- Data for Name: partner_group_attendance; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.partner_group_attendance (attendance_id, partner_group_id, badge_id, slot_id, staff_id, attendee_count, access_time, access_decision, denial_reason, contract_id) FROM stdin;
+1	13	109	\N	1	30	2025-12-16 15:57:54	denied	Abonnement inactif	\N
+2	13	109	\N	1	30	2025-12-16 15:59:42	denied	Abonnement inactif	\N
+3	13	109	\N	1	30	2025-12-16 16:01:48	denied	Abonnement inactif	\N
+4	13	109	\N	1	5	2025-12-16 16:03:17	denied	Abonnement inactif	\N
+5	13	109	\N	1	1	2025-12-16 16:11:42	denied	Abonnement inactif	\N
+6	13	109	\N	1	30	2025-12-16 17:37:52	denied	Capacité dépassée	\N
+7	13	109	70	1	6	2025-12-16 18:15:30	granted	\N	\N
+\.
+
+
+--
+-- Data for Name: partner_group_slots; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.partner_group_slots (id, partner_group_id, slot_id, max_capacity, contract_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.password_reset_tokens (email, token, created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: payments; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.payments (payment_id, subscription_id, amount, payment_date, payment_method, received_by_staff_id, notes, created_at, updated_at) FROM stdin;
+2	5	800.00	2025-12-07 16:05:52	cash	1	dd	\N	\N
+3	6	3000.00	2025-12-08 15:25:14	cash	1	\N	\N	\N
+15	6	250.00	2025-12-15 15:12:22	transfer	1	\N	\N	\N
+\.
+
+
+--
+-- Data for Name: permissions; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.permissions (permission_id, permission_name) FROM stdin;
+31	members.view
+32	members.create
+33	members.edit
+34	members.delete
+35	subscriptions.view
+36	subscriptions.create
+37	subscriptions.edit
+38	subscriptions.delete
+39	payments.create
+40	activities.view
+41	activities.create
+42	activities.edit
+43	activities.delete
+44	plans.view
+45	plans.create
+46	plans.edit
+47	plans.delete
+48	schedule.view
+49	reservations.view
+50	reservations.create
+51	reservations.delete
+\.
+
+
+--
+-- Data for Name: pool_chemical_stock; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_chemical_stock (chemical_id, name, type, quantity_available, unit, minimum_threshold, last_updated, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_water_tests; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_water_tests (id, test_date, technician_id, pool_id, ph, chlorine_free, chlorine_total, bromine, alkalinity, hardness, salinity, turbidity, temperature, orp, comments, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_chemical_usage; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_chemical_usage (usage_id, chemical_id, technician_id, quantity_used, usage_date, purpose, related_test_id, comments, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: task_templates; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.task_templates (id, name, type, items, is_active, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_daily_tasks; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_daily_tasks (task_id, technician_id, pool_id, task_date, pump_status, pressure_reading, skimmer_cleaned, vacuum_done, drains_checked, lighting_checked, anomalies_comment, created_at, updated_at, debris_removed, drain_covers_inspected, clarity_test_passed, custom_data, template_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_equipment; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_equipment (equipment_id, name, type, serial_number, location, install_date, status, last_maintenance_date, next_due_date, notes, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_equipment_maintenance; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_equipment_maintenance (maintenance_id, equipment_id, technician_id, task_type, status, scheduled_date, completed_date, description, used_parts, working_hours_spent, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_incidents; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_incidents (incident_id, title, description, severity, equipment_id, pool_id, created_by, assigned_to, status, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_monthly_tasks; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_monthly_tasks (monthly_task_id, facility_id, technician_id, water_replacement_partial, full_system_inspection, chemical_dosing_calibration, notes, completed_at, custom_data, template_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pool_weekly_tasks; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.pool_weekly_tasks (id, technician_id, pool_id, week_number, year, backwash_done, filter_cleaned, brushing_done, heater_checked, chemical_doser_checked, general_inspection_comment, created_at, updated_at, fittings_retightened, heater_tested, custom_data, template_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: products; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.products (id, category_id, name, description, price, purchase_price, stock_quantity, alert_threshold, image_path, created_at, updated_at) FROM stdin;
+1	1	zz	zz	15.00	10.00	1	5	\N	2025-12-07 15:07:41	2025-12-09 14:27:10
+2	1	local server	cc	150.00	100.00	6	5	\N	2025-12-09 13:18:27	2025-12-09 14:27:10
+\.
+
+
+--
+-- Data for Name: product_images; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.product_images (id, product_id, image_path, is_primary, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reservations; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.reservations (reservation_id, slot_id, member_id, partner_group_id, reservation_type, reserved_at, status, notes, created_at, updated_at) FROM stdin;
+1	34	1	\N	member_private	2025-12-09 15:55:40	confirmed	\N	\N	\N
+\.
+
+
+--
+-- Data for Name: rfid_devices; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.rfid_devices (id, device_id, name, ip_address, version, status, last_heartbeat, created_at, updated_at) FROM stdin;
+1	41d116c0-49f9-4df6-96da-97cb8c77e837	\N	\N	1.0.0	online	2025-12-16 18:18:34	\N	2025-12-16 18:18:34
+\.
+
+
+--
+-- Data for Name: role_permissions; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.role_permissions (id, role_id, permission_id) FROM stdin;
+3	1	31
+4	6	31
+5	6	32
+6	6	33
+7	6	34
+8	6	35
+9	6	36
+10	6	37
+11	6	38
+12	6	39
+13	1	32
+14	1	33
+15	1	34
+16	1	35
+17	1	36
+18	1	37
+19	1	38
+20	1	39
+21	6	40
+22	6	41
+23	6	42
+24	6	43
+25	6	44
+26	6	45
+27	6	46
+28	6	47
+29	6	48
+30	6	49
+31	6	50
+32	6	51
+33	1	40
+34	1	41
+35	1	42
+36	1	43
+37	1	44
+38	1	45
+39	1	46
+40	1	47
+41	1	48
+42	1	49
+43	1	50
+44	1	51
+\.
+
+
+--
+-- Data for Name: sales; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.sales (id, staff_id, member_id, total_amount, payment_method, created_at, updated_at) FROM stdin;
+1	1	\N	15.00	cash	2025-12-07 15:08:04	2025-12-07 15:08:04
+2	1	\N	45.00	cash	2025-12-09 13:07:26	2025-12-09 13:07:26
+3	1	\N	165.00	cash	2025-12-09 13:21:39	2025-12-09 13:21:39
+4	1	\N	165.00	cash	2025-12-09 13:28:51	2025-12-09 13:28:51
+5	1	\N	165.00	cash	2025-12-09 13:35:27	2025-12-09 13:35:27
+6	1	1	165.00	cash	2025-12-09 13:40:47	2025-12-09 13:40:47
+7	1	\N	315.00	cash	2025-12-09 14:27:10	2025-12-09 14:27:10
+\.
+
+
+--
+-- Data for Name: sale_items; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.sale_items (id, sale_id, product_id, quantity, unit_price, subtotal, created_at, updated_at) FROM stdin;
+1	1	1	1	15.00	15.00	2025-12-07 15:08:04	2025-12-07 15:08:04
+2	2	1	3	15.00	45.00	2025-12-09 13:07:26	2025-12-09 13:07:26
+3	3	2	1	150.00	150.00	2025-12-09 13:21:39	2025-12-09 13:21:39
+4	3	1	1	15.00	15.00	2025-12-09 13:21:39	2025-12-09 13:21:39
+5	4	2	1	150.00	150.00	2025-12-09 13:28:51	2025-12-09 13:28:51
+6	4	1	1	15.00	15.00	2025-12-09 13:28:51	2025-12-09 13:28:51
+7	5	1	1	15.00	15.00	2025-12-09 13:35:27	2025-12-09 13:35:27
+8	5	2	1	150.00	150.00	2025-12-09 13:35:27	2025-12-09 13:35:27
+9	6	2	1	150.00	150.00	2025-12-09 13:40:47	2025-12-09 13:40:47
+10	6	1	1	15.00	15.00	2025-12-09 13:40:47	2025-12-09 13:40:47
+11	7	1	1	15.00	15.00	2025-12-09 14:27:10	2025-12-09 14:27:10
+12	7	2	2	150.00	300.00	2025-12-09 14:27:10	2025-12-09 14:27:10
+\.
+
+
+--
+-- Data for Name: sessions; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.sessions (id, user_id, ip_address, user_agent, payload, last_activity) FROM stdin;
+k0nNlHcWjUQozUboF5mqLnvpkDMR2HtPOvfwLxNr	1	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36	YTo1OntzOjY6Il90b2tlbiI7czo0MDoicFU0a3BySFB0dThGWFh5QXA3V2ZWYWZmOUs3a2pEYTAxWW5kQWYzciI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0MjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FkbWluL3BhcnRuZXItZ3JvdXBzIjt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9wYXJ0bmVyLWdyb3VwcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==	1766247377
+4OJMW8AQrzvWCt4jrWZ1brrsXoYmDcdSnrpb0TN4	1	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36	YTo1OntzOjY6Il90b2tlbiI7czo0MDoiSHlYeEtha2JQcU9KdDZndTZJSUNLSm5PaURScWZwWDk1UXRzUlNoRCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwIjt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9saWNlbnNlIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTt9	1769079707
+QcDii7hJj0S2wjuyVOfRKAtRugmCNnzUK0kXo4w4	1	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36	YTo1OntzOjY6Il90b2tlbiI7czo0MDoidVVtNmxMcVBUcEJjUG5haUhjYk9FS0Fmc1hIRW9WS1pqb1RCSUZtUSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwIjt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9iYWNrdXBzP2JhY2t1cF9zdWNjZXNzPTEiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=	1771410604
+wsifcnCPSOvgcXOwJ3qDaf0oECY4pz96GvyKvmsJ	\N	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36	YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUWFTTE9uM3pKdDl4aTdBSEtMT1ltZkFUMzdUZ2pOUk5CZTQ3N1FPMCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozNjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FkbWluL3NjaGVkdWxlIjt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=	1771422463
+kGrOqZggTcEOFO9Esa5wtkqaHFL9FLIEbu7ZTbNC	1	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36	YTo1OntzOjY6Il90b2tlbiI7czo0MDoic1dmb1lPVEhyNU02aTdhb3hxWHhCaHRaMzRLSkh0Mk51OHJIZm9LMCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwIjt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9iYWNrdXBzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTt9	1774279608
+\.
+
+
+--
+-- Data for Name: settings; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.settings (id, key, value, description, created_at, updated_at) FROM stdin;
+1	attendance.night_start	21:00	Heure de début des heures de nuit	2025-12-10 12:14:08	2025-12-10 12:14:08
+2	attendance.night_end	06:00	Heure de fin des heures de nuit	2025-12-10 12:14:08	2025-12-10 12:14:08
+3	attendance.overtime_threshold	8	Seuil heures supplémentaires	2025-12-10 12:14:08	2025-12-10 12:14:08
+\.
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.users (id, name, email, email_verified_at, password, remember_token, created_at, updated_at, role_id) FROM stdin;
+1	Admin	admin@pool.com	\N	$2y$12$RIWEwH8le.mgOeNnsQbeiufakiD0B0zhMqQv9WVnTwltUOid4a61S	\N	2025-12-10 12:31:16	2025-12-10 12:31:16	\N
+\.
+
+
+--
+-- Data for Name: staff_attendance; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.staff_attendance (attendance_id, staff_id, check_in, check_out, date, status, delay_minutes, working_hours, check_in_method, notes, created_at, updated_at, overtime_hours, night_hours, break_minutes, validation_status, validation_date, validated_by, justification, correction_reason, admin_comments) FROM stdin;
+1	2	2025-12-10 10:49:37	2025-12-10 10:50:27	2025-12-10	present	0	0.01	rfid	\N	2025-12-10 10:49:37	2025-12-10 12:31:41	0.00	0.00	0	validated	2025-12-10 12:31:41	1	\N	\N	\N
+2	2	2025-12-10 10:50:39	2025-12-10 10:51:49	2025-12-10	present	0	0.02	rfid	\N	2025-12-10 10:50:39	2025-12-10 12:31:50	0.00	0.00	0	validated	2025-12-10 12:31:50	1	\N	\N	\N
+\.
+
+
+--
+-- Data for Name: staff_leaves; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.staff_leaves (id, staff_id, start_date, end_date, type, status, reason, created_at, updated_at) FROM stdin;
+2	1	2025-12-08	2025-12-08	sick	approved	\N	2025-12-08 14:43:00	2025-12-08 14:43:28
+3	3	2025-12-09	2025-12-09	absence	pending	\N	2025-12-09 08:25:36	2025-12-09 08:25:36
+5	3	2025-12-10	2025-12-10	absence	pending	\N	2025-12-09 14:36:52	2025-12-09 14:36:52
+\.
+
+
+--
+-- Data for Name: staff_schedules; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.staff_schedules (id, staff_id, date, start_time, end_time, type, notes, created_at, updated_at) FROM stdin;
+1	2	2025-12-11	10:00:00	12:30:00	work	\N	2025-12-09 11:35:56	2025-12-09 14:34:04
+\.
+
+
+--
+-- Data for Name: subscription_allowed_days; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.subscription_allowed_days (id, subscription_id, weekday_id) FROM stdin;
+16	6	1
+\.
+
+
+--
+-- Data for Name: subscription_slots; Type: TABLE DATA; Schema: pool_schema; Owner: pooladmin
+--
+
+COPY pool_schema.subscription_slots (subscription_slot_id, subscription_id, slot_id, created_at, updated_at) FROM stdin;
+5	5	7	2025-12-07 16:05:52	\N
+24	6	8	2025-12-15 15:12:24	\N
+\.
+
+
+--
+-- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: pooladmin
+--
+
+COPY public.categories (id, name, type, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: pooladmin
+--
+
+COPY public.products (id, category_id, name, description, price, stock_quantity, alert_threshold, image_path, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: sales; Type: TABLE DATA; Schema: public; Owner: pooladmin
+--
+
+COPY public.sales (id, staff_id, member_id, total_amount, payment_method, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Name: access_badges_badge_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.access_badges_badge_id_seq', 243, true);
+
+
+--
+-- Name: access_logs_log_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.access_logs_log_id_seq', 149, true);
+
+
+--
+-- Name: activities_activity_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.activities_activity_id_seq', 60, true);
+
+
+--
+-- Name: activity_plan_prices_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.activity_plan_prices_id_seq', 109, true);
+
+
+--
+-- Name: audit_log_log_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.audit_log_log_id_seq', 61, true);
+
+
+--
+-- Name: backup_jobs_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.backup_jobs_id_seq', 18, true);
+
+
+--
+-- Name: backup_settings_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.backup_settings_id_seq', 2, true);
+
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.categories_id_seq', 4, true);
+
+
+--
+-- Name: coach_time_slot_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.coach_time_slot_id_seq', 1, false);
+
+
+--
+-- Name: expenses_expense_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.expenses_expense_id_seq', 2, true);
+
+
+--
+-- Name: facilities_facility_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.facilities_facility_id_seq', 1, false);
+
+
+--
+-- Name: failed_jobs_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.failed_jobs_id_seq', 1, false);
+
+
+--
+-- Name: jobs_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.jobs_id_seq', 1, false);
+
+
+--
+-- Name: members_member_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.members_member_id_seq', 55, true);
+
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.migrations_id_seq', 48, true);
+
+
+--
+-- Name: partner_contracts_contract_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.partner_contracts_contract_id_seq', 21, true);
+
+
+--
+-- Name: partner_group_attendance_attendance_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.partner_group_attendance_attendance_id_seq', 15, true);
+
+
+--
+-- Name: partner_group_slots_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.partner_group_slots_id_seq', 6, true);
+
+
+--
+-- Name: partner_groups_group_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.partner_groups_group_id_seq', 30, true);
+
+
+--
+-- Name: payments_payment_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.payments_payment_id_seq', 33, true);
+
+
+--
+-- Name: permissions_permission_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.permissions_permission_id_seq', 51, true);
+
+
+--
+-- Name: plans_plan_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.plans_plan_id_seq', 58, true);
+
+
+--
+-- Name: pool_chemical_stock_chemical_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_chemical_stock_chemical_id_seq', 1, false);
+
+
+--
+-- Name: pool_chemical_usage_usage_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_chemical_usage_usage_id_seq', 1, false);
+
+
+--
+-- Name: pool_daily_tasks_task_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_daily_tasks_task_id_seq', 1, false);
+
+
+--
+-- Name: pool_equipment_equipment_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_equipment_equipment_id_seq', 1, false);
+
+
+--
+-- Name: pool_equipment_maintenance_maintenance_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_equipment_maintenance_maintenance_id_seq', 1, false);
+
+
+--
+-- Name: pool_incidents_incident_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_incidents_incident_id_seq', 1, false);
+
+
+--
+-- Name: pool_monthly_tasks_monthly_task_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_monthly_tasks_monthly_task_id_seq', 1, false);
+
+
+--
+-- Name: pool_water_tests_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_water_tests_id_seq', 1, false);
+
+
+--
+-- Name: pool_weekly_tasks_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.pool_weekly_tasks_id_seq', 1, false);
+
+
+--
+-- Name: product_images_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.product_images_id_seq', 1, false);
+
+
+--
+-- Name: products_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.products_id_seq', 5, true);
+
+
+--
+-- Name: reservations_reservation_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.reservations_reservation_id_seq', 2, true);
+
+
+--
+-- Name: rfid_devices_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.rfid_devices_id_seq', 1, true);
+
+
+--
+-- Name: role_permissions_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.role_permissions_id_seq', 44, true);
+
+
+--
+-- Name: roles_role_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.roles_role_id_seq', 18, true);
+
+
+--
+-- Name: sale_items_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.sale_items_id_seq', 13, true);
+
+
+--
+-- Name: sales_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.sales_id_seq', 8, true);
+
+
+--
+-- Name: settings_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.settings_id_seq', 3, true);
+
+
+--
+-- Name: staff_attendance_attendance_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.staff_attendance_attendance_id_seq', 2, true);
+
+
+--
+-- Name: staff_leaves_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.staff_leaves_id_seq', 5, true);
+
+
+--
+-- Name: staff_schedules_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.staff_schedules_id_seq', 1, true);
+
+
+--
+-- Name: staff_staff_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.staff_staff_id_seq', 54, true);
+
+
+--
+-- Name: subscription_allowed_days_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.subscription_allowed_days_id_seq', 16, true);
+
+
+--
+-- Name: subscription_slots_subscription_slot_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.subscription_slots_subscription_slot_id_seq', 24, true);
+
+
+--
+-- Name: subscriptions_subscription_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.subscriptions_subscription_id_seq', 64, true);
+
+
+--
+-- Name: task_templates_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.task_templates_id_seq', 1, false);
+
+
+--
+-- Name: time_slots_slot_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.time_slots_slot_id_seq', 73, true);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.users_id_seq', 45, true);
+
+
+--
+-- Name: weekdays_weekday_id_seq; Type: SEQUENCE SET; Schema: pool_schema; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('pool_schema.weekdays_weekday_id_seq', 1, false);
+
+
+--
+-- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('public.categories_id_seq', 1, false);
+
+
+--
+-- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('public.products_id_seq', 1, false);
+
+
+--
+-- Name: sales_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pooladmin
+--
+
+SELECT pg_catalog.setval('public.sales_id_seq', 1, false);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict mafR3yqkcg3lDclNz6ILCGHmaIjKY3LjQ0GeUtJWmvoH8RJBJY0SDYSgXOY1Dia
+
