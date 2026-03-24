@@ -76,7 +76,7 @@ class ActivityPlanPriceController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'activity_id' => 'required|exists:activities,activity_id',
+            'activity_id' => 'required|exists:pactivities,activity_id',
             'plan_id' => 'required|exists:plans,plan_id',
             'price' => 'required|numeric|min:0',
         ]);

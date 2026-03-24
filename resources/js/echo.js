@@ -1,7 +1,5 @@
 import Echo from 'laravel-echo';
 
-import Echo from 'laravel-echo';
-
 // Pusher loaded globally via script tag to avoid build error
 // window.Pusher = Pusher;
 
