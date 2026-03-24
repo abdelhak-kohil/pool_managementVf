@@ -1,7 +1,8 @@
 import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
 // Pusher loaded globally via script tag to avoid build error
-// window.Pusher = Pusher;
+ window.Pusher = Pusher;
 
 window.Echo = new Echo({
     broadcaster: 'reverb',
