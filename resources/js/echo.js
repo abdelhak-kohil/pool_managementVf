@@ -1,4 +1,4 @@
-import Echo from 'laravel-echo';
+//import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
 // Pusher loaded globally via script tag to avoid build error
