@@ -19,7 +19,8 @@ class CreateSubscriptionAction
 
     public function execute(SubscriptionData $data): int
     {
-        return DB::transaction(function () use ($data) {
+        try {
+            return DB::transaction(function () use ($data) {
             // 1. Fetch Plan & Activity details
             $plan = DB::table('pool_schema.plans')->where('plan_id', $data->plan_id)->first();
             if (!$plan) {
@@ -99,6 +100,10 @@ class CreateSubscriptionAction
 
             return $subscriptionId;
         });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('CreateSubscriptionAction Error: ' . $e->getMessage() . ' | Line: ' . $e->getLine() . ' | File: ' . $e->getFile());
+            throw $e;
+        }
     }
 
     private function validatePlanRules($plan, SubscriptionData $data): void
