@@ -140,10 +140,12 @@ class CreateSubscriptionAction
 
         $seenDays = [];
         foreach ($slots as $s) {
-            if (in_array($s->day_name, $seenDays)) {
-                throw ValidationException::withMessages(['slot_ids' => "Vous ne pouvez pas sélectionner plusieurs créneaux pour un même jour ({$s->day_name})."]);
+            if (in_array($s->weekday_id, $seenDays)) {
+                // Determine day name for error message based on ID if we want to be fancy.
+                // 1=Lundi, 2=Mardi... but for simplicity:
+                throw ValidationException::withMessages(['slot_ids' => "Vous ne pouvez pas sélectionner plusieurs créneaux pour le même jour (Jour {$s->weekday_id})."]);
             }
-            $seenDays[] = $s->day_name;
+            $seenDays[] = $s->weekday_id;
 
             if ($s->is_blocked) {
                 throw ValidationException::withMessages(['slot_ids' => "Le créneau {$s->slot_id} est bloqué."]);
