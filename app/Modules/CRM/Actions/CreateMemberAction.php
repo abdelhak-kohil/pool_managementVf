@@ -17,8 +17,9 @@ class CreateMemberAction
 
     public function execute(MemberData $memberData, SubscriptionData $subscriptionData, ?int $staffId): int
     {
-        return DB::transaction(function () use ($memberData, $subscriptionData, $staffId) {
-            // 1. Handle Photo Upload
+        try {
+            return DB::transaction(function () use ($memberData, $subscriptionData, $staffId) {
+                // 1. Handle Photo Upload
             $photoPath = null;
             if ($memberData->photo && $memberData->photo instanceof \Illuminate\Http\UploadedFile) {
                 $photoPath = $memberData->photo->store('members/photos', 'public');
@@ -67,5 +68,9 @@ class CreateMemberAction
 
             return $memberId;
         });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('CreateMemberAction Error: ' . $e->getMessage() . ' | Line: ' . $e->getLine() . ' | File: ' . $e->getFile());
+            throw $e;
+        }
     }
 }
