@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class='grid grid-cols-2 lg:grid-cols-3 gap-2'>
                         ${daySlots.map(s => `
                             <label class='cursor-pointer relative overflow-hidden group'>
-                                <input type='checkbox' name='slot_ids[]' value='${s.slot_id}' class='slot-checkbox peer sr-only'>
+                                <input type='checkbox' name='slot_ids[]' value='${s.slot_id}' data-day='${day}' class='slot-checkbox peer sr-only'>
                                 <div class='border border-gray-200 rounded-lg p-2 text-center transition-all peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:border-blue-300'>
                                     <div class='text-sm font-bold'>${s.start_time.slice(0,5)}</div>
                                     <div class='text-[10px] text-gray-500 peer-checked:text-blue-200'>à ${s.end_time.slice(0,5)}</div>
@@ -380,12 +380,15 @@ document.addEventListener('DOMContentLoaded', () => {
             html += "</div>";
             slotContainer.innerHTML = html;
 
-            // Slot Limit Logic
+            // Slot Validation Logic
             document.querySelectorAll('.slot-checkbox').forEach(cb => {
-                cb.addEventListener('change', () => {
-                    const checkedCount = document.querySelectorAll('.slot-checkbox:checked').length;
-                    if (checkedCount > requiredSlots) {
-                        cb.checked = false;
+                cb.addEventListener('change', function() {
+                    if (!this.checked) return;
+
+                    const checkedBoxes = Array.from(document.querySelectorAll('.slot-checkbox:checked'));
+                    
+                    if (checkedBoxes.length > requiredSlots) {
+                        this.checked = false;
                         Swal.fire({
                             toast: true,
                             position: 'top-end',
@@ -393,6 +396,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             title: `Maximum ${requiredSlots} créneaux`,
                             showConfirmButton: false,
                             timer: 2000
+                        });
+                        return;
+                    }
+                    
+                    const myDay = this.dataset.day;
+                    const sameDayChecked = checkedBoxes.filter(box => box.dataset.day === myDay);
+                    if (sameDayChecked.length > 1) {
+                        this.checked = false;
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'warning',
+                            title: `Limite journalière`,
+                            text: `Un seul créneau permis par jour (${myDay}).`,
+                            showConfirmButton: false,
+                            timer: 3000
                         });
                     }
                 });

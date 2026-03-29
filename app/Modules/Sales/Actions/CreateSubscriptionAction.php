@@ -138,7 +138,13 @@ class CreateSubscriptionAction
             throw ValidationException::withMessages(['slot_ids' => 'Un ou plusieurs créneaux sélectionnés sont introuvables.']);
         }
 
+        $seenDays = [];
         foreach ($slots as $s) {
+            if (in_array($s->day_name, $seenDays)) {
+                throw ValidationException::withMessages(['slot_ids' => "Vous ne pouvez pas sélectionner plusieurs créneaux pour un même jour ({$s->day_name})."]);
+            }
+            $seenDays[] = $s->day_name;
+
             if ($s->is_blocked) {
                 throw ValidationException::withMessages(['slot_ids' => "Le créneau {$s->slot_id} est bloqué."]);
             }

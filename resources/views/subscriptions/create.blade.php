@@ -481,7 +481,7 @@ loadSlots = async function() {
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 ${daySlots.map(slot => `
                 <label class="relative cursor-pointer border rounded-xl p-3 flex flex-col items-center justify-center transition-all duration-200 hover:shadow-md hover:border-blue-300 bg-white group select-none">
-                    <input type="checkbox" name="slot_ids[]" value="${slot.slot_id}" class="slot-checkbox hidden peer">
+                    <input type="checkbox" name="slot_ids[]" value="${slot.slot_id}" data-day="${day}" class="slot-checkbox hidden peer">
                     
                     <!-- Checkmark Icon (Top Right) -->
                     <div class="absolute top-2 right-2 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity">
@@ -519,16 +519,38 @@ loadSlots = async function() {
         // Initial state check (if reloaded or pre-filled)
         updateState();
 
-        cb.addEventListener('change', () => {
-            const checkedCount = document.querySelectorAll('.slot-checkbox:checked').length;
+        cb.addEventListener('change', function() {
+            if (!this.checked) {
+                updateState();
+                return;
+            }
+
+            const checkedBoxes = Array.from(document.querySelectorAll('.slot-checkbox:checked'));
             
-            if (checkedCount > requiredSlots) {
-                cb.checked = false;
+            // Limit checks
+            if (checkedBoxes.length > requiredSlots) {
+                this.checked = false;
                 Swal.fire({
                     icon: 'warning',
                     title: 'Limite atteinte',
                     text: `Vous devez choisir exactement ${requiredSlots} créneau(x).`,
                     timer: 2000,
+                    showConfirmButton: false
+                });
+                updateState();
+                return;
+            }
+
+            // Same day validation
+            const myDay = this.dataset.day;
+            const sameDayChecked = checkedBoxes.filter(box => box.dataset.day === myDay);
+            if (sameDayChecked.length > 1) {
+                this.checked = false;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Limite journalière',
+                    text: `Un seul créneau permis par jour (${myDay}).`,
+                    timer: 3000,
                     showConfirmButton: false
                 });
             }

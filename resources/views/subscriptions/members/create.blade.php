@@ -285,7 +285,7 @@ async function loadSlots() {
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               ${daySlots.map(slot => `
               <label class="relative cursor-pointer border rounded-xl p-3 flex flex-col items-center justify-center transition-all duration-200 hover:shadow-md hover:border-blue-300 bg-white group select-none">
-                  <input type="checkbox" name="slot_ids[]" value="${slot.slot_id}" class="slot-checkbox hidden peer">
+                  <input type="checkbox" name="slot_ids[]" value="${slot.slot_id}" data-day="${day}" class="slot-checkbox hidden peer">
                   
                   <div class="absolute top-2 right-2 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity">
                       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -316,15 +316,38 @@ async function loadSlots() {
           }
       };
       updateState();
-      cb.addEventListener('change', () => {
-          const checkedCount = document.querySelectorAll('.slot-checkbox:checked').length;
-          if (checkedCount > requiredSlots) {
-              cb.checked = false;
+      cb.addEventListener('change', function() {
+          if (!this.checked) {
+              updateState();
+              return;
+          }
+          
+          const checkedBoxes = Array.from(document.querySelectorAll('.slot-checkbox:checked'));
+          
+          // Max limit logic
+          if (checkedBoxes.length > requiredSlots) {
+              this.checked = false;
               Swal.fire({
                   icon: 'warning',
                   title: 'Limite atteinte',
                   text: `Vous devez choisir exactement ${requiredSlots} créneau(x).`,
                   timer: 2000,
+                  showConfirmButton: false
+              });
+              updateState();
+              return;
+          }
+
+          // Duplicate day logic
+          const myDay = this.dataset.day;
+          const sameDayChecked = checkedBoxes.filter(box => box.dataset.day === myDay);
+          if (sameDayChecked.length > 1) {
+              this.checked = false;
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Limite journalière',
+                  text: `Un seul créneau permis par jour (${myDay}).`,
+                  timer: 3000,
                   showConfirmButton: false
               });
           }
