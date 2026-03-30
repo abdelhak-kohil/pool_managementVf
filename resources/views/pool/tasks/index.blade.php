@@ -65,14 +65,21 @@
                                         <span class="font-bold">Effectué par {{ $dailyTask->technician->name ?? 'Technicien' }}</span>
                                     </div>
                                     <div class="grid grid-cols-2 gap-2 text-sm text-green-800">
-                                        <span><span class="font-semibold">Skimmers:</span> {{ $dailyTask->skimmer_cleaned ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Fond:</span> {{ $dailyTask->vacuum_done ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Bondes:</span> {{ $dailyTask->drains_checked ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Éclairage:</span> {{ $dailyTask->lighting_checked ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Débris:</span> {{ $dailyTask->debris_removed ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Grilles:</span> {{ $dailyTask->drain_covers_inspected ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Clarté:</span> {{ $dailyTask->clarity_test_passed ? 'Oui' : 'Non' }}</span>
-                                        <span><span class="font-semibold">Pression:</span> {{ $dailyTask->pressure_reading ?? '-' }} bar</span>
+                                        @if($dailyTemplate && $dailyTask->custom_data)
+                                            @foreach($dailyTemplate->items as $item)
+                                                @php $val = $dailyTask->custom_data[$item['key']] ?? null; @endphp
+                                                <span>
+                                                    <span class="font-semibold">{{ $item['label'] }}:</span>
+                                                    @if($item['type'] === 'checkbox')
+                                                        {{ $val ? 'Oui' : 'Non' }}
+                                                    @else
+                                                        {{ $val ?: '-' }}
+                                                    @endif
+                                                </span>
+                                            @endforeach
+                                        @else
+                                            <span class="col-span-2 text-slate-500 italic">Affichage dynamique non disponible (données enregistrées...).</span>
+                                        @endif
                                     </div>
                                 </div>
                             @else
@@ -179,12 +186,21 @@
                                     <span class="font-medium">Validé par {{ $weeklyTask->technician->name ?? 'Technicien' }}</span>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 text-sm text-purple-800">
-                                    <span><span class="font-semibold">Backwash:</span> {{ $weeklyTask->backwash_done ? 'Oui' : 'Non' }}</span>
-                                    <span><span class="font-semibold">Préfiltre:</span> {{ $weeklyTask->filter_cleaned ? 'Oui' : 'Non' }}</span>
-                                    <span><span class="font-semibold">Brossage:</span> {{ $weeklyTask->brushing_done ? 'Oui' : 'Non' }}</span>
-                                    <span><span class="font-semibold">Raccords:</span> {{ $weeklyTask->fittings_retightened ? 'Oui' : 'Non' }}</span>
-                                    <span><span class="font-semibold">Chauffage:</span> {{ $weeklyTask->heater_tested ? 'Oui' : 'Non' }}</span>
-                                    <span><span class="font-semibold">Doseuse:</span> {{ $weeklyTask->chemical_doser_checked ? 'Oui' : 'Non' }}</span>
+                                    @if($weeklyTemplate && $weeklyTask->custom_data)
+                                        @foreach($weeklyTemplate->items as $item)
+                                            @php $val = $weeklyTask->custom_data[$item['key']] ?? null; @endphp
+                                            <span>
+                                                <span class="font-semibold">{{ $item['label'] }}:</span>
+                                                @if($item['type'] === 'checkbox')
+                                                    {{ $val ? 'Oui' : 'Non' }}
+                                                @else
+                                                    {{ $val ?: '-' }}
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    @else
+                                        <span class="col-span-2 text-slate-500 italic">Affichage dynamique non disponible.</span>
+                                    @endif
                                 </div>
                             </div>
                         @else
@@ -268,18 +284,23 @@
                                     <span class="font-medium">Validé par {{ $monthlyTask->technician->name ?? 'Technicien' }}</span>
                                 </div>
                                 <div class="space-y-1 text-sm text-orange-800">
-                                    <div class="flex justify-between">
-                                        <span>Remplacement Eau (Partiel):</span>
-                                        <span class="font-semibold">{{ $monthlyTask->water_replacement_partial ? 'Oui' : 'Non' }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span>Inspection Système Complet:</span>
-                                        <span class="font-semibold">{{ $monthlyTask->full_system_inspection ? 'Oui' : 'Non' }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span>Calibration Dosage Chimique:</span>
-                                        <span class="font-semibold">{{ $monthlyTask->chemical_dosing_calibration ? 'Oui' : 'Non' }}</span>
-                                    </div>
+                                    @if($monthlyTemplate && $monthlyTask->custom_data)
+                                        @foreach($monthlyTemplate->items as $item)
+                                            @php $val = $monthlyTask->custom_data[$item['key']] ?? null; @endphp
+                                            <div class="flex justify-between items-start gap-4">
+                                                <span>{{ $item['label'] }}:</span>
+                                                <span class="font-semibold text-right">
+                                                    @if($item['type'] === 'checkbox')
+                                                        {{ $val ? 'Oui' : 'Non' }}
+                                                    @else
+                                                        {{ $val ?: '-' }}
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <span class="text-slate-500 italic">Affichage dynamique non disponible.</span>
+                                    @endif
                                 </div>
                             </div>
                         @else
