@@ -207,6 +207,9 @@
 </form>
 
 <!-- === Scripts === -->
+<script id="members-data" type="application/json">
+  {!! json_encode($members) !!}
+</script>
 <script>
 let requiredSlots = 0;
 
@@ -564,7 +567,7 @@ loadSlots = async function() {
       isOpen: false,
       highlightedIndex: 0,
       selectedMember: null,
-      members: @json($members),
+      members: JSON.parse(document.getElementById('members-data').textContent || '[]'),
 
       get filteredMembers() {
         if (this.search === '') {
