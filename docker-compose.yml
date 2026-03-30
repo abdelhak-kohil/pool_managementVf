@@ -1,0 +1,92 @@
+services:
+  # ── PHP-FPM Application ──────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pool_app
+    working_dir: /var/www/html
+    volumes:
+      - storage_data:/var/www/html/storage
+      - app_public:/var/www/html/public
+      - ./.env:/var/www/html/.env
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.50'
+          memory: 512M
+    restart: always
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pool_network
+    sysctls:
+      net.core.somaxconn: 1024
+
+  # ── Nginx Web Server ─────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pool_nginx
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - app_public:/var/www/html/public:ro
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    depends_on:
+      - app
+    networks:
+      - pool_network
+
+  # ── PostgreSQL Database ──────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: pool_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-pool_project}
+      POSTGRES_USER: ${DB_USERNAME:-pool_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    deploy:
+      resources:
+        reservations:
+          memory: 1G
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME:-pool_user} -d ${DB_DATABASE:-pool_project}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pool_network
+
+volumes:
+  pgdata:
+    driver: local
+  storage_data:
+    driver: local
+  app_public:
+    driver: local
+
+networks:
+  pool_network:
+    driver: bridge

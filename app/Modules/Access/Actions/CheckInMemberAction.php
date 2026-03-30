@@ -24,7 +24,7 @@ class CheckInMemberAction
             ->whereDate('s.end_date', '>=', now())
             ->select('s.*', 'p.plan_type', 'p.plan_name', 'a.activity_id')
             ->first();
-
+        
         if (!$activeSub) {
             $this->logger->execute($member->member_id, null, $badgeUid, 'denied', 'Aucun abonnement actif ou valide', null, null, null);
             return AccessResult::denied("Aucun abonnement actif.", $member->first_name . ' ' . $member->last_name, 'Member', $member->photo_url, $member->member_id);

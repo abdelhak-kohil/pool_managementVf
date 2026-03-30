@@ -471,7 +471,7 @@ function memberSelector() {
       isOpen: false,
       highlightedIndex: 0,
       selectedMember: null,
-      members: @json($members),
+      members: <?php echo json_encode($members); ?>,
 
       get filteredMembers() {
         if (this.search === '') {

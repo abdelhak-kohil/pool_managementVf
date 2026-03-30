@@ -31,7 +31,9 @@ class MaintenanceController extends Controller
     public function create()
     {
         $equipment = PoolEquipment::all();
-        $technicians = Staff::all(); // Should filter by role ideally
+        $technicians = Staff::whereHas('role', function ($q) {
+            $q->whereIn('role_name', ['maintenance_manager', 'pool_technician']);
+        })->get();
         return view('pool.maintenance.create', compact('equipment', 'technicians'));
     }
 

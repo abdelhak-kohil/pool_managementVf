@@ -387,6 +387,9 @@ Route::middleware(['auth', 'pgaudit', 'module:operations'])->prefix('pool')->nam
 
     // Chemicals
     Route::get('chemicals', [App\Http\Controllers\Pool\ChemicalController::class, 'index'])->name('chemicals.index');
+    Route::post('chemicals', [App\Http\Controllers\Pool\ChemicalController::class, 'store'])->name('chemicals.store');
+    Route::put('chemicals/{chemical}', [App\Http\Controllers\Pool\ChemicalController::class, 'update'])->name('chemicals.update');
+    Route::delete('chemicals/{chemical}', [App\Http\Controllers\Pool\ChemicalController::class, 'destroy'])->name('chemicals.destroy');
     Route::post('chemicals/usage', [App\Http\Controllers\Pool\ChemicalController::class, 'storeUsage'])->name('chemicals.store-usage');
     Route::post('chemicals/{chemical}/stock', [App\Http\Controllers\Pool\ChemicalController::class, 'updateStock'])->name('chemicals.update-stock');
 

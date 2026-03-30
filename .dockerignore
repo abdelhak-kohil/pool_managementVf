@@ -1,0 +1,48 @@
+# Dependencies (will be installed in the container)
+node_modules
+vendor
+
+# Git
+.git
+.gitattributes
+.gitignore
+
+# IDE / Editor
+.idea
+.vscode
+.editorconfig
+
+# Environment
+.env
+
+# SQL dumps & backups
+*.sql
+*.dump
+*.csv
+*.pdf
+*.txt
+*.log
+
+# Tests
+tests
+.phpunit.result.cache
+phpunit.xml
+
+# Debug scripts
+debug_*.php
+check_*.php
+drop_tables.php
+inspect_staff.php
+verify_*.php
+
+# Windows client app
+windows_client_application
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Misc
+*.md
+lang/*.json.bak

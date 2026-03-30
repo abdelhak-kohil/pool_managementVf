@@ -48,7 +48,7 @@
                     <select name="technician_id" class="w-full rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500">
                         <option value="">-- Non assigné --</option>
                         @foreach($technicians as $tech)
-                            <option value="{{ $tech->staff_id }}">{{ $tech->name }}</option>
+                            <option value="{{ $tech->staff_id }}">{{ $tech->first_name }} {{ $tech->last_name }}</option>
                         @endforeach
                     </select>
                 </div>

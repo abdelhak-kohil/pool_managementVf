@@ -53,4 +53,43 @@ class ChemicalController extends Controller
 
         return back()->with('success', 'Stock updated.');
     }
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:50',
+            'unit' => 'required|string|max:20',
+            'minimum_threshold' => 'required|numeric|min:0',
+            'quantity_available' => 'required|numeric|min:0',
+        ]);
+
+        PoolChemical::create($data);
+
+        return back()->with('success', 'Produit chimique ajouté avec succès.');
+    }
+
+    public function update(Request $request, PoolChemical $chemical)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:50',
+            'unit' => 'required|string|max:20',
+            'minimum_threshold' => 'required|numeric|min:0',
+        ]);
+
+        $chemical->update($data);
+
+        return back()->with('success', 'Produit chimique mis à jour avec succès.');
+    }
+
+    public function destroy(PoolChemical $chemical)
+    {
+        if ($chemical->usages()->exists()) {
+            return back()->with('error', 'Impossible de supprimer ce produit car il possède un historique de consommation.');
+        }
+
+        $chemical->delete();
+
+        return back()->with('success', 'Produit chimique supprimé avec succès.');
+    }
 }

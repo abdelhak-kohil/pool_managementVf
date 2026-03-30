@@ -28,3 +28,6 @@ bin/
 obj/
 .vs/
 *.user
+
+*.tar
+*.dump

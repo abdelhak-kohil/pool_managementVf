@@ -51,7 +51,7 @@ class MemberController extends Controller
         try {
             $user = Auth::user();
             $staffId = $user->staff_id ?? $user->user_id ?? null;
-
+            
             // Prepare DTOs
             $memberData = \App\Modules\CRM\DTOs\MemberData::fromRequest($request);
             // Re-use Subscription DTO logic (passing null for member_id as it's generated inside action)
@@ -67,9 +67,7 @@ class MemberController extends Controller
                 ->route('members.index')
                 ->with('success', 'Membre et abonnement créés avec succès !');
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return back()->withInput()->withErrors($e->errors());
-        } catch (\Throwable $e) {
+        }  catch (\Throwable $e) {
             Log::error('Erreur création membre (store): '.$e->getMessage());
             return back()->withInput()->with('error', 'Erreur: ' . $e->getMessage());
         }
